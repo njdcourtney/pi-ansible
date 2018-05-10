@@ -1,0 +1,6 @@
+pi:
+  hosts:
+    pi3bplus:
+  vars:
+    admin_user: myuser
+    password: <myuser password hash>

@@ -4,3 +4,4 @@ pi:
   vars:
     admin_user: myuser
     password: <myuser password hash>
+    ssh_key: <SSH public key file>

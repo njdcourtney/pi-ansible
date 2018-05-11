@@ -1,0 +1,33 @@
+# Invocation
+# ansible-playbook -i hosts ./01-harden-pi.yml
+
+#In this playbook we'll apply some basic hardening.
+# 1. Delete the default pi user
+# 2. Install ufw, allow ssh and enable
+
+- name: Pi basic hardening
+  hosts: pi
+  remote_user: "{{ admin_user }}"
+  gather_facts: false
+  become: yes
+
+  tasks:
+    - name: Remove the default 'pi' user
+      user:
+        name: pi
+        state: absent
+        remove: yes
+    
+    - name: Update repositories cache and install ufw
+      apt:
+        name: ufw
+        state: present
+        update_cache: yes
+
+    - name: Configure ufw to be enabled and allow SSH
+      ufw:
+        state: enabled
+        rule: allow
+        name: OpenSSH
+
+

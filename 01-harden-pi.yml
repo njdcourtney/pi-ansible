@@ -3,7 +3,8 @@
 
 #In this playbook we'll apply some basic hardening.
 # 1. Delete the default pi user
-# 2. Install ufw, allow ssh and enable
+# 2. Update the software.
+# 3. Install ufw, allow ssh and enable
 
 - name: Pi basic hardening
   hosts: pi
@@ -18,11 +19,15 @@
         state: absent
         remove: yes
     
-    - name: Update repositories cache and install ufw
+    - name: Update software
+      apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Install ufw
       apt:
         name: ufw
         state: present
-        update_cache: yes
 
     - name: Configure ufw to be enabled and allow SSH
       ufw:

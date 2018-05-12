@@ -11,11 +11,11 @@
 
   tasks:
 
-    # - name: Update software
-    #   apt:
-    #     update_cache: yes
-    #     upgrade: yes
-    #     cache_valid_time: 3600
+    - name: Update software
+      apt:
+        update_cache: yes
+        upgrade: yes
+        cache_valid_time: 3600
 
     - name: Check if reboot is required
       stat: 
@@ -53,21 +53,4 @@
           timeout=120
       become: no
       listen: "server reboot"
-
-
-
-
-  #   - name: Reboot if required
-
-  #   - name: wait for reboot
-  #     local_action: 
-  #       module: wait_for
-  #         host="{{ inventory_hostname }}"
-  #         port=22
-  #         state=started
-  #         delay=20
-  #         timeout=120
-  #     become: no
-
-      
 

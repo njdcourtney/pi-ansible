@@ -19,10 +19,6 @@
         state: absent
         remove: yes
 
-    - name: Ensure the hostname is set correctly
-      hostname:
-        name: "{{ inventory_hostname }}"
-
     - name: Install ufw
       apt:
         name: ufw
@@ -33,5 +29,18 @@
         state: enabled
         rule: allow
         name: OpenSSH
+
+    - name: Disable SSH Password logins
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+      notify: restart ssh
+
+  handlers:
+    - name: restart ssh
+      service:
+        name: ssh
+        state: restarted
 
 

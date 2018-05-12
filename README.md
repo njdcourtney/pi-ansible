@@ -16,4 +16,6 @@ The playbooks are designed to be run in order.
 
 **00-new-admin-user.yml** adds a new admin user, this is designed to replace the default 'pi' user because everybody in the world knows that username exists.
 
-**01-harden-pi.yml** applies some basic hardening to the OS.
+**02-update-software.yml** Updates apt cache, upgrades all packages and reboots if required.
+
+**02-harden-pi.yml** applies some basic hardening to the OS.

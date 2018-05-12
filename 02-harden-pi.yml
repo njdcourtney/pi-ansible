@@ -4,7 +4,7 @@
 #In this playbook we'll apply some basic hardening.
 # 1. Delete the default pi user
 # 2. Ensure the hostname is set
-# 3. Install ufw, allow ssh and enable
+# 3 . Install ufw, allow ssh and enable
 
 - name: Pi basic hardening
   hosts: pi

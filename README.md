@@ -14,10 +14,13 @@ The easiest way to do this is to drop an 'ssh' file into the img directory befor
 
 The playbooks are designed to be run in order.
 
-**00-new-admin-user.yml** adds a new admin user, this is designed to replace the default 'pi' user because everybody in the world knows that username exists.
+**00-pi-first-boot.yml** adds a new admin user, this is designed to replace the default 'pi' user because everybody in the world knows that username exists.
 
-**01-update-software.yml** Updates apt cache, upgrades all packages and reboots if required.
+**01-pi-fileserver.yml** This calls a list of roles in order, to get the fileserver up and running.
 
-**02-basic-config.yml** Simple system settings like timezone and hostname.
+## Roles
 
-**03-harden-pi.yml** applies some basic hardening to the OS.
+Several roles are defined:
+
+**basic_config** This contains all the low level things that I do to every server. It sets the timezone and the hostname, enables UFW and disables passwords logins to SSH.
+

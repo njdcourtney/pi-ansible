@@ -1,7 +1,7 @@
 pi:
   hosts:
     pi3bplus:
+      admin_user: myuser
   vars:
-    admin_user: myuser
     password: <myuser password hash>
     ssh_key: <SSH public key file>

@@ -1,29 +1,35 @@
 - name: Remove the default 'pi' user
+  become: yes
   user:
     name: pi
     state: absent
     remove: yes
 
 - name: Ensure the hostname is set correctly
+  become: yes
   hostname:
     name: "{{ inventory_hostname }}"
 
 - name: Update Timezone to {{ timezone }}
+  become: yes
   timezone:
     name: "{{ timezone }}"
 
 - name: Install ufw
+  become: yes
   apt:
     name: ufw
     state: present
 
 - name: Configure ufw to be enabled and allow SSH
+  become: yes
   ufw:
     state: enabled
     rule: allow
     name: OpenSSH
 
 - name: Disable SSH Password logins
+  become: yes
   lineinfile:
     path: /etc/ssh/sshd_config
     regexp: '^#?PasswordAuthentication'

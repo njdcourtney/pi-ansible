@@ -1,0 +1,12 @@
+netatalk_version: 3.1.11
+netatalk_scr_dir: "/usr/local/src/netatalk/"
+netatalk_dir: "{{ netatalk_scr_dir }}netatalk-{{ netatalk_version }}/"
+netatalk_tarfile: "netatalk-{{ netatalk_version }}.tar.gz"
+netatalk_url: "https://downloads.sourceforge.net/project/netatalk/netatalk/{{ netatalk_version }}/{{ netatalk_tarfile }}"
+
+netatalk_config: |
+  [SharedMedia]
+    path = /home/{{ admin_user }}/netshare
+  [PiTimeMachine]
+    path = /home/{{ admin_user }}/timemachine
+    time machine = yes

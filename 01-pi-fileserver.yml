@@ -6,9 +6,9 @@
   hosts: pi
   remote_user: "{{ admin_user }}"
   gather_facts: false
-  become: yes
 
   roles:
-    - update_software
-    - basic_config
+    # - update_software
+    # - basic_config
+    - install_netatalk
 

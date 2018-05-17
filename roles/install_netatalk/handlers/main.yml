@@ -1,0 +1,8 @@
+- name: restart-avahi-and-netatalk
+  become: yes
+  service:
+    name: "{{ item }}"
+    state: restarted
+  with_items:
+    - avahi-daemon
+    - netatalk

@@ -1,0 +1,108 @@
+- name: Make source code directory
+  become: yes
+  file:
+    name: "{{ netatalk_scr_dir }}"
+    state: directory
+    owner: "{{ admin_user }}"
+
+- name: Check netatalk source is on disk
+  stat: 
+    path: "{{ netatalk_scr_dir }}{{ netatalk_tarfile }}"
+  register: netatalk_source
+
+- name: Download netatalk
+  get_url:
+    url: "{{ netatalk_url }}"
+    dest: "{{ netatalk_scr_dir }}"
+  when: netatalk_source.stat.exists == false
+
+- name: Extract netatalk source
+  unarchive:
+    src: "/{{ netatalk_scr_dir }}{{ netatalk_tarfile}}"
+    dest: "{{ netatalk_scr_dir }}"
+    creates: "{{ netatalk_dir }}"
+    remote_src: yes
+
+- name: Install dependencies
+  become: yes
+  apt:
+    name: "{{ item }}"
+    state: present    
+  with_items:
+    - build-essential
+    - libevent-dev
+    - libssl-dev
+    - libgcrypt-dev
+    - libkrb5-dev
+    - libpam0g-dev
+    - libwrap0-dev
+    - libdb-dev
+    - libtdb-dev
+    - libmariadbclient-dev
+    - avahi-daemon
+    - libavahi-client-dev
+    - libacl1-dev
+    - libldap2-dev
+    - libcrack2-dev
+    - systemtap-sdt-dev
+    - libdbus-1-dev
+    - libdbus-glib-1-dev
+    - libglib2.0-dev
+    - libio-socket-inet6-perl
+    - tracker
+    - libtracker-sparql-1.0-dev
+    - libtracker-miner-1.0-dev
+
+- name: Configure netatalk (slow)
+  command: ./configure --with-init-style=debian-systemd --without-libevent --without-tdb --with-cracklib --enable-krbV-uam --with-pam-confdir=/etc/pam.d --with-dbus-daemon=/usr/bin/dbus-daemon --with-dbus-sysconf-dir=/etc/dbus-1/system.d --with-tracker-pkgconfig-version=1.0
+  args:
+    chdir: "{{ netatalk_dir }}"
+    creates: "{{ netatalk_dir }}Makefile"
+
+- name: Compile netatalk (very slow)
+  command: make
+  args:
+    chdir: "{{ netatalk_dir }}"
+    creates: "{{ netatalk_dir }}etc/netatalk/netatalk"
+
+- name: Install netatalk
+  become: yes
+  command: make install
+  args:
+    chdir: "{{ netatalk_dir }}"
+    creates: "/usr/local/sbin/netatalk"
+
+- name: Placeholder - make directories to share
+  file:
+    name: "{{ item }}"
+    state: directory
+  with_items:
+    - /home/{{ admin_user }}/netshare
+    - /home/{{ admin_user }}/timemachine
+
+- name: Add afpd config
+  become: yes
+  blockinfile:
+    path: /usr/local/etc/afp.conf
+    marker: "; {mark} ANSIBLE MANAGED BLOCK"
+    block: "{{ netatalk_config }}"
+  notify: restart-avahi-and-netatalk
+
+- name: Ensure avahi and netatalk are enabled
+  become: yes
+  service:
+    name: "{{item}}"
+    enabled: yes
+    state: started
+  with_items:
+    - avahi-daemon
+    - netatalk
+
+- name: Open firewall ports
+  become: yes
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+  with_items:
+    - 548
+    - 5353

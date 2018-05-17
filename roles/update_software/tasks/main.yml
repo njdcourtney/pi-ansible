@@ -1,10 +1,12 @@
 #Run apt-get to update the cache
 - name: Update cache
+  become: yes
   apt:
     update_cache: yes
     cache_valid_time: 3600
 
 - name: Update software
+  become: yes
   apt:
     upgrade: yes
 
@@ -14,6 +16,7 @@
   register: reboot_file
 
 - name: Rebooting
+  become: yes
   shell: sleep 2 && shutdown -r now 'Reboot required'
   async: 1
   poll: 0

@@ -1,0 +1,21 @@
+#Run apt-get to update the cache
+- name: Update cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Update software
+  apt:
+    upgrade: yes
+
+- name: Check if reboot is required
+  stat: 
+    path: /var/run/reboot-required
+  register: reboot_file
+
+- name: Rebooting
+  shell: sleep 2 && shutdown -r now 'Reboot required'
+  async: 1
+  poll: 0
+  notify: "server reboot"
+  when: reboot_file.stat.exists

@@ -1,0 +1,24 @@
+  # Ensure that SSH has gone down before we wait for it to come back up again.
+  #  Avoids race condition if shutting down is delayed for any reason.
+  - name: Check server down
+    local_action: 
+      module: wait_for
+        host="{{ inventory_hostname }}"
+        port=22
+        state=stopped
+        timeout=300
+    become: no
+    listen: "server reboot"
+
+  # Wait for SSH to come back up
+  - name: Check server back up
+    local_action: 
+      module: wait_for
+        host="{{ inventory_hostname }}"
+        port=22
+        state=started
+        delay=20
+        timeout=120
+    become: no
+    listen: "server reboot"
+

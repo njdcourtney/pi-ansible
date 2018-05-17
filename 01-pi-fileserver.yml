@@ -1,7 +1,6 @@
 # Invocation
-# ansible-playbook -i hosts ./01-update-software.yml
+# ansible-playbook -i hosts ./01-pi-fileserver.yml
 
-# The OS image could be out of date, so update the software
 
 - name: Update Software to latest and reboot if required
   hosts: pi
@@ -9,51 +8,6 @@
   gather_facts: false
   become: yes
 
-  tasks:
-
-    - name: Update cache
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600
-
-    - name: Update software
-      apt:
-        upgrade: yes
-
-    - name: Check if reboot is required
-      stat: 
-        path: /var/run/reboot-required
-      register: reboot_file
-
-    - name: Rebooting
-      shell: sleep 2 && shutdown -r now 'Reboot required'
-      async: 1
-      poll: 0
-      notify: "server reboot"
-      when: reboot_file.stat.exists
-
-  handlers:
-    # Ensure that SSH has gone down before we wait for it to come
-    # back up again. Avoids race condition waiting for ssh
-    - name: Check server down
-      local_action: 
-        module: wait_for
-          host="{{ inventory_hostname }}"
-          port=22
-          state=stopped
-          timeout=300
-      become: no
-      listen: "server reboot"
-
-    # What for SSH to come back up
-    - name: Check server back up
-      local_action: 
-        module: wait_for
-          host="{{ inventory_hostname }}"
-          port=22
-          state=started
-          delay=20
-          timeout=120
-      become: no
-      listen: "server reboot"
+  roles:
+    - update_software
 

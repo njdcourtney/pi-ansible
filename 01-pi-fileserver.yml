@@ -2,13 +2,26 @@
 # ansible-playbook -i hosts ./01-pi-fileserver.yml
 
 
-- name: Configure Basic server settings
+- name: Configure File Server
   hosts: pi
   remote_user: "{{ admin_user }}"
   gather_facts: false
 
-  roles:
-    # - update_software
-    # - basic_config
-    - install_netatalk
+  tasks:
+  # - import_role:
+  #     name: update_software
 
+  # - import_role:
+  #     name: basic_config
+
+  - name: add to fstab
+    become: yes
+    mount: 
+      fstype: ext4
+      src: UUID=eaf0663d-5b79-4c7f-91f3-ddaed02c69ba
+      path: /mnt/usbdir 
+      state: mounted
+      opts: "defaults,relatime"
+
+  - import_role:
+      name: install_netatalk  

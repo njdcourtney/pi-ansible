@@ -2,13 +2,13 @@
 # ansible-playbook -i hosts ./01-pi-fileserver.yml
 
 
-- name: Update Software to latest and reboot if required
+- name: Configure Basic server settings
   hosts: pi
   remote_user: "{{ admin_user }}"
   gather_facts: false
   become: yes
 
   roles:
-#    - update_software
+    - update_software
     - basic_config
 

@@ -9,5 +9,6 @@
   become: yes
 
   roles:
-    - update_software
+#    - update_software
+    - basic_config
 

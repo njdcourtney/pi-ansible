@@ -26,32 +26,31 @@
 - name: Install dependencies
   become: yes
   apt:
-    name: "{{ item }}"
+    name:
+      - build-essential
+      - libevent-dev
+      - libssl-dev
+      - libgcrypt-dev
+      - libkrb5-dev
+      - libpam0g-dev
+      - libwrap0-dev
+      - libdb-dev
+      - libtdb-dev
+      - libmariadbclient-dev
+      - avahi-daemon
+      - libavahi-client-dev
+      - libacl1-dev
+      - libldap2-dev
+      - libcrack2-dev
+      - systemtap-sdt-dev
+      - libdbus-1-dev
+      - libdbus-glib-1-dev
+      - libglib2.0-dev
+      - libio-socket-inet6-perl
+      - tracker
+      - libtracker-sparql-1.0-dev
+      - libtracker-miner-1.0-dev    
     state: present    
-  with_items:
-    - build-essential
-    - libevent-dev
-    - libssl-dev
-    - libgcrypt-dev
-    - libkrb5-dev
-    - libpam0g-dev
-    - libwrap0-dev
-    - libdb-dev
-    - libtdb-dev
-    - libmariadbclient-dev
-    - avahi-daemon
-    - libavahi-client-dev
-    - libacl1-dev
-    - libldap2-dev
-    - libcrack2-dev
-    - systemtap-sdt-dev
-    - libdbus-1-dev
-    - libdbus-glib-1-dev
-    - libglib2.0-dev
-    - libio-socket-inet6-perl
-    - tracker
-    - libtracker-sparql-1.0-dev
-    - libtracker-miner-1.0-dev
 
 - name: Configure netatalk (slow)
   command: ./configure --with-init-style=debian-systemd --without-libevent --without-tdb --with-cracklib --enable-krbV-uam --with-pam-confdir=/etc/pam.d --with-dbus-daemon=/usr/bin/dbus-daemon --with-dbus-sysconf-dir=/etc/dbus-1/system.d --with-tracker-pkgconfig-version=1.0
@@ -72,21 +71,25 @@
     chdir: "{{ netatalk_dir }}"
     creates: "/usr/local/sbin/netatalk"
 
-- name: Placeholder - make directories to share
+- name: Make directories to share
+  become: yes
   file:
-    name: "{{ item }}"
+    name: "{{ item.path }}"
     state: directory
-  with_items:
-    - /home/{{ admin_user }}/netshare
-    - /home/{{ admin_user }}/timemachine
+    owner: "{{ item.owner }}"
+  with_items: "{{ netatalk_shares }}"
 
 - name: Add afpd config
   become: yes
   blockinfile:
     path: /usr/local/etc/afp.conf
-    marker: "; {mark} ANSIBLE MANAGED BLOCK"
-    block: "{{ netatalk_config }}"
+    marker: "; {mark} {{ item.share_name }} ANSIBLE MANAGED BLOCK"
+    block: |
+      [{{ item.share_name }}]
+        path = {{ item.path }}
+        {{ item.opts }}
   notify: restart-avahi-and-netatalk
+  with_items: "{{ netatalk_shares }}"
 
 - name: Ensure avahi and netatalk are enabled
   become: yes

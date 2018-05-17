@@ -3,10 +3,13 @@ netatalk_scr_dir: "/usr/local/src/netatalk/"
 netatalk_dir: "{{ netatalk_scr_dir }}netatalk-{{ netatalk_version }}/"
 netatalk_tarfile: "netatalk-{{ netatalk_version }}.tar.gz"
 netatalk_url: "https://downloads.sourceforge.net/project/netatalk/netatalk/{{ netatalk_version }}/{{ netatalk_tarfile }}"
-
-netatalk_config: |
-  [SharedMedia]
-    path = /home/{{ admin_user }}/netshare
-  [PiTimeMachine]
-    path = /home/{{ admin_user }}/timemachine
+netatalk_shares:
+ - path: /mnt/usbdir/SharedMedia
+   share_name: SharedMedia
+   owner: "{{ admin_user }}"
+   opts:
+ - path: /mnt/usbdir/TimeMachine
+   share_name: TimeMachine
+   owner: "{{ admin_user }}"
+   opts: |
     time machine = yes

@@ -9,7 +9,7 @@
 - name: Add a new admin user
   hosts: pi
   remote_user: nathan
-  gather_facts: false
+  gather_facts: true
   become: yes
 
   tasks:

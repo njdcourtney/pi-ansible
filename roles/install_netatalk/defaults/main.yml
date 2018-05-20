@@ -6,10 +6,10 @@ netatalk_url: "https://downloads.sourceforge.net/project/netatalk/netatalk/{{ ne
 netatalk_shares:
  - path: /mnt/usbdir/SharedMedia
    share_name: SharedMedia
-   owner: "{{ admin_user }}"
+   owner: "netshare"
    opts:
  - path: /mnt/usbdir/TimeMachine
    share_name: TimeMachine
-   owner: "{{ admin_user }}"
+   owner: "netshare"
    opts: |
     time machine = yes

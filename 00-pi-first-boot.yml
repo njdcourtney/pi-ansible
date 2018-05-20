@@ -35,3 +35,7 @@
         content: "{{ admin_user }} ALL=(ALL) NOPASSWD: ALL"
         dest: "/etc/sudoers.d/020_{{ admin_user }}-nopasswd"
         mode: 0440
+
+    - name: Display information on disks to set vars for following playbooks
+      debug:
+        var: hostvars[inventory_hostname]['ansible_device_links']

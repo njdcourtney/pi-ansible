@@ -1,0 +1,9 @@
+- name: add to fstab
+  become: yes
+  mount: 
+    fstype: "{{ item.type }}"
+    src: "UUID={{ item.uuid }}"
+    path: "{{ item.mount }}"
+    state: mounted
+    opts: "defaults,relatime"
+  with_items: "{{mount_disks}}"

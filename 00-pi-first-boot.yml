@@ -6,36 +6,13 @@
 
 # This is the one and only time that we'll use the default 'pi' user
 
-- name: Add a new admin user
+- name: Raspberry Pi first boot tasks
   hosts: pi
-  remote_user: nathan
+  remote_user: pi
   gather_facts: true
   become: yes
 
   tasks:
-    - name: Create non-pi user
-      user:
-        name: "{{ admin_user }}"
-        generate_ssh_key: yes
-        ssh_key_bits: 2048
-        ssh_key_file: .ssh/id_rsa
-        groups: adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,input,netdev,gpio,i2c,spi
-        append: yes
-        password: "{{ password }}"
-        shell: /bin/bash
-
-    - name: Set non-pi user authorized keys
-      authorized_key:
-        user: "{{ admin_user }}"
-        state: present
-        key: "{{ lookup('file', ssh_key) }}"
-
-    - name: Add sudoers entry to allow this user passwordless sudo
-      copy:
-        content: "{{ admin_user }} ALL=(ALL) NOPASSWD: ALL"
-        dest: "/etc/sudoers.d/020_{{ admin_user }}-nopasswd"
-        mode: 0440
-
     - name: Create additional users
       user:
         name: "{{ item.username }}"
@@ -44,7 +21,26 @@
         ssh_key_file: .ssh/id_rsa
         password: "{{ item.password }}"
         shell: /bin/bash
-      with_items: "{{ additional_users }}"
+      with_items: "{{ users }}"
+
+    - name: Add management station to user authorized keys
+      authorized_key:
+        user: "{{ item.username }}"
+        state: present
+        key: "{{ lookup('file', ssh_key) }}"
+      with_items: "{{ users }}"
+
+    - name: Add extra groups to admin user
+      user:
+        name: "{{ admin_user }}"
+        groups: adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,input,netdev,gpio,i2c,spi
+        append: yes
+
+    - name: Add sudoers entry to allow admin user passwordless sudo
+      copy:
+        content: "{{ admin_user }} ALL=(ALL) NOPASSWD: ALL"
+        dest: "/etc/sudoers.d/020_{{ admin_user }}-nopasswd"
+        mode: 0440
 
     - name: Display information on disks to set vars for following playbooks
       debug:

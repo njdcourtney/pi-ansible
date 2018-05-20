@@ -1,0 +1,42 @@
+- name: Add Resilio Sync Public Key
+  become: yes
+  apt_key:
+    url: https://linux-packages.resilio.com/resilio-sync/key.asc
+    state: present
+
+- name: Add Resilio Sync Repo
+  become: yes
+  apt_repository:
+    repo: deb [arch=armhf] http://linux-packages.resilio.com/resilio-sync/deb resilio-sync non-free
+    state: present
+    update_cache: yes
+
+- name: Install resilio-sync
+  become: yes
+  apt:
+    name: resilio-sync
+    state: present
+
+- name: Ensure that system sync is stopped
+  become: yes
+  systemd:
+    name: resilio-sync
+    state: stopped
+    enabled: no
+
+- name: Update config file to change user
+  become: yes
+  lineinfile:
+    path: /usr/lib/systemd/user/resilio-sync.service
+    regexp: '^WantedBy='
+    line: 'WantedBy=default.target'
+
+- name: Restart as chosen user
+  remote_user: "{{ resilio_sync_user }}"
+  systemd:
+    name: resilio-sync
+    state: started
+    enabled: yes
+    user: yes
+
+    

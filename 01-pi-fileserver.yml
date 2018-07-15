@@ -12,10 +12,27 @@
       name: update_software
 
   - import_role:
-      name: basic_config
+      name: basic_hardening
 
   - import_role:
       name: mount_disks
+
+  - name: Create fileserver user
+    become: yes
+    user:
+      name: "{{ fileshare_user }}"
+      generate_ssh_key: yes
+      ssh_key_bits: 2048
+      ssh_key_file: .ssh/id_rsa
+      password: "{{ admin_password }}"
+      shell: /bin/bash
+
+  - name: Add management station ssh key to admin user authorized keys
+    become: yes
+    authorized_key:
+      user: "{{ fileshare_user }}"
+      state: present
+      key: "{{ lookup('file', ssh_key) }}"
 
   - import_role:
       name: install_netatalk 

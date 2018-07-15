@@ -1,13 +1,9 @@
 #Run apt-get to update the cache
-- name: Update cache
+- name: Update software
   become: yes
   apt:
     update_cache: yes
     cache_valid_time: 3600
-
-- name: Update software
-  become: yes
-  apt:
     upgrade: yes
 
 - name: Check if reboot is required

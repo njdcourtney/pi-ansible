@@ -1,4 +1,0 @@
-mount_disks:
-  - uuid: bc7b9013-61a9-461f-945c-db0bb1211c5e
-    mount: /mnt/usbdir
-    type: ext4

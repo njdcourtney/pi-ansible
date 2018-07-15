@@ -1,4 +1,4 @@
-- name: Remove the default 'pi' user
+- name: Ensure the 'pi' user is absent
   become: yes
   user:
     name: pi

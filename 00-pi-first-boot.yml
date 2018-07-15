@@ -6,29 +6,26 @@
 
 # This is the one and only time that we'll use the default 'pi' user
 
-- name: Raspberry Pi first boot tasks
+- name: Add additional users to newly installed Pi
   hosts: pi
   remote_user: pi
-  gather_facts: true
   become: yes
 
   tasks:
-    - name: Create additional users
+    - name: Create admin user
       user:
-        name: "{{ item.username }}"
+        name: "{{ admin_user }}"
         generate_ssh_key: yes
         ssh_key_bits: 2048
         ssh_key_file: .ssh/id_rsa
-        password: "{{ item.password }}"
+        password: "{{ admin_password }}"
         shell: /bin/bash
-      with_items: "{{ users }}"
 
-    - name: Add management station to user authorized keys
+    - name: Add management station ssh key to admin user authorized keys
       authorized_key:
-        user: "{{ item.username }}"
+        user: "{{ admin_user }}"
         state: present
         key: "{{ lookup('file', ssh_key) }}"
-      with_items: "{{ users }}"
 
     - name: Add extra groups to admin user
       user:
@@ -42,6 +39,26 @@
         dest: "/etc/sudoers.d/020_{{ admin_user }}-nopasswd"
         mode: 0440
 
-    - name: Display information on disks to set vars for following playbooks
-      debug:
-        var: hostvars[inventory_hostname]['ansible_device_links']
+- name: Additional first boot tasks
+  hosts: pi
+  remote_user: "{{ admin_user }}"
+  become: yes
+  gather_facts: false
+
+  tasks:
+    - name: Remove the default 'pi' user
+      become: yes
+      user:
+        name: pi
+        state: absent
+        remove: yes
+
+    - name: Update software
+      apt:
+        upgrade: yes
+        update_cache: yes
+
+    - name: Reboot the pi
+      shell: sleep 2 && shutdown -r now 'Reboot required'
+      async: 1
+      poll: 0

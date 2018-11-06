@@ -15,7 +15,7 @@
   timezone:
     name: "{{ timezone }}"
 
-- name: Ensure UFW installed and present Install ufw
+- name: Ensure UFW installed and present
   become: yes
   apt:
     name: ufw

@@ -1,6 +1,5 @@
 # Invocation
-# ansible-playbook -i hosts ./01-pi-fileserver.yml
-
+# ansible-playbook 02-fileserver.yml
 
 - name: Configure File Server
   hosts: pi
@@ -21,12 +20,12 @@
       password: "{{ admin_password }}"
       shell: /bin/bash
 
-  - name: Add management station ssh key to admin user authorized keys
+  - name: Add management ssh keys to fileshare user authorized keys
     become: yes
     authorized_key:
       user: "{{ fileshare_user }}"
       state: present
-      key: "{{ lookup('file', ssh_key) }}"
+      key: "{{ admin_ssh_key }}"
 
   - import_role:
       name: install_netatalk 

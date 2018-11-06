@@ -1,6 +1,5 @@
 # Invocation
-# ansible-playbook -i hosts ./01-pi-fileserver.yml
-
+# ansible-playbook ./01-pi-fileserver.yml
 
 - name: Configure File Server
   hosts: pi

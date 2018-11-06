@@ -9,12 +9,6 @@
 
   tasks:
   - import_role:
-      name: update_software
-
-  - import_role:
-      name: basic_hardening
-
-  - import_role:
       name: mount_disks
 
   - name: Create fileserver user

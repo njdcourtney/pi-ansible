@@ -10,12 +10,12 @@
   hostname:
     name: "{{ inventory_hostname }}"
 
-- name: Update Timezone to {{ timezone }}
+- name: Ensure Timezone to {{ timezone }}
   become: yes
   timezone:
     name: "{{ timezone }}"
 
-- name: Install ufw
+- name: Ensure UFW installed and present Install ufw
   become: yes
   apt:
     name: ufw

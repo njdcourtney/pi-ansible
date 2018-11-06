@@ -1,0 +1,14 @@
+# Invocation
+# ansible-playbook -i hosts ./01-pi-fileserver.yml
+
+
+- name: Configure File Server
+  hosts: pi
+  remote_user: "{{ admin_user }}"
+  gather_facts: false
+
+  tasks:
+  - import_role:
+      name: update_software
+  - import_role:
+      name: basic_hardening

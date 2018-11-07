@@ -2,7 +2,7 @@
 # ansible-playbook 02-fileserver.yml
 
 - name: Configure File Server
-  hosts: pi
+  hosts: fileservers
   remote_user: "{{ admin_user }}"
   gather_facts: false
 

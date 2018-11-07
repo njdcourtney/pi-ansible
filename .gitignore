@@ -1,0 +1,11 @@
+#Ignore the Rasbian images directory
+img
+
+#Ignore the hostvars
+host_vars/*
+
+#Ignore vault files
+vault.yml
+
+#Ignore system DS_Store
+.DS_Store

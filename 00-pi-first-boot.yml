@@ -1,5 +1,5 @@
 # Invocation
-# ansible-playbook ./00-pi-first-boot.yml
+# ansible-playbook ./00-pi-first-boot.yml -k
 
 # Raspberry Pi has a default username and password, add a new admin user so
 # the default user can be deleted in the hardening plabook.
@@ -8,11 +8,9 @@
 
 - name: Add new admin user to newly installed Pi
   hosts: pi
-  connection: ssh
   # This is the well-known default username and password that 
   # we're actively changing.
   remote_user: pi
-  ansible_ssh_pass: raspberry
   become: yes
   gather_facts: false
 
@@ -22,6 +20,7 @@
         name: "{{ admin_user }}"
         generate_ssh_key: yes
         password: "{{ admin_password }}"
+        shell: /bin/bash
 
     - name: Add management station ssh key to admin user authorized keys
       authorized_key:
@@ -48,6 +47,10 @@
   gather_facts: false
 
   tasks:
+    - name: Kill and pi processes
+      become: yes
+      shell: pkill -u pi
+
     - name: Remove the default 'pi' user
       become: yes
       user:
@@ -55,13 +58,7 @@
         state: absent
         remove: yes
 
-    - name: Upgrade the software
-      apt:
-        upgrade: yes
-        update_cache: yes
-
-    #Reboot to ensure that any lingering 'pi' processes or logins
-    # are flushed.
+    # Reboot to flush everything
     - name: Reboot the pi
       shell: sleep 2 && shutdown -r now 'Reboot required'
       async: 1

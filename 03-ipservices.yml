@@ -1,0 +1,15 @@
+# Invocation
+# ansible-playbook ./01-pi-fileserver.yml
+
+- name: Configure File Server
+  hosts: ipservices
+  remote_user: "{{ admin_user }}"
+  gather_facts: false
+
+  tasks:
+
+# populate hosts file
+# configure hosts file
+# install dnsmasq
+# configure dnsmasq
+# update firewall

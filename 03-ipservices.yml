@@ -8,17 +8,22 @@
   become: yes
 
   tasks:
-    #Fileserver must have static IP
+    #DHCP server must have static IP
     - name: Set static IP address
       blockinfile:
         path: /etc/dhcpcd.conf
-        block: "{{ static_ip }}"
-      notify: reboot-server
+        block: |
+          interface {{ interface }}
+            static ip_address={{ ip_addr }}/24
+            static routers={{ router }}
+            static domain_name_servers={{ router }}
+            static domain_search={{ domain }}
+#      notify: reboot-server
 
     - name: Update Hosts file contents with static servers
       blockinfile:
         path: /etc/hosts
-        block: "{{ static_hosts }}"
+        block: "{{ static_hosts | join('\n') }}"
       notify: restart-dnsmasq
 
     - name: Install dnsmasq

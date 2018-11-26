@@ -1,5 +1,5 @@
 # Invocation
-# ansible-playbook 02-fileserver.yml
+# ansible-playbook -i hosts ./02-fileserver.yml
 
 - name: Configure File Server
   hosts: fileservers

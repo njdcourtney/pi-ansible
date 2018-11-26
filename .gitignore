@@ -4,6 +4,9 @@ img
 #Ignore the hostvars
 host_vars/*
 
+#Ignore the templates
+templates/*
+
 #Ignore vault files
 vault.yml
 

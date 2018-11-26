@@ -1,15 +1,57 @@
 # Invocation
-# ansible-playbook ./01-pi-fileserver.yml
+# ansible-playbook -i hosts ./03-ipservices.yml
 
 - name: Configure File Server
   hosts: ipservices
   remote_user: "{{ admin_user }}"
   gather_facts: false
+  become: yes
 
   tasks:
+    #Fileserver must have static IP
+    - name: Set static IP address
+      blockinfile:
+        path: /etc/dhcpcd.conf
+        block: "{{ static_ip }}"
+      notify: reboot-server
 
-# populate hosts file
-# configure hosts file
-# install dnsmasq
-# configure dnsmasq
-# update firewall
+    - name: Update Hosts file contents with static servers
+      blockinfile:
+        path: /etc/hosts
+        block: "{{ static_hosts }}"
+      notify: restart-dnsmasq
+
+    - name: Install dnsmasq
+      apt:
+        name: dnsmasq
+        state: present
+
+    - name: Configure dnsmasq
+      template:
+        src: templates/dnsmasq.conf
+        dest: /etc/dnsmasq.conf
+        owner: root
+        group: root
+        mode: "u=rw,g=r,o=r"
+      notify: restart-dnsmasq
+
+    - name: Open firewall ports
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+      with_items:
+        - 53
+        - 67
+
+  handlers:  
+    - name: restart-dnsmasq
+      become: yes
+      service:
+        name: dnsmasq
+        state: restarted
+
+    #TO DO - merge this with the reboot handlers in update_software
+    - name: reboot-server
+      shell: sleep 2 && shutdown -r now 'Reboot required'
+      async: 1
+      poll: 0

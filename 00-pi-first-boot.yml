@@ -40,17 +40,13 @@
         dest: "/etc/sudoers.d/020_{{ admin_user }}-nopasswd"
         mode: 0440
 
-- name: Remove default admin user
+- name: First Boot Tasks
   hosts: pi
   remote_user: "{{ admin_user }}"
   become: yes
   gather_facts: false
 
   tasks:
-    - name: Kill and pi processes
-      become: yes
-      shell: pkill -u pi
-
     - name: Remove the default 'pi' user
       become: yes
       user:
@@ -58,7 +54,7 @@
         state: absent
         remove: yes
 
-    # Reboot to flush everything
+    # Reboot to flush any lingering processes
     - name: Reboot the pi
       shell: sleep 2 && shutdown -r now 'Reboot required'
       async: 1

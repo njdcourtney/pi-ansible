@@ -8,9 +8,9 @@
   become: yes
 
   tasks:
-    # # Import the server base role
-    # - import_role:
-    #     name: server_base
+    # Import the server base role
+    - import_role:
+        name: server_base
 
     - name: Add Ubiquiti Public Key
       apt_key:

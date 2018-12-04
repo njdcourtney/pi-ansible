@@ -37,7 +37,18 @@
         state: stopped
         enabled: no
 
+    # Firewall ports from https://help.ubnt.com/hc/en-us/articles/218506997-UniFi-Ports-Used
     - name: Open firewall ports
       ufw:
         rule: allow
-        port: 8443
+        port: "{{ item }}"
+        comment: "Unifi controller"
+      with_items:
+        - 1900
+        - 3478
+        - 6789
+        - 8080
+        - 8443
+        - 8880
+        - 8843
+        - 10001

@@ -8,6 +8,10 @@
   become: yes
 
   tasks:
+    # Import the server base role
+    - import_role:
+        name: server_base
+
     #DHCP server must have static IP
     - name: Set static IP address
       blockinfile:
@@ -18,7 +22,7 @@
             static routers={{ router }}
             static domain_name_servers={{ router }}
             static domain_search={{ domain }}
-#      notify: reboot-server
+      notify: "server reboot"
 
     - name: Update Hosts file contents with static servers
       blockinfile:
@@ -54,9 +58,3 @@
       service:
         name: dnsmasq
         state: restarted
-
-    #TO DO - merge this with the reboot handlers in update_software
-    - name: reboot-server
-      shell: sleep 2 && shutdown -r now 'Reboot required'
-      async: 1
-      poll: 0

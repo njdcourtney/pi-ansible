@@ -1,5 +1,12 @@
+  # Reboot the server 
+  - name: Rebooting
+    shell: sleep 2 && shutdown -r now 'Reboot required'
+    async: 1
+    poll: 0
+    listen: "server reboot"
+
   # Ensure that SSH has gone down before we wait for it to come back up again.
-  #  Avoids race condition if shutting down is delayed for any reason.
+  # Avoids race condition if shutting down is delayed for any reason.
   - name: Check server down
     local_action: 
       module: wait_for
@@ -10,7 +17,7 @@
     become: no
     listen: "server reboot"
 
-  # Wait for SSH to come back up
+  # Wait for SSH to come back up as sign that server has successfully rebooted
   - name: Check server back up
     local_action: 
       module: wait_for
@@ -22,3 +29,8 @@
     become: no
     listen: "server reboot"
 
+  - name: restart ssh
+    become: yes
+    service:
+      name: ssh
+      state: restarted

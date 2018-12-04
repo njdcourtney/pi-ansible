@@ -1,3 +1,21 @@
+#Run apt-get to update the cache
+- name: Update software
+  become: yes
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+    upgrade: yes
+
+- name: Check if reboot is required
+  stat: 
+    path: /var/run/reboot-required
+  register: reboot_file
+
+- name: Reboot required?
+  when: reboot_file.stat.exists
+  command: /bin/true
+  notify: "server reboot"
+
 - name: Ensure the 'pi' user is absent
   become: yes
   user:

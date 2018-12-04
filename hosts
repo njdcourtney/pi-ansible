@@ -3,3 +3,6 @@
 
 [ipservices]
   pi3bplus
+
+[ubiquiti]
+  pi3bplus

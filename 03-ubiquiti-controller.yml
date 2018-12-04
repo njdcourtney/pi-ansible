@@ -1,0 +1,43 @@
+# Invocation
+# ansible-playbook -i hosts ./03-ipservices.yml
+
+- name: Configure Ubiquiti Controller
+  hosts: ubiquiti
+  remote_user: "{{ admin_user }}"
+  gather_facts: false
+  become: yes
+
+  tasks:
+    # # Import the server base role
+    # - import_role:
+    #     name: server_base
+
+    - name: Add Ubiquiti Public Key
+      apt_key:
+        url: https://dl.ubnt.com/unifi/unifi-repo.gpg 
+        state: present
+
+    - name: Add Ubiquiti Repo
+      apt_repository:
+        repo: deb http://www.ubnt.com/downloads/unifi/debian stable ubiquiti
+        state: present
+        update_cache: yes
+    
+    - name: Install java and UniFi controller
+      apt:
+        name: 
+          - oracle-java8-jdk
+          - unifi
+        state: present
+      notify: "server reboot"
+
+    - name: Disable the default mongodb service
+      systemd:
+        name: mongodb
+        state: stopped
+        enabled: no
+
+    - name: Open firewall ports
+      ufw:
+        rule: allow
+        port: 8443

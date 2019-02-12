@@ -1,0 +1,2 @@
+- name: Import netatalk
+  import_tasks: install_netatalk.yml

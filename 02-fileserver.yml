@@ -7,28 +7,33 @@
   gather_facts: false
 
   tasks:
-  - import_role:
-      name: mount_disks
+    - name: add to fstab
+      become: yes
+      mount: 
+        fstype: "{{ item.type }}"
+        src: "UUID={{ item.uuid }}"
+        path: "{{ item.mount }}"
+        state: mounted
+        opts: "defaults,relatime"
+      loop: "{{ filesystems }}"
 
-  - name: Create fileserver user
-    become: yes
-    user:
-      name: "{{ fileshare_user }}"
-      generate_ssh_key: yes
-      ssh_key_bits: 2048
-      ssh_key_file: .ssh/id_rsa
-      password: "{{ admin_password }}"
-      shell: /bin/bash
+    - name: Create fileserver user
+      become: yes
+      user:
+        name: "{{ fileshare_user }}"
+        generate_ssh_key: yes
+        password: "{{ admin_password }}"
+        shell: /bin/bash
 
-  - name: Add management ssh keys to fileshare user authorized keys
-    become: yes
-    authorized_key:
-      user: "{{ fileshare_user }}"
-      state: present
-      key: "{{ admin_ssh_key }}"
+    - name: Add management ssh keys to fileshare user
+      become: yes
+      authorized_key:
+        user: "{{ fileshare_user }}"
+        state: present
+        key: "{{ admin_ssh_key }}"
 
-  - import_role:
-      name: install_netatalk 
+    - import_role:
+        name: fileserver 
 
-  - import_role:
-      name: install_resiliosync
+#   - import_role:
+#       name: install_resiliosync

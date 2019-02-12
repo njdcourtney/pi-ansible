@@ -5,12 +5,12 @@
     state: directory
     owner: "{{ admin_user }}"
 
-- name: Check netatalk source is on disk
+- name: Check if netatalk source is on disk
   stat: 
     path: "{{ netatalk_scr_dir }}{{ netatalk_tarfile }}"
   register: netatalk_source
 
-- name: Download netatalk
+  - name: Download netatalk
   get_url:
     url: "{{ netatalk_url }}"
     dest: "{{ netatalk_scr_dir }}"
@@ -106,6 +106,7 @@
   ufw:
     rule: allow
     port: "{{ item }}"
+    from_ip: '192.168.0.0/16'
   with_items:
     - 548
     - 5353

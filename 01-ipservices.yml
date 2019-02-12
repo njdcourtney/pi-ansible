@@ -1,5 +1,5 @@
 # Invocation
-# ansible-playbook -i hosts ./03-ipservices.yml
+# ansible-playbook -i hosts ./01-ipservices.yml
 
 - name: Configure File Server
   hosts: ipservices

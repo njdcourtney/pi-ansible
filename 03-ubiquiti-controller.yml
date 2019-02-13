@@ -9,8 +9,8 @@
 
   tasks:
     # Import the server base role
-    - import_role:
-        name: server_base
+    # - import_role:
+    #     name: server_base
 
     - name: Add Ubiquiti Public Key
       apt_key:
@@ -23,13 +23,32 @@
         state: present
         update_cache: yes
     
+    - name: Add Ubuntu public key
+      apt_key:
+        keyserver: keyserver.ubuntu.com
+        id: 36A1D7869245C8950F966E92D8576A8BA88D21E9
+
+    - name: Add Oracle Java Repo
+      apt_repository:
+        repo: "ppa:webupd8team/java"
+        codename: xenial
+        state: present
+        update_cache: yes
+    
+    - name: Accept Oracle license agreement
+      debconf:
+        name: "oracle-java8-installer"
+        question: "shared/accepted-oracle-license-v1-1"
+        value: "true"
+        vtype: "select"
+
     - name: Install java and UniFi controller
       apt:
         name: 
-          - oracle-java8-jdk
+          - oracle-java8-installer
           - unifi
         state: present
-      notify: "server reboot"
+      # notify: "server reboot"
 
     - name: Disable the default mongodb service
       systemd:
@@ -43,6 +62,7 @@
         rule: allow
         port: "{{ item }}"
         comment: "Unifi controller"
+        from_ip: '192.168.0.0/16'
       with_items:
         - 1900
         - 3478

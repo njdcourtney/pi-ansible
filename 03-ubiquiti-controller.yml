@@ -8,9 +8,9 @@
   become: yes
 
   tasks:
-    # Import the server base role
-    # - import_role:
-    #     name: server_base
+#    Import the server base role
+    - import_role:
+        name: server_base
 
     - name: Add Ubiquiti Public Key
       apt_key:
@@ -42,13 +42,13 @@
         value: "true"
         vtype: "select"
 
-    - name: Install java and UniFi controller
+    - name: Install java and UniFi controller (can be slow)
       apt:
         name: 
           - oracle-java8-installer
           - unifi
         state: present
-      # notify: "server reboot"
+      notify: "server reboot"
 
     - name: Disable the default mongodb service
       systemd:

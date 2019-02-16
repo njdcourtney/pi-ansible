@@ -18,5 +18,6 @@ The playbooks are designed to be run in order.
 
 **01-ipservices.yml** Configures static IP address and installs dnsmasq
 
-**02-pi-fileserver.yml** This calls a list of roles in order, to get the fileserver up and running.
+**02-fileserver.yml** This calls a list of roles in order, to get the fileserver up and running.
 
+**03-ubiquiti-controller.yml** Installs Oracle Java from PPA and installs the Unifi controller software.

@@ -1,5 +1,5 @@
 # Invocation
-# ansible-playbook ./00-pi-first-boot.yml -k
+# ansible-playbook ./00-pi-first-boot.yml -i hosts -k
 
 # Raspberry Pi has a default username and password, add a new admin user so
 # the default user can be deleted in the hardening plabook.

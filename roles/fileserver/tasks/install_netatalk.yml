@@ -10,7 +10,7 @@
     path: "{{ netatalk_scr_dir }}{{ netatalk_tarfile }}"
   register: netatalk_source
 
-  - name: Download netatalk
+- name: Download netatalk
   get_url:
     url: "{{ netatalk_url }}"
     dest: "{{ netatalk_scr_dir }}"

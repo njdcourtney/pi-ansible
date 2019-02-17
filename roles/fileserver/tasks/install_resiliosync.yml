@@ -31,12 +31,20 @@
     regexp: '^WantedBy='
     line: 'WantedBy=default.target'
 
+- name: Open firewall port to GUI
+  become: yes
+  ufw:
+    rule: allow
+    port: 8888
+    from_ip: '192.168.0.0/16'
+
 - name: Restart as chosen user
   remote_user: "{{ resilio_sync_user }}"
   systemd:
     name: resilio-sync
     state: started
     enabled: yes
-    user: yes
+    scope: user
 
-    
+#TO DO
+# Update config file to enable web GUI

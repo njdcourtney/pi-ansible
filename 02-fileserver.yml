@@ -34,6 +34,3 @@
 
     - import_role:
         name: fileserver 
-
-#   - import_role:
-#       name: install_resiliosync

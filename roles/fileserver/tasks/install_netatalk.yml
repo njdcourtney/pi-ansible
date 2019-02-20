@@ -1,5 +1,4 @@
 - name: Make source code directory
-  become: yes
   file:
     name: "{{ netatalk_scr_dir }}"
     state: directory
@@ -11,12 +10,14 @@
   register: netatalk_source
 
 - name: Download netatalk
+  become: no
   get_url:
     url: "{{ netatalk_url }}"
     dest: "{{ netatalk_scr_dir }}"
   when: netatalk_source.stat.exists == false
 
 - name: Extract netatalk source
+  become: no
   unarchive:
     src: "/{{ netatalk_scr_dir }}{{ netatalk_tarfile}}"
     dest: "{{ netatalk_scr_dir }}"
@@ -24,7 +25,6 @@
     remote_src: yes
 
 - name: Install dependencies
-  become: yes
   apt:
     name:
       - build-essential
@@ -53,26 +53,26 @@
     state: present    
 
 - name: Configure netatalk (slow)
+  become: no
   command: ./configure --with-init-style=debian-systemd --without-libevent --without-tdb --with-cracklib --enable-krbV-uam --with-pam-confdir=/etc/pam.d --with-dbus-daemon=/usr/bin/dbus-daemon --with-dbus-sysconf-dir=/etc/dbus-1/system.d --with-tracker-pkgconfig-version=1.0
   args:
     chdir: "{{ netatalk_dir }}"
     creates: "{{ netatalk_dir }}Makefile"
 
 - name: Compile netatalk (very slow)
+  become: no
   command: make
   args:
     chdir: "{{ netatalk_dir }}"
     creates: "{{ netatalk_dir }}etc/netatalk/netatalk"
 
 - name: Install netatalk
-  become: yes
   command: make install
   args:
     chdir: "{{ netatalk_dir }}"
     creates: "/usr/local/sbin/netatalk"
 
 - name: Make directories to share
-  become: yes
   file:
     name: "{{ item.path }}"
     state: directory
@@ -80,7 +80,6 @@
   with_items: "{{ netatalk_shares }}"
 
 - name: Add afpd config
-  become: yes
   blockinfile:
     path: /usr/local/etc/afp.conf
     marker: "; {mark} {{ item.share_name }} ANSIBLE MANAGED BLOCK"
@@ -92,7 +91,6 @@
   with_items: "{{ netatalk_shares }}"
 
 - name: Ensure avahi and netatalk are enabled
-  become: yes
   service:
     name: "{{item}}"
     enabled: yes
@@ -102,11 +100,11 @@
     - netatalk
 
 - name: Open firewall ports
-  become: yes
   ufw:
     rule: allow
     port: "{{ item }}"
     from_ip: '192.168.0.0/16'
+    comment: "Netatalk"
   with_items:
     - 548
     - 5353

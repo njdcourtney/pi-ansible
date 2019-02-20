@@ -1,35 +1,56 @@
 - name: Add Resilio Sync Public Key
-  become: yes
   apt_key:
     url: https://linux-packages.resilio.com/resilio-sync/key.asc
     state: present
 
 - name: Add Resilio Sync Repo
-  become: yes
   apt_repository:
     repo: deb [arch=armhf] http://linux-packages.resilio.com/resilio-sync/deb resilio-sync non-free
     state: present
     update_cache: yes
 
 - name: Install resilio-sync
-  become: yes
   apt:
     name: resilio-sync
     state: present
 
-- name: Ensure that system sync is stopped
-  become: yes
-  systemd:
-    name: resilio-sync
-    state: stopped
-    enabled: no
+- name: Make systemd override directory
+  file:
+    path: /etc/systemd/system/resilio-sync.service.d
+    state: directory
 
-- name: Update config file to change user
-  become: yes
-  lineinfile:
-    path: /usr/lib/systemd/user/resilio-sync.service
-    regexp: '^WantedBy='
-    line: 'WantedBy=default.target'
+- name: Make systemd override config file
+  copy:
+    dest: /etc/systemd/system/resilio-sync.service.d/override.conf
+    content: |
+        [Service]
+        User={{ resilio_sync_user }}
+        Group={{ resilio_sync_user }}
+        PIDFile=/home/{{ resilio_sync_user }}/.config/resilio-sync/sync.pid
+        ExecStart=
+        ExecStart=/usr/bin/rslsync --config /home/{{ resilio_sync_user }}/.config/resilio-sync/config.json
+  notify: restart-resilio-sync
+
+- name: Make systemd override directory
+  file:
+    path: /home/{{ resilio_sync_user }}/.config/resilio-sync/storage
+    state: directory
+    owner: "{{ resilio_sync_user }}"
+
+- name: Add user config dir
+  copy:
+    dest: /home/{{ resilio_sync_user }}/.config/resilio-sync/config.json
+    content: |
+        {
+        "storage_path" : "/home/{{ resilio_sync_user }}/.config/resilio-sync/storage",
+        "pid_file" : "/home/{{ resilio_sync_user }}/.config/resilio-sync/sync.pid",
+        "webui" :
+            {
+                "force_https" : true,
+                "listen" : "0.0.0.0:8888"
+            }
+        }
+  notify: restart-resilio-sync
 
 - name: Open firewall port to GUI
   become: yes
@@ -37,14 +58,5 @@
     rule: allow
     port: 8888
     from_ip: '192.168.0.0/16'
+    comment: "Resilio-sync"
 
-- name: Restart as chosen user
-  remote_user: "{{ resilio_sync_user }}"
-  systemd:
-    name: resilio-sync
-    state: started
-    enabled: yes
-    scope: user
-
-#TO DO
-# Update config file to enable web GUI

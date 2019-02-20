@@ -1,8 +1,14 @@
 - name: restart-avahi-and-netatalk
-  become: yes
   service:
     name: "{{ item }}"
     state: restarted
   with_items:
     - avahi-daemon
     - netatalk
+
+- name: restart-resilio-sync
+  systemd:
+    name: resilio-sync
+    daemon_reload: yes
+    enabled: yes
+    state: restarted

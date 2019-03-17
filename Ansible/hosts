@@ -1,0 +1,13 @@
+[pi:children]
+ cluster
+
+[cluster:children]
+ cluster-master
+ cluster-workers
+
+[cluster-master]
+ cluster-0
+
+[cluster-workers]
+ cluster-1
+ cluster-2

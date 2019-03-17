@@ -1,0 +1,5 @@
+#Ignore any vault files
+vault.yml
+
+#Ignore any Apple .DS_Store files
+.DS_Store

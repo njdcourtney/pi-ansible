@@ -1,0 +1,41 @@
+# Invocation
+# ansible-playbook ./00-pi-first-boot.yml -i hosts
+
+# Raspberry Pi has a default username and password, add a new admin user so
+# the default user can be deleted. 
+# This is the one and only time that we'll use the default 'pi' user
+
+- name: Add new admin user to newly installed Pi
+  hosts: pi
+  # This is the well-known default username and password that 
+  # we're actively changing.
+  remote_user: pi
+  ansible_ssh_pass: raspberry
+  become: yes
+  gather_facts: false
+
+  tasks:
+    - name: Create admin user
+      user:
+        name: "{{ admin_user }}"
+        generate_ssh_key: yes
+        password: "{{ admin_password }}"
+        shell: /bin/bash
+
+    - name: Add management station ssh key to admin user authorized keys
+      authorized_key:
+        user: "{{ admin_user }}"
+        state: present
+        key: "{{ admin_ssh_key }}"
+
+    - name: Add extra groups to admin user
+      user:
+        name: "{{ admin_user }}"
+        groups: "{{ admin_groups }}"
+        append: yes
+
+    - name: Add sudoers entry to allow admin user passwordless sudo
+      copy:
+        content: "{{ admin_user }} ALL=(ALL) NOPASSWD: ALL"
+        dest: "/etc/sudoers.d/020_{{ admin_user }}-nopasswd"
+        mode: 0440

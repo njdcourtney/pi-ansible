@@ -1,0 +1,33 @@
+- name: Ensure the 'pi' user is absent
+  user:
+    name: pi
+    state: absent
+    remove: yes
+  notify: "server reboot"
+
+- name: Ensure the hostname is set correctly
+  hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Ensure Timezone to {{ timezone }}
+  timezone:
+    name: "{{ timezone }}"
+
+- name: Ensure UFW installed and present
+  apt:
+    name: ufw
+    state: present
+
+- name: Configure ufw to be enabled and allow SSH
+  ufw:
+    state: enabled
+    rule: allow
+    name: OpenSSH
+
+- name: Disable SSH Password logins
+  become: yes
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PasswordAuthentication'
+    line: 'PasswordAuthentication no'
+  notify: restart ssh

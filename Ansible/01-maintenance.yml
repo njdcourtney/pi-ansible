@@ -1,0 +1,29 @@
+# This playbook does the day-to-day maintenance on the cluster of pis
+# ansible-playbook 01-maintenance.yml -i hosts
+
+- name: Rasbian Maintenance tasks
+  hosts: pi
+  remote_user: "{{ admin_user }}"
+  become: yes
+  serial: 1
+  gather_facts: false
+
+  tasks:
+    - name: Update software
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        upgrade: yes
+
+    - name: Check if reboot is required
+      stat: 
+        path: /var/run/reboot-required
+      register: reboot_file
+
+    - name: Reboot required?
+      when: reboot_file.stat.exists
+      command: /bin/true
+      notify: "server reboot"
+
+    - import_role:
+        name: pi-server-base

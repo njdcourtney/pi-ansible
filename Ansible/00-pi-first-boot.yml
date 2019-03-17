@@ -3,6 +3,7 @@
 
 # Raspberry Pi has a default username and password, add a new admin user so
 # the default user can be deleted later.
+# This playbook is designed to be used just once when a pi is first installed.
 # This is the one and only time that we'll use the default 'pi' user
 
 - name: Add new admin user to newly installed Pi
@@ -40,3 +41,16 @@
         content: "{{ admin_user }} ALL=(ALL) NOPASSWD: ALL"
         dest: "/etc/sudoers.d/020_{{ admin_user }}-nopasswd"
         mode: 0440
+    
+    # A newly install pi almost certainly needs a software update
+    - name: Update software
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        upgrade: yes
+    
+    # Reboot the server after the update
+    - name: Rebooting
+      shell: sleep 2 && shutdown -r now 'Reboot required'
+      async: 1
+      poll: 0

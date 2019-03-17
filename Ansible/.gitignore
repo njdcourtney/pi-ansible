@@ -1,5 +1,8 @@
 #Ignore any vault files
 vault.yml
 
+#Ignore any retry files
+*.retry
+
 #Ignore any Apple .DS_Store files
 .DS_Store

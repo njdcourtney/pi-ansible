@@ -1,5 +1,7 @@
+# Invocation
+# ansible-playbook 01-pi-maintenance.yml -i hosts
+#
 # This playbook does the day-to-day maintenance on the cluster of pis
-# ansible-playbook 01-maintenance.yml -i hosts
 
 - name: Rasbian Maintenance tasks
   hosts: pi

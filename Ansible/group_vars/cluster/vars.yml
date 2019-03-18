@@ -1,0 +1,2 @@
+gluster_device: /dev/sda
+gluster_volume: Shared

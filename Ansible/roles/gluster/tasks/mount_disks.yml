@@ -1,0 +1,11 @@
+- name: Mount Volume directories
+  mount: 
+    fstype: xfs
+    src: "{{ partition }}"
+    path: "/data/gluster/{{volume.key}}/brick{{index}}"
+    state: mounted
+    opts: "rw,inode64,noatime,nouuid"
+  loop: "{{ volume.value | flatten(levels=1) }}"
+  loop_control:
+    loop_var: partition
+    index_var: index

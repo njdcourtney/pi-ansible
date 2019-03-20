@@ -1,0 +1,26 @@
+- name: Get Gluster physical device partition table
+  parted: 
+    device: "{{ device }}"
+    unit: MiB
+  register: device_info
+
+- name: Delete every partition except the first one.
+  parted:
+    device: "{{ device }}"
+    number: "{{ item.num }}"
+    state: absent
+  with_items: "{{ device_info.partitions }}"
+
+- name: Expand first partition to take up the full disk
+  parted:
+    device: "{{ device }}"
+    number: 1
+    state: present
+    part_start: 0%
+    part_end: 100%
+
+- name: Create the xfs filesystem on the Gluster device
+  filesystem:
+    fstype: xfs
+    dev: "{{ device }}1"
+    force: true

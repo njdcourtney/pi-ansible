@@ -1,0 +1,42 @@
+# Check for Disk initialisation variable
+- pause:
+    prompt: "You have set the variable to reset the partition table on {{ gluster_devices }}\n Press enter to continue, otherwise CTRL-C to quit Ansible"
+  when: gluster_initialise
+
+- name: Install needed packages
+  apt:
+    name: 
+      - xfsprogs
+      - glusterfs-server
+    state: present
+
+- name: Set up disks
+  when: gluster_initialise
+  include_tasks: initialise_disk.yml
+  loop: "{{ gluster_devices }}"
+  loop_control:
+    loop_var: device
+
+- name: Mount disks
+  include_tasks: mount_disks.yml
+  loop: "{{ gluster_volumes | dict2items }}"
+  loop_control:
+    loop_var: volume
+
+- name: Allow unrestricted communication between cluster peers
+  ufw:
+    rule: allow
+    from_ip: "{{ hostvars[item].ansible_default_ipv4.address }}"
+    comment: "Gluster peer"
+  with_items: " {{ groups.cluster }}"
+
+- name: Create a Gluster trusted storage pool
+  gluster_peer:
+    state: present
+    nodes: "{{ groups.cluster }}"
+    
+- name: Create gluster volumes
+  include_tasks: create_volumes.yml
+  loop: "{{ gluster_volumes | dict2items }}"
+  loop_control:
+    loop_var: volume

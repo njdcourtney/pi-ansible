@@ -1,2 +1,11 @@
-gluster_device: /dev/sda
-gluster_volume: Shared
+# DANGER WILL ROBINSON!
+# When true this varible trigger the deletion of all partitions and 
+# the creation of a new XFS filesystem
+# THIS WILL DELETE ANYTHING ON THESE DEVICES. 
+gluster_initialise: false
+gluster_devices: 
+  - /dev/sda
+
+gluster_volumes: 
+  Shared: 
+    - /dev/sda1

@@ -1,0 +1,14 @@
+# Compute the brick names
+- name: Process list of bricks
+  set_fact:
+    bricks: "{{ range(0, ( volume.value | length ) ) | map('regex_replace', '(.*)', '/data/gluster/{{volume.key}}/brick\\1/brick') | join(',') }}"
+
+# Create the cluster volume
+- name: Create Gluster Volume
+  gluster_volume:
+    state: present
+    name: "{{ volume.key }}"
+    bricks: "{{ bricks }}"
+    cluster: "{{ groups.cluster }}"
+    replicas: "{{ groups.cluster | length }}"
+  run_once: true

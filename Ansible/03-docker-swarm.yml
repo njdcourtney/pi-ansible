@@ -1,0 +1,68 @@
+# Invocation
+# ansible-playbook 03-docker-swarm.yml -i hosts
+#
+# Installation and configuration of a Docker Swarm
+#  Install steps convert the get-docker.sh convenience script steps to tasks
+
+- name: Install Docker
+  hosts: cluster
+  remote_user: "{{ admin_user }}"
+  become: yes
+  gather_facts: true
+
+  tasks:
+    - name: Install prerequisites
+      apt:
+        name: 
+            - apt-transport-https
+            - ca-certificates
+            - python-pip
+        state: present
+
+    - name: Install Docker python module (Ansible module pre-req)
+      pip:
+        name: docker
+
+    - name: Add Docker Public Key
+      apt_key:
+        url: https://download.docker.com/linux/raspbian/gpg
+        state: present
+
+    - name: Add Docker Repo
+      apt_repository:
+        repo: deb [arch=armhf] https://download.docker.com/linux/raspbian stretch stable
+        state: present
+        update_cache: yes
+    
+    - name: Install docker-ce
+      apt:
+        name: docker-ce
+        install_recommends: no
+        state: present
+
+- name: Make Docker swarm [Master]
+  hosts: cluster-master
+  remote_user: "{{ admin_user }}"
+  become: yes
+  gather_facts: false
+  
+  tasks:
+    - name: Start the swarm with default parameters
+      docker_swarm:
+        state: present
+      register: swarm_info
+      run_once: true
+
+- name: Make Docker swarm [Workers]
+  hosts: cluster-workers
+  remote_user: "{{ admin_user }}"
+  become: yes
+  gather_facts: false
+
+  tasks:
+    - name: Add nodes
+      docker_swarm:
+        state: join
+        advertise_addr: "{{ ansible_default_ipv4.address }}"
+        join_token: "{{ hostvars[groups['cluster-master'][0]].swarm_info.swarm_facts.JoinTokens.Worker }}"
+        remote_addrs: [ "{{ hostvars[groups['cluster-master'][0]].ansible_default_ipv4.address }}:2377" ]

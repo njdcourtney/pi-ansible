@@ -17,12 +17,6 @@
   loop_control:
     loop_var: device
 
-- name: Mount disks
-  include_tasks: mount_disks.yml
-  loop: "{{ gluster_volumes | dict2items }}"
-  loop_control:
-    loop_var: volume
-
 - name: Allow unrestricted communication between cluster peers
   ufw:
     rule: allow
@@ -34,8 +28,8 @@
   gluster_peer:
     state: present
     nodes: "{{ groups.cluster }}"
-    
-- name: Create gluster volumes
+
+- name: Mount partitions and create gluster volumes
   include_tasks: create_volumes.yml
   loop: "{{ gluster_volumes | dict2items }}"
   loop_control:

@@ -3,6 +3,7 @@
 # the creation of a new XFS filesystem
 # THIS WILL DELETE ANYTHING ON THESE DEVICES. 
 gluster_initialise: false
+
 gluster_devices: 
   - /dev/sda
 

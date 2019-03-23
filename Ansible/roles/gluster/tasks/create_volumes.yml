@@ -1,5 +1,17 @@
+- name: Mount Volume directories
+  mount: 
+    fstype: xfs
+    src: "{{ partition }}"
+    path: "/data/gluster/{{volume.key}}/brick{{index}}"
+    state: mounted
+    opts: "rw,inode64,noatime,nouuid"
+  loop: "{{ volume.value | flatten(levels=1) }}"
+  loop_control:
+    loop_var: partition
+    index_var: index
+
 # Compute the brick names
-- name: Process list of bricks
+- name: Process list of bricks into comma seperated string.
   set_fact:
     bricks: "{{ range(0, ( volume.value | length ) ) | map('regex_replace', '(.*)', '/data/gluster/{{volume.key}}/brick\\1/brick') | join(',') }}"
 

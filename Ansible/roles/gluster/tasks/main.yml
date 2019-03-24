@@ -17,13 +17,6 @@
   loop_control:
     loop_var: device
 
-- name: Allow unrestricted communication between cluster peers
-  ufw:
-    rule: allow
-    from_ip: "{{ hostvars[item].ansible_default_ipv4.address }}"
-    comment: "Gluster peer"
-  with_items: " {{ groups.cluster }}"
-
 - name: Create a Gluster trusted storage pool
   gluster_peer:
     state: present

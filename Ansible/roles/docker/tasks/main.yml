@@ -1,0 +1,28 @@
+- name: Install prerequisites
+  apt:
+    name: 
+        - apt-transport-https
+        - ca-certificates
+        - python-pip
+    state: present
+
+- name: Install Docker python module (Ansible module pre-req)
+  pip:
+    name: docker
+
+- name: Add Docker Public Key
+  apt_key:
+    url: https://download.docker.com/linux/raspbian/gpg
+    state: present
+
+- name: Add Docker Repo
+  apt_repository:
+    repo: deb [arch=armhf] https://download.docker.com/linux/raspbian stretch stable
+    state: present
+    update_cache: yes
+
+- name: Install docker-ce
+  apt:
+    name: docker-ce
+    install_recommends: no
+    state: present

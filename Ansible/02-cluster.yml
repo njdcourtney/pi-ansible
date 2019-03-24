@@ -1,44 +1,29 @@
 # Invocation
-# ansible-playbook 03-docker-swarm.yml -i hosts
+# ansible-playbook 02-gluster.yml -i hosts
 #
-# Installation and configuration of a Docker Swarm
-#  Install steps convert the get-docker.sh convenience script steps to tasks
+# Installation and configuration of a Gluster peer group and volume
 
-- name: Install Docker
+- name: Configure cluster
   hosts: cluster
   remote_user: "{{ admin_user }}"
   become: yes
   gather_facts: true
 
   tasks:
-    - name: Install prerequisites
-      apt:
-        name: 
-            - apt-transport-https
-            - ca-certificates
-            - python-pip
-        state: present
+    - name: Allow unrestricted communication between cluster peers
+      ufw:
+        rule: allow
+        from_ip: "{{ hostvars[item].ansible_default_ipv4.address }}"
+        comment: "Gluster peer"
+      with_items: " {{ groups.cluster }}"
 
-    - name: Install Docker python module (Ansible module pre-req)
-      pip:
+    - name: Install GlusterFS
+      import_role:
+        name: gluster
+
+    - name: Install Docker
+      import_role:
         name: docker
-
-    - name: Add Docker Public Key
-      apt_key:
-        url: https://download.docker.com/linux/raspbian/gpg
-        state: present
-
-    - name: Add Docker Repo
-      apt_repository:
-        repo: deb [arch=armhf] https://download.docker.com/linux/raspbian stretch stable
-        state: present
-        update_cache: yes
-    
-    - name: Install docker-ce
-      apt:
-        name: docker-ce
-        install_recommends: no
-        state: present
 
 - name: Make Docker swarm [Master]
   hosts: cluster-master

@@ -3,7 +3,7 @@
 #
 # Installation and configuration of a Gluster peer group and volume
 
-- name: Configure cluster
+- name: Allow connunication between Cluster Peers
   hosts: cluster
   remote_user: "{{ admin_user }}"
   become: yes
@@ -14,9 +14,16 @@
       ufw:
         rule: allow
         from_ip: "{{ hostvars[item].ansible_default_ipv4.address }}"
-        comment: "Gluster peer"
+        comment: "Cluster peer"
       with_items: " {{ groups.cluster }}"
 
+- name: Install GlusterFS and docker
+  hosts: cluster
+  remote_user: "{{ admin_user }}"
+  become: yes
+  gather_facts: false
+
+  tasks:
     - name: Install GlusterFS
       import_role:
         name: gluster

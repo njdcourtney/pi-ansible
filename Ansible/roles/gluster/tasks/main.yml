@@ -1,21 +1,9 @@
-# Check for Disk initialisation variable
-- pause:
-    prompt: "You have set the variable to reset the partition table on {{ gluster_devices }}\n Press enter to continue, otherwise CTRL-C to quit Ansible"
-  when: gluster_initialise
-
 - name: Install needed packages
   apt:
     name: 
       - xfsprogs
       - glusterfs-server
     state: present
-
-- name: Set up disks
-  when: gluster_initialise
-  include_tasks: initialise_disk.yml
-  loop: "{{ gluster_devices }}"
-  loop_control:
-    loop_var: device
 
 - name: Create a Gluster trusted storage pool
   gluster_peer:

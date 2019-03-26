@@ -1,0 +1,15 @@
+# DANGER WILL ROBINSON!
+# When run this playbook will trigger the deletion of all partitions
+# and the creation of a new XFS filesystem on the listed disks
+# THIS WILL DELETE ANYTHING ON THE DEVICES LISTED IN {{ gluster_devices }}
+
+- name: Allow connunication between Cluster Peers
+  hosts: cluster
+  remote_user: "{{ admin_user }}"
+  become: yes
+  gather_facts: true
+
+  tasks:
+    - name: Install Docker
+      import_role:
+        name: initialise_disks

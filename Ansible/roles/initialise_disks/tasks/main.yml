@@ -1,0 +1,5 @@
+- name: Set up disks
+  include_tasks: initialise_disk.yml
+  loop: "{{ gluster_devices }}"
+  loop_control:
+    loop_var: device

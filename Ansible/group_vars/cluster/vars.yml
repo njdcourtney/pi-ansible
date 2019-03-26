@@ -1,9 +1,3 @@
-# DANGER WILL ROBINSON!
-# When true this varible will trigger the deletion of all partitions
-# and the creation of a new XFS filesystem
-# THIS WILL DELETE ANYTHING ON THE DEVICES LISTED IN {{ gluster_devices }}
-gluster_initialise: true
-
 gluster_devices: 
   - /dev/sda
 

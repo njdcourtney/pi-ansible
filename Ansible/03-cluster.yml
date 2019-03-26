@@ -1,6 +1,3 @@
-# Invocation
-# ansible-playbook 02-gluster.yml -i hosts
-#
 # Installation and configuration of a Gluster peer group and volume
 
 - name: Allow connunication between Cluster Peers

@@ -1,0 +1,21 @@
+# This playbook updates the host keys on the host running it.
+# Spurious entries in known hosts can leave you vulnerable to MITM attacks
+# so this playbook should only be run if you're confident in the identity of the endpoints
+# and have a valid reason for the SSH key changing eg. first boot after flashing the SD card.
+
+- name: Update local known-hosts
+  hosts: pi
+  gather_facts: false
+
+  tasks:
+    - name: Scan the public key
+      shell: "ssh-keyscan -t rsa {{inventory_hostname}}"
+      register: ssh_key
+      delegate_to: localhost
+    
+    - name: Update Known hosts
+      lineinfile:
+        path: ~/.ssh/known_hosts
+        regexp: "^{{inventory_hostname}} "
+        line: "{{ ssh_key.stdout }}"
+      delegate_to: localhost

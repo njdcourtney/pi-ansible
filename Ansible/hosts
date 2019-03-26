@@ -1,6 +1,9 @@
 [pi:children]
  cluster
 
+[pi]
+ pi3bplus
+
 [cluster:children]
  cluster-master
  cluster-workers

@@ -40,11 +40,14 @@
         mode: 0440
     
     # A newly install pi almost certainly needs a software update
+    #  Run async as the first software update can take some time.
     - name: Update software
       apt:
         update_cache: yes
         cache_valid_time: 3600
         upgrade: yes
+      async: 300
+      poll: 10
     
     # Reboot the server after the update
     - name: Rebooting

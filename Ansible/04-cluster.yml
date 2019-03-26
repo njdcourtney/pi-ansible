@@ -1,57 +1,17 @@
 # Installation and configuration of a Gluster peer group and volume
 
-- name: Allow connunication between Cluster Peers
+- name: Install GlusterFS and docker
   hosts: cluster
   remote_user: "{{ admin_user }}"
   become: yes
   gather_facts: true
 
   tasks:
-    - name: Allow unrestricted communication between cluster peers
-      ufw:
-        rule: allow
-        from_ip: "{{ hostvars[item].ansible_default_ipv4.address }}"
-        comment: "Cluster peer"
-      with_items: " {{ groups.cluster }}"
-
-- name: Install GlusterFS and docker
-  hosts: cluster
-  remote_user: "{{ admin_user }}"
-  become: yes
-  gather_facts: false
-
-  tasks:
     - name: Install GlusterFS
       import_role:
         name: gluster
 
-    - name: Install Docker
+    - name: Install Docker Swarm
       import_role:
         name: docker
 
-- name: Make Docker swarm [Master]
-  hosts: cluster-master
-  remote_user: "{{ admin_user }}"
-  become: yes
-  gather_facts: false
-  
-  tasks:
-    - name: Start the swarm with default parameters
-      docker_swarm:
-        state: present
-      register: swarm_info
-      run_once: true
-
-- name: Make Docker swarm [Workers]
-  hosts: cluster-workers
-  remote_user: "{{ admin_user }}"
-  become: yes
-  gather_facts: false
-
-  tasks:
-    - name: Add nodes
-      docker_swarm:
-        state: join
-        advertise_addr: "{{ ansible_default_ipv4.address }}"
-        join_token: "{{ hostvars[groups['cluster-master'][0]].swarm_info.swarm_facts.JoinTokens.Worker }}"
-        remote_addrs: [ "{{ hostvars[groups['cluster-master'][0]].ansible_default_ipv4.address }}:2377" ]

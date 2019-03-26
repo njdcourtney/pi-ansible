@@ -10,6 +10,6 @@
   gather_facts: true
 
   tasks:
-    - name: Install Docker
+    - name: Initialise Disks
       import_role:
         name: initialise_disks

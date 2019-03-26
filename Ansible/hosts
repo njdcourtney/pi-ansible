@@ -1,14 +1,11 @@
 [pi:children]
  cluster
 
-[pi]
- pi3bplus
-
 [cluster:children]
- cluster-master
+ cluster-manager
  cluster-workers
 
-[cluster-master]
+[cluster-manager]
  cluster-0
 
 [cluster-workers]

@@ -26,3 +26,17 @@
     name: docker-ce
     install_recommends: no
     state: present
+
+- name: Start the swarm with default parameters
+  when: "'cluster-manager' in group_names" 
+  docker_swarm:
+    state: present
+  register: swarm_info
+  run_once: true
+
+- name: Add worker nodes to the swarm
+  docker_swarm:
+    state: join
+    advertise_addr: "{{ ansible_default_ipv4.address }}"
+    join_token: "{{ hostvars[groups['cluster-manager'][0]].swarm_info.swarm_facts.JoinTokens.Worker }}"
+    remote_addrs: [ "{{ hostvars[groups['cluster-manager'][0]].ansible_default_ipv4.address }}:2377" ]

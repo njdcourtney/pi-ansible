@@ -1,16 +1,22 @@
 - name: Install needed packages
   apt:
     name: 
-      - xfsprogs
       - glusterfs-server
     state: present
+
+- name: Allow unrestricted communication between cluster peers
+  ufw:
+    rule: allow
+    from_ip: "{{ hostvars[item].ansible_default_ipv4.address }}"
+    comment: "Cluster peer"
+  with_items: " {{ groups.cluster }}"
 
 - name: Create a Gluster trusted storage pool
   gluster_peer:
     state: present
     nodes: "{{ groups.cluster }}"
 
-- name: Mount partitions and create gluster volumes
+- name: Mount partitions
   include_tasks: create_volumes.yml
   loop: "{{ gluster_volumes | dict2items }}"
   loop_control:

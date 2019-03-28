@@ -2,5 +2,5 @@ gluster_devices:
   - /dev/sda
 
 gluster_volumes: 
-  Shared: 
+  SharedMedia: 
     - /dev/sda1

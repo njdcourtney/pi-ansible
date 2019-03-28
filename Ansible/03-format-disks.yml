@@ -3,7 +3,7 @@
 # and the creation of a new XFS filesystem on the listed disks
 # THIS WILL DELETE ANYTHING ON THE DEVICES LISTED IN {{ gluster_devices }}
 
-- name: Allow connunication between Cluster Peers
+- name: Format external disks
   hosts: cluster
   remote_user: "{{ admin_user }}"
   become: yes

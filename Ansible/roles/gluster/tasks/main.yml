@@ -11,7 +11,13 @@
     comment: "Cluster peer"
   with_items: " {{ groups.cluster }}"
 
-- name: Create a Gluster trusted storage pool
+- name: Initialise Gluster pool on one node
+  gluster_peer:
+    state: present
+    nodes: "{{ groups.cluster }}"
+  run_once: true
+
+- name: Ensure all node are joined to the trusted pool
   gluster_peer:
     state: present
     nodes: "{{ groups.cluster }}"

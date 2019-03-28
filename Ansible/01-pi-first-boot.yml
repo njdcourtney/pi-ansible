@@ -46,7 +46,7 @@
         update_cache: yes
         cache_valid_time: 3600
         upgrade: yes
-      async: 300
+      async: 600
       poll: 10
     
     # Reboot the server after the update

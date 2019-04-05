@@ -3,13 +3,48 @@
 # This playbook is designed to be used just once when a pi is first installed.
 # This is the one and only time that we'll use the default 'pi' user
 
+# This contains two plays.
+# The first updates the local ssh known_hosts files
+# The second logs in using the default username and password and adds a replacement admin user.
+
+# Play - Update local known hosts.
+# Spurious entries in known_hosts can leave you vulnerable to MITM attacks
+# so this playbook should only be run if you're confident in the identity of the endpoints
+# and have a valid reason for the SSH key changing eg. first boot after flashing the SD card.
+#
+# Modified from this gist: https://gist.github.com/EntropyWorks/a768b3bc4444146d56be81af05d73fed
+
+- name: Update local known-hosts
+  hosts: pi
+  gather_facts: false
+  connection: local
+
+  tasks:
+    - name: Simple A record (IPV4 address) lookup for example.com
+      shell: "dig +short {{ inventory_hostname }}"
+      register: ipaddr
+
+    - name: For each host, scan for its ssh public key
+      shell: "ssh-keyscan -t rsa {{ inventory_hostname }},{{ ipaddr['stdout'] }}"
+      register: ssh_known_host_results
+
+    - name: Remove any previous entry
+      known_hosts:
+        name: "{{inventory_hostname }}"
+        state: "absent"
+
+    - name: Add/update the public key in the '{{ known_hosts_file }}'
+      known_hosts:
+        name: "{{ inventory_hostname }}"
+        key: "{{ ssh_known_host_results.stdout }}"
+        state: "present"
+
 - name: Add new admin user to newly installed Pi
   hosts: pi
   become: yes
   gather_facts: false
   vars:
-    # This is the well-known default username and password that 
-    # we're actively changing.
+    # This is the well-known default username and password that we're actively changing.
     ansible_ssh_user: pi 
     ansible_ssh_pass: raspberry
 

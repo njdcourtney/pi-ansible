@@ -11,7 +11,7 @@
       import_role:
         name: gluster
 
-    - name: Install Docker Swarm
-      import_role:
-        name: docker
+    # - name: Install Docker Swarm
+    #   import_role:
+    #     name: docker
 

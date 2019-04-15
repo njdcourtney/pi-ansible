@@ -1,4 +1,4 @@
-- name: Install needed packages
+- name: Install glusterfs-server
   apt:
     name: 
       - glusterfs-server

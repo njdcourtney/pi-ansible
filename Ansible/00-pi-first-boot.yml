@@ -18,6 +18,7 @@
   hosts: pi
   gather_facts: false
   connection: local
+  serial: 1
 
   tasks:
     - name: Simple A record (IPV4 address) lookup for example.com

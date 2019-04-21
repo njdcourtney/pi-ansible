@@ -27,3 +27,4 @@
   loop: "{{ gluster_volumes | dict2items }}"
   loop_control:
     loop_var: volume
+

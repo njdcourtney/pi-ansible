@@ -25,10 +25,22 @@
     replicas: 2
   run_once: true
 
-# Mount the created volumen
-- name: Mount Volume directories
-  mount: 
-    fstype: glusterfs
-    src: "{{ inventory_hostname }}:/{{ volume.key }}"
-    path: "/mnt/gluster/{{volume.key}}"
-    state: mounted
+# The simple way to mount disks is to use the mount module and update fstab.
+# This leads to a race condition where mount tries to mount the glusterfs
+# before gluster is up, so we use Systemd to do it instead.
+
+- name: Create the mount point
+  file:
+     path: "/mnt/gluster/{{volume.key}}"
+     state: directory
+
+- name: Add Systemd mount file
+  template:
+    src: gluster_mount.j2
+    dest: "/etc/systemd/system/mnt-gluster-{{ volume.key }}.mount"
+
+- name: Start systemd service
+  systemd:
+    daemon_reload: yes
+    name: "mnt-gluster-{{ volume.key }}.mount"
+    state: started

@@ -15,13 +15,13 @@
 # Modified from this gist: https://gist.github.com/EntropyWorks/a768b3bc4444146d56be81af05d73fed
 
 - name: Update local known-hosts
-  hosts: pi
+  hosts: rasbian
   gather_facts: false
   connection: local
   serial: 1
 
   tasks:
-    - name: Simple A record (IPV4 address) lookup for example.com
+    - name: Simple A record (IPV4 address) lookup the hostname
       shell: "dig +short {{ inventory_hostname }}"
       register: ipaddr
 
@@ -75,7 +75,7 @@
         dest: "/etc/sudoers.d/020_{{ admin_user }}-nopasswd"
         mode: 0440
     
-    # A newly install pi almost certainly needs a software update
+    # A newly installed pi almost certainly needs a software update
     #  Run async as the first software update can take some time.
     - name: Update software
       apt:
@@ -83,7 +83,7 @@
         cache_valid_time: 3600
         upgrade: yes
       async: 600
-      poll: 10
+      poll: 20
     
     # Reboot the server after the update
     - name: Rebooting

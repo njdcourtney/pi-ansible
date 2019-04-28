@@ -1,13 +1,18 @@
-[pi:children]
- cluster
+[Rasbian:children]
+  Cluster
+  DHCPServers
 
-[cluster:children]
- cluster-manager
- cluster-workers
+[Cluster:children]
+  ClusterManagers
+  ClusterWorkers
 
-[cluster-manager]
- cluster-0
+[ClusterManagers]
+  cluster-0
+  cluster-1
+  cluster-2
 
-[cluster-workers]
- cluster-1
- cluster-2
+[ClusterWorkers]
+ cluster-3
+
+[DHCPServers]
+  cluster-0

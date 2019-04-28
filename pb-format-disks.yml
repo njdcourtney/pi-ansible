@@ -5,7 +5,6 @@
 
 - name: Format data disks
   hosts: Cluster
-  remote_user: "{{ admin_user }}"
   become: yes
   gather_facts: false
 

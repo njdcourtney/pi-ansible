@@ -1,0 +1,11 @@
+# This playbook does the day-to-day maintenance on the cluster of pis
+
+- name: Rasbian Maintenance tasks
+  hosts: Raspbian
+  become: yes
+  serial: 1
+  gather_facts: false
+  tags: core
+  roles:
+    - raspbian-server-core
+

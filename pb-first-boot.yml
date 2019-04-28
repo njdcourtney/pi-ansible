@@ -15,7 +15,7 @@
 # Modified from this gist: https://gist.github.com/EntropyWorks/a768b3bc4444146d56be81af05d73fed
 
 - name: Update local known-hosts
-  hosts: rasbian
+  hosts: Raspbian
   gather_facts: false
   connection: local
   serial: 1
@@ -41,7 +41,7 @@
         state: "present"
 
 - name: Add new admin user to newly installed Pi
-  hosts: pi
+  hosts: Raspbian
   become: yes
   gather_facts: false
   vars:

@@ -1,7 +1,9 @@
-gluster_devices: 
+#List of external disks. Array of key
+data_disks: 
   - /dev/sda
+  
+data_mounts:
+  /dev/sda1: /data/gluster/SharedMedia/brick0
 
 gluster_volumes: 
-  SharedMedia: 
-    - /dev/sda1
-    - /dev/sda2
+  SharedMedia: /data/gluster/SharedMedia/brick0

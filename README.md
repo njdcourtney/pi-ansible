@@ -12,8 +12,8 @@ If you're using WiFi you'll need to add a wpa_supplicant.conf file with the SSID
 ## Playbooks
 
 * pb-first-boot.yml - Updates the local SSH know_hosts, adds a new admin user and updates the software.
+* pb-format-disks.yml - Deletes any existing partitions and writes a single XFS partition to the listed devices
 * 01-pi-maintenance.yml - Updates the core settings such as timezone, hostname, ufw and ensures that the default 'pi' user is deleted.
-* 02-format-disks.yml - Deletes any existing partitions and writes a single XFS partition to the listed devices
 * 03-cluster.yml - Installs Gluster and Docker Swarm.
 
 ## Known Issues

@@ -1,4 +1,4 @@
-[Rasbian:children]
+[Raspbian:children]
   Cluster
   DHCPServers
 
@@ -12,7 +12,7 @@
   cluster-2
 
 [ClusterWorkers]
- cluster-3
+# cluster-3
 
 [DHCPServers]
   cluster-0

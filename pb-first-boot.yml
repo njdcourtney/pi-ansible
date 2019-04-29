@@ -56,18 +56,14 @@
         generate_ssh_key: yes
         password: "{{ admin_password }}"
         shell: /bin/bash
+        groups: "{{ admin_groups }}"
+        append: yes
 
     - name: Add management station ssh key to admin user authorized keys
       authorized_key:
         user: "{{ admin_user }}"
         state: present
         key: "{{ admin_ssh_key }}"
-
-    - name: Add extra groups to admin user
-      user:
-        name: "{{ admin_user }}"
-        groups: "{{ admin_groups }}"
-        append: yes
 
     - name: Add sudoers entry to allow admin user passwordless sudo
       copy:

@@ -1,0 +1,30 @@
+
+- name: Deploy Swarm services
+  hosts: ClusterManagers
+  gather_facts: true
+  tags: swarm-services
+
+  tasks:
+    - name: UFW for visualiser
+      become: yes
+      ufw:
+        state: enabled
+        rule: allow
+        port: 8080
+        comment: "Docker visualiser"
+
+    - name: Deploy Visualiser service
+      docker_swarm_service:
+        name: visualizer
+        image: alexellis2/visualizer-arm:latest
+        publish: 
+            - published_port: 8080
+              target_port: 8080
+        constraints: 
+            - "node.role==manager"
+        mounts:
+          - source: /var/run/docker.sock
+            target: /var/run/docker.sock
+            type: bind
+        update_monitor: 10000
+      run_once: true

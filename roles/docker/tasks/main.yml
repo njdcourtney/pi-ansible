@@ -28,15 +28,36 @@
     state: present
 
 - name: Start the swarm with default parameters
-  when: "'cluster-manager' in group_names" 
+  when: inventory_hostname == groups['ClusterManagers'][0]
   docker_swarm:
     state: present
   register: swarm_info
   run_once: true
 
-- name: Add worker nodes to the swarm
+- set_fact:
+    swarm_join_token: "{{ hostvars[groups['ClusterManagers'][0]].swarm_info.swarm_facts.JoinTokens.Worker }}"
+    swarm_master_token: "{{ hostvars[groups['ClusterManagers'][0]].swarm_info.swarm_facts.JoinTokens.Manager }}"
+    swarm_master_addr: "{{ hostvars[groups['ClusterManagers'][0]].ansible_facts.default_ipv4.address }}"
+
+- name: Add manager nodes to the swarm
+  when: "'ClusterManagers' in group_names" 
   docker_swarm:
     state: join
-    advertise_addr: "{{ ansible_default_ipv4.address }}"
-    join_token: "{{ hostvars[groups['cluster-manager'][0]].swarm_info.swarm_facts.JoinTokens.Worker }}"
-    remote_addrs: [ "{{ hostvars[groups['cluster-manager'][0]].ansible_default_ipv4.address }}:2377" ]
+    advertise_addr: "{{ ansible_facts.default_ipv4.address }}"
+    join_token: "{{ swarm_master_token }}"
+    remote_addrs: [ "{{ swarm_master_addr }}:2377" ]
+
+- name: Add worker nodes to the swarm
+  when: "'ClusterWorkers' in group_names" 
+  docker_swarm:
+    state: join
+    advertise_addr: "{{ ansible_facts.default_ipv4.address }}"
+    join_token: "{{ swarm_join_token }}"
+    remote_addrs: [ "{{ swarm_master_addr }}:2377" ]
+
+- name: Add admin user to docker group
+  user:
+    name: "{{ admin_user }}"
+    groups: docker
+    append: yes
+

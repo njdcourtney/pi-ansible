@@ -47,3 +47,15 @@
     regexp: '^#?PasswordAuthentication'
     line: 'PasswordAuthentication no'
   notify: restart ssh
+
+- name: Set static IP address
+  when: static_ip is defined
+  blockinfile:
+    path: /etc/dhcpcd.conf
+    block: |
+        interface {{ static_ip.interface }}
+        static ip_address={{ static_ip.ip_addr }}/24
+        static routers={{ static_ip.router }}
+        static domain_name_servers={{ static_ip.router }}
+        static domain_search={{ static_ip.domain }}
+  notify: "server reboot"

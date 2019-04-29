@@ -9,22 +9,58 @@
     rule: allow
     from_ip: "{{ hostvars[item].ansible_default_ipv4.address }}"
     comment: "Cluster peer"
-  with_items: " {{ groups.cluster }}"
+  loop: "{{ groups.Cluster }}"
 
 - name: Initialise Gluster pool on one node
   gluster_peer:
     state: present
-    nodes: "{{ groups.cluster }}"
+    nodes: "{{ groups.Cluster }}"
   run_once: true
 
-- name: Ensure all node are joined to the trusted pool
+- name: Ensure all nodes are joined to the trusted pool
   gluster_peer:
     state: present
-    nodes: "{{ groups.cluster }}"
+    nodes: "{{ groups.Cluster }}"
 
-- name: Mount partitions
-  include_tasks: create_volumes.yml
+- name: Mount Data directories
+  mount: 
+    fstype: xfs
+    src: "{{ item.key }}"
+    path: "{{ item.value }}"
+    state: mounted
+    opts: "rw,inode64,noatime,nouuid"
+  loop: "{{ gluster_partitions | dict2items }}"
+  
+- name: Create Gluster Volume
+  gluster_volume:
+    state: present
+    name: "{{ item.key }}"
+    bricks: "{{ item.value }}"
+    cluster: "{{ groups.Cluster }}"
+    redundancies: 1
   loop: "{{ gluster_volumes | dict2items }}"
-  loop_control:
-    loop_var: volume
+  run_once: true
 
+
+# The simple way to mount disks is to use the mount module and update fstab.
+# This leads to a race condition where mount tries to mount the glusterfs
+# before gluster is up, so we use Systemd to do it instead.
+
+- name: Create the mount point
+  file:
+     path: "/mnt/gluster/{{item.key}}"
+     state: directory
+  loop: "{{ gluster_volumes | dict2items }}"
+
+- name: Add Systemd mount file
+  template:
+    src: gluster_mount.j2
+    dest: "/etc/systemd/system/mnt-gluster-{{ item.key }}.mount"
+  loop: "{{ gluster_volumes | dict2items }}"
+
+- name: Start systemd service
+  systemd:
+    daemon_reload: yes
+    name: "mnt-gluster-{{ item.key }}.mount"
+    state: started
+  loop: "{{ gluster_volumes | dict2items }}"

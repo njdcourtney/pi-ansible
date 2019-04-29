@@ -9,3 +9,13 @@
   roles:
     - raspbian-server-core
 
+- name: Install cluster services
+  hosts: Cluster
+  become: yes
+  gather_facts: true
+  tags: cluster-services
+  roles:
+    - gluster
+    - docker
+
+

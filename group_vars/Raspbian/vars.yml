@@ -1,0 +1,8 @@
+admin_user: "{{ vault_admin_user }}"
+admin_password: "{{ vault_admin_password }}"
+admin_ssh_key: "{{ vault_ssh_key }}"
+#This are the groups assigned to the 'pi' user in Rasbian stretch
+admin_groups: adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,input,netdev,gpio,i2c,spi
+
+ansible_ssh_user: "{{ vault_admin_user }}"
+timezone: "Europe/London"

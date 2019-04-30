@@ -1,0 +1,88 @@
+# Raspberry Pi has a default username and password, add a new admin user so
+# the default user can be deleted later.
+# This playbook is designed to be used just once when a pi is first installed.
+# This is the one and only time that we'll use the default 'pi' user
+
+# This contains two plays.
+# The first updates the local ssh known_hosts files
+# The second logs in using the default username and password and adds a replacement admin user.
+
+# Play - Update local known hosts.
+# Spurious entries in known_hosts can leave you vulnerable to MITM attacks
+# so this playbook should only be run if you're confident in the identity of the endpoints
+# and have a valid reason for the SSH key changing eg. first boot after flashing the SD card.
+#
+# Modified from this gist: https://gist.github.com/EntropyWorks/a768b3bc4444146d56be81af05d73fed
+
+- name: Update local known-hosts
+  hosts: Raspbian
+  gather_facts: false
+  connection: local
+  serial: 1
+
+  tasks:
+    - name: Simple A record (IPV4 address) lookup the hostname
+      shell: "dig +short {{ inventory_hostname }}"
+      register: ipaddr
+
+    - name: For each host, scan for its ssh public key
+      shell: "ssh-keyscan -t rsa {{ inventory_hostname }},{{ ipaddr['stdout'] }}"
+      register: ssh_known_host_results
+
+    - name: Remove any previous entry
+      known_hosts:
+        name: "{{inventory_hostname }}"
+        state: "absent"
+
+    - name: Add/update the public key in the '{{ known_hosts_file }}'
+      known_hosts:
+        name: "{{ inventory_hostname }}"
+        key: "{{ ssh_known_host_results.stdout }}"
+        state: "present"
+
+- name: Add new admin user to newly installed Pi
+  hosts: Raspbian
+  become: yes
+  gather_facts: false
+  vars:
+    # This is the well-known default username and password that we're actively changing.
+    ansible_ssh_user: pi 
+    ansible_ssh_pass: raspberry
+
+  tasks:
+    - name: Create admin user
+      user:
+        name: "{{ admin_user }}"
+        generate_ssh_key: yes
+        password: "{{ admin_password }}"
+        shell: /bin/bash
+        groups: "{{ admin_groups }}"
+        append: yes
+
+    - name: Add management station ssh key to admin user authorized keys
+      authorized_key:
+        user: "{{ admin_user }}"
+        state: present
+        key: "{{ admin_ssh_key }}"
+
+    - name: Add sudoers entry to allow admin user passwordless sudo
+      copy:
+        content: "{{ admin_user }} ALL=(ALL) NOPASSWD: ALL"
+        dest: "/etc/sudoers.d/020_{{ admin_user }}-nopasswd"
+        mode: 0440
+    
+    # A newly installed pi almost certainly needs a software update
+    #  Run async as the first software update can take some time.
+    - name: Update software
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        upgrade: yes
+      async: 600
+      poll: 20
+    
+    # Reboot the server after the update
+    - name: Rebooting
+      shell: sleep 2 && shutdown -r now 'Reboot required'
+      async: 1
+      poll: 0

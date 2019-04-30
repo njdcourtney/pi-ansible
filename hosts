@@ -1,0 +1,18 @@
+[Raspbian:children]
+  Cluster
+  DHCPServers
+
+[Cluster:children]
+  ClusterManagers
+  ClusterWorkers
+
+[ClusterManagers]
+  cluster-0
+  cluster-1
+  cluster-2
+
+[ClusterWorkers]
+# cluster-3
+
+[DHCPServers]
+  cluster-0

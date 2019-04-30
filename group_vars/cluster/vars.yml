@@ -1,0 +1,11 @@
+#List of external disks. Array of key
+data_disks: 
+  - /dev/sda
+  
+gluster_partitions:
+  /dev/sda1: /data/gluster/SharedMedia/brick0
+
+gluster_volumes: 
+  SharedMedia: /data/gluster/SharedMedia/brick0/brick
+
+docker_user: dockeradmin

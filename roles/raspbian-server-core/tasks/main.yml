@@ -1,0 +1,61 @@
+- name: Update software
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+    upgrade: yes
+    autoremove: yes
+
+- name: Check if reboot is required
+  stat: 
+    path: /var/run/reboot-required
+  register: reboot_file
+
+- name: Reboot required?
+  when: reboot_file.stat.exists
+  command: /bin/true
+  notify: "server reboot"
+
+- name: Ensure the 'pi' user is absent
+  user:
+    name: pi
+    state: absent
+    remove: yes
+  notify: "server reboot"
+
+- name: Ensure the hostname is set correctly
+  hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Ensure Timezone to {{ timezone }}
+  timezone:
+    name: "{{ timezone }}"
+
+- name: Ensure UFW installed and present
+  apt:
+    name: ufw
+    state: present
+
+- name: Configure ufw to be enabled and allow SSH
+  ufw:
+    state: enabled
+    rule: allow
+    name: OpenSSH
+
+- name: Disable SSH Password logins
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PasswordAuthentication'
+    line: 'PasswordAuthentication no'
+  notify: restart ssh
+
+- name: Set static IP address
+  when: static_ip is defined
+  blockinfile:
+    path: /etc/dhcpcd.conf
+    block: |
+        interface {{ static_ip.interface }}
+        static ip_address={{ static_ip.ip_addr }}/24
+        static routers={{ static_ip.router }}
+        static domain_name_servers={{ static_ip.router }}
+        static domain_search={{ static_ip.domain }}
+  notify: "server reboot"

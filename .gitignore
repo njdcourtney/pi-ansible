@@ -1,14 +1,8 @@
-#Ignore the Rasbian images directory
-img
-
-#Ignore the hostvars
-host_vars/*
-
-#Ignore the templates
-templates/*
-
-#Ignore vault files
+#Ignore any vault files
 vault.yml
 
-#Ignore system DS_Store
+#Ignore any retry files
+*.retry
+
+#Ignore any Apple .DS_Store files
 .DS_Store

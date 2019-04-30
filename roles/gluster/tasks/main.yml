@@ -63,4 +63,5 @@
     daemon_reload: yes
     name: "mnt-gluster-{{ item.key }}.mount"
     state: started
+    enabled: yes
   loop: "{{ gluster_volumes | dict2items }}"

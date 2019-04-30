@@ -1,0 +1,1 @@
+dnsmasq_vars: "{{ vault_dnsmasq_vars }}"

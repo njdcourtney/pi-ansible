@@ -1,0 +1,66 @@
+# Configuration file for dnsmasq.
+
+# Never forward plain names (without a dot or domain part)
+domain-needed
+# Never forward addresses in the non-routed address spaces.
+bogus-priv
+
+# If you don't want dnsmasq to read /etc/resolv.conf or any other
+# file, getting its servers from this file instead (see below), then
+# uncomment this.
+no-resolv
+
+# Example of routing PTR queries to nameservers: this will send all
+# address->name queries for 192.168.3/24 to nameserver 10.1.2.3
+#server=/3.168.192.in-addr.arpa/10.1.2.3
+{% for server in dnsmasq_vars.dns_servers %}
+server={{ server }}
+{% endfor %}
+
+# Set this (and domain: see below) if you want to have a domain
+# automatically added to simple names in a hosts-file.
+expand-hosts
+
+# Set the domain for dnsmasq. this is optional, but if it is set, it
+# does the following things.
+# 1) Allows DHCP hosts to have fully qualified domain names, as long
+#     as the domain part matches this setting.
+# 2) Sets the "domain" DHCP option thereby potentially setting the
+#    domain of all systems configured by DHCP
+# 3) Provides the domain part for "expand-hosts"
+#domain=thekelleys.org.uk
+domain={{ static_ip.domain }}
+
+# Uncomment this to enable the integrated DHCP server, you need
+# to supply the range of addresses available for lease and optionally
+# a lease time. If you have more than one network, you will need to
+# repeat this for each network on which you want to supply DHCP
+# service.
+#dhcp-range=192.168.0.50,192.168.0.150,12h
+dhcp-range={{ dnsmasq_vars.dhcp_range }}
+
+# Supply parameters for specified hosts using DHCP. There are lots
+# of valid alternatives, so we will give examples of each. Note that
+# IP addresses DO NOT have to be in the range given above, they just
+# need to be on the same network. The order of the parameters in these
+# do not matter, it's permissible to give name, address and MAC in any
+# order.
+
+{% for host in dnsmasq_vars.dhcp_hosts %}
+dhcp-host={{ host }}
+{% endfor %}
+
+dhcp-option=option:router,{{ static_ip.router }}
+dhcp-option=option:domain-search,{{ static_ip.domain }}
+dhcp-option=option:domain-name,{{ static_ip.domain }}
+dhcp-option=option:dns-server,{{ static_ip.ip_addr }},{{ dnsmasq_vars.dns_servers | join(',') }}
+
+# Set the DHCP server to authoritative mode. In this mode it will barge in
+# and take over the lease for any client which broadcasts on the network,
+# whether it has a record of the lease or not. This avoids long timeouts
+# when a machine wakes up on a new network. DO NOT enable this if there's
+# the slightest chance that you might end up accidentally configuring a DHCP
+# server for your campus/company accidentally. The ISC server uses
+# the same option, and this URL provides more information:
+# http://www.isc.org/files/auth.html
+dhcp-authoritative

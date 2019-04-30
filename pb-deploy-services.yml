@@ -9,6 +9,14 @@
   roles:
     - raspbian-server-core
 
+- name: Install DHCP Servers
+  hosts: DHCPServers
+  become: yes
+  gather_facts: false
+  tags: DHCP
+  roles:
+    - dnsmasq
+
 - name: Install cluster services
   hosts: Cluster
   become: yes

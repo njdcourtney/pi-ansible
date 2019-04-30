@@ -1,5 +1,0 @@
-netatalk_version: 3.1.12
-netatalk_scr_dir: "/usr/local/src/netatalk/"
-netatalk_dir: "{{ netatalk_scr_dir }}netatalk-{{ netatalk_version }}/"
-netatalk_tarfile: "netatalk-{{ netatalk_version }}.tar.gz"
-netatalk_url: "https://downloads.sourceforge.net/project/netatalk/netatalk/{{ netatalk_version }}/{{ netatalk_tarfile }}"

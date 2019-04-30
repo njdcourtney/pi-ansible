@@ -1,5 +1,0 @@
-# - name: Import netatalk
-#   import_tasks: install_netatalk.yml
-
-- name: Import ResilioSync
-  import_tasks: install_resiliosync.yml

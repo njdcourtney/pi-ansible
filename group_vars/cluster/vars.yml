@@ -9,3 +9,6 @@ gluster_volumes:
   SharedMedia: /data/gluster/SharedMedia/brick0/brick
 
 docker_user: dockeradmin
+
+#Set all the pis to be headless
+pi_headless: true

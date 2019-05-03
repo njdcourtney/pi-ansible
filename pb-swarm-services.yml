@@ -18,7 +18,7 @@
         name: njdcourtney/visualizer-custom:latest
 
     - name: Deploy Visualiser service
-      when: inventory_hostname == groups['ClusterManagers'][0]
+      when: 'ClusterManagers' in group_names 
       docker_swarm_service:
         name: visualizer
         image: njdcourtney/visualizer-custom:latest

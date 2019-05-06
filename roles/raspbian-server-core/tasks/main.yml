@@ -60,19 +60,7 @@
         static domain_search={{ static_ip.domain }}
   notify: "server reboot"
 
-# Stop HDMI service based on these instructions: 
-# https://frederik.lindenaar.nl/2018/05/11/raspberry-pi-power-saving-disable-hdmi-port-and-others-the-systemd-way.html
-
-- name: Install setting to stop HDMI on headless servers
+# Import the headless tasks if this is a headless server
+- name: Import Headless server tasks
   when: pi_headless is defined and pi_headless
-  template:
-    src: rpi_no_hdmi.j2
-    dest: /etc/systemd/system/rpi_no_hdmi.service
-
-- name: Start the stop HDMI  service
-  when: pi_headless is defined and pi_headless
-  systemd:
-    daemon_reload: yes
-    name: rpi_no_hdmi.service
-    state: started
-    enabled: yes
+  import_tasks: headless.yml 

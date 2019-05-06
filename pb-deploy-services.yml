@@ -26,4 +26,11 @@
     - gluster
     - docker
 
+- name: Deploy swarm services
+  hosts: Cluster
+  gather_facts: false
+  tags: swarm-services
+  roles:
+    - swarm-services
+
 

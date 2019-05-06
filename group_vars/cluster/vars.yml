@@ -1,10 +1,12 @@
-#List of external disks. Array of key
+#List of external disks.
 data_disks: 
   - /dev/sda
-  
+
+#Gluster brick to mount
 gluster_partitions:
   /dev/sda1: /data/gluster/SharedMedia/brick0
 
+#Volumes to mount
 gluster_volumes: 
   SharedMedia: /data/gluster/SharedMedia/brick0/brick
 

@@ -1,7 +1,7 @@
 
 - name: Deploy Swarm services
   hosts: Cluster
-  gather_facts: true
+  gather_facts: false
   tags: swarm-services
 
   tasks:
@@ -18,7 +18,7 @@
         name: njdcourtney/visualizer-custom:latest
 
     - name: Deploy Visualiser service
-      when: 'ClusterManagers' in group_names 
+      when: "'ClusterManagers' in group_names"
       docker_swarm_service:
         name: visualizer
         image: njdcourtney/visualizer-custom:latest

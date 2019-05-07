@@ -82,6 +82,7 @@
   docker_swarm_service:
     name: netatalk
     image: "{{ netatalk.image }}"
+    hostname: swarm-netatalk
     env:
       - "AFP_USER={{ netatalk.user }}"
       - "AFP_UID={{ netatalk.uid }}"

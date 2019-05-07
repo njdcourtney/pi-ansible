@@ -19,6 +19,6 @@ netatalk:
   uid: 200
   gid: 200
   passwd: "{{ vault_netatalk_passwd }}"
-  image: njdcourtney/docker-netatalk:2019-05-07
+  image: njdcourtney/docker-netatalk:2019-05-07a
   directory: /mnt/gluster/SharedMedia/netshare
   force: false

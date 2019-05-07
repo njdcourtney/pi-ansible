@@ -1,29 +1,5 @@
-- name: UFW for visualiser
-  become: yes
-  ufw:
-    state: enabled
-    rule: allow
-    port: 8080
-    comment: "Docker visualiser"
+- name: Install vizualiser
+  include_tasks: vizualizer.yml
 
-- name: Pull the image to all nodes
-  docker_image:
-    name: njdcourtney/visualizer-custom:latest
-
-- name: Deploy Visualiser service
-  when: "'ClusterManagers' in group_names"
-  docker_swarm_service:
-    name: visualizer
-    image: njdcourtney/visualizer-custom:latest
-    publish: 
-        - published_port: 8080
-          target_port: 8080
-    constraints: 
-        - "node.role==manager"
-    mounts:
-      - source: /var/run/docker.sock
-        target: /var/run/docker.sock
-        type: bind
-    update_monitor: 10000
-    restart_policy: any
-  run_once: true
+- name: Install netatalk
+  include_tasks: netatalk.yml

@@ -10,7 +10,15 @@ gluster_partitions:
 gluster_volumes: 
   SharedMedia: /data/gluster/SharedMedia/brick0/brick
 
-docker_user: dockeradmin
-
 #Set all the pis to be headless
 pi_headless: true
+
+# Variables for various Docker services
+netatalk:
+  user: netshare
+  uid: 200
+  gid: 200
+  passwd: "{{ vault_netatalk_passwd }}"
+  image: njdcourtney/docker-netatalk:2019-05-07
+  directory: /mnt/gluster/SharedMedia/netshare
+  force: false

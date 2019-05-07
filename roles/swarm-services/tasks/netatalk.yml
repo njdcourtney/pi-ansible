@@ -1,0 +1,106 @@
+- name: Open firewall ports for Netatalk
+  become: yes
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    from_ip: '192.168.0.0/16'
+    comment: "Netatalk"
+  with_items:
+    - 548
+    - 5353
+
+- name: Pull the netatalk image to all nodes
+  docker_image:
+    name: "{{ netatalk.image }}"
+
+- name: Create fileserver user group
+  become: yes
+  group:
+    name: "{{ netatalk.user }}"
+    gid: "{{ netatalk.gid }}"
+
+- name: Create fileserver user
+  become: yes
+  user:
+    name: "{{ netatalk.user }}"
+    uid: "{{ netatalk.uid }}"
+    group: "{{ netatalk.user }}"
+
+# Ansible 2.7 doesn't have great support for creating networks, so do this bit by hand.
+- name: Get info about docker networks
+  command: "docker network ls"
+  register: docker_networks
+
+- name: Create macvlan network
+  when: not docker_networks.stdout is search("netatalk-config")
+  command: "docker network create -d macvlan --config-only --subnet=192.168.0.0/24 --ip-range=192.168.0.192/32 --gateway=192.168.0.1 -o parent=eth0 netatalk-config" 
+
+- name: Create macvlan swarm network
+  when: 
+    - not docker_networks.stdout is search("netatalk-config")
+    - "'ClusterManagers' in group_names" 
+  command: "docker network create -d macvlan --scope swarm --config-from netatalk-config netatalk-swarm"
+  run_once: true
+
+- name: Ensure that share directory exists
+  become: yes
+  file:
+    name: "{{ netatalk.directory }}"
+    state: directory
+    owner: "{{ netatalk.user }}"
+
+- name: Delete service if force
+  when: 
+    - netatalk.force
+    - "'ClusterManagers' in group_names" 
+  docker_swarm_service:
+    name: netatalk
+    state: absent
+    update_monitor: 10000
+  run_once: true
+
+- name: Delete secret if force
+  when: 
+    - netatalk.force
+    - "'ClusterManagers' in group_names" 
+  docker_secret:
+    name: netatalk-user
+    state: absent
+  run_once: true
+
+- name: Create secret with the filesystem user
+  when: "'ClusterManagers' in group_names" 
+  docker_secret:
+    name: netatalk-user
+    data: "{{ netatalk.user }}:{{ netatalk.passwd }}"
+    state: present
+  register: netatalk_secret
+  run_once: true
+
+- name: Deploy netatalk service
+  when: "'ClusterManagers' in group_names" 
+  docker_swarm_service:
+    name: netatalk
+    image: "{{ netatalk.image }}"
+    env:
+      - "AFP_USER={{ netatalk.user }}"
+      - "AFP_UID={{ netatalk.uid }}"
+      - "AFP_GID={{ netatalk.gid }}"
+    publish: 
+        - published_port: 548
+          target_port: 548
+        - published_port: 5353
+          target_port: 5353
+    mounts:
+      - source: "{{ netatalk.directory }}"
+        target: /media/share
+        type: bind
+    networks:
+      - netatalk-swarm
+    secrets:
+      - secret_id: "{{ netatalk_secret.secret_id}}"
+        secret_name: netatalk-user
+        filename: netatalk_passwd
+    update_monitor: 10000
+    restart_policy: any
+  run_once: true

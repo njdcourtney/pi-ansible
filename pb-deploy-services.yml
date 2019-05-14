@@ -23,11 +23,14 @@
   gather_facts: true
   tags: cluster-services
   roles:
-    - gluster
-    - docker
-    - telegraf
+    - role: gluster
+      tags: gluster
+    - role: docker
+      tags: docker
+    - role: telegraf
+      tags: telegraf
 
-- name: Deploy swarm services
+- name: Deploy swarm services as non-root user
   hosts: Cluster
   gather_facts: false
   tags: swarm-services

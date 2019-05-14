@@ -1,14 +1,3 @@
-- name: Open firewall ports for Netatalk
-  become: yes
-  ufw:
-    rule: allow
-    port: "{{ item }}"
-    from_ip: '192.168.0.0/16'
-    comment: "Netatalk"
-  with_items:
-    - 548
-    - 5353
-
 - name: Pull the netatalk image to all nodes
   docker_image:
     name: "{{ netatalk.image }}"

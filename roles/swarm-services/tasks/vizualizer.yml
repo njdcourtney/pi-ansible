@@ -1,11 +1,3 @@
-- name: UFW for visualiser
-  become: yes
-  ufw:
-    state: enabled
-    rule: allow
-    port: 8080
-    comment: "Docker visualiser"
-
 - name: Pull visualizer image to all nodes
   docker_image:
     name: njdcourtney/visualizer-custom:latest

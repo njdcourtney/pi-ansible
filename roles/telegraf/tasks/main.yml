@@ -14,6 +14,12 @@
     name: telegraf
     state: present
 
+- name: Add telegraf users to docker group
+  user:
+    name: "telegraf"
+    groups: docker
+    append: yes
+
 - name: Configure telegraf
   template:
     src: telegraf.conf.j2

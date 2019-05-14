@@ -25,6 +25,7 @@
   roles:
     - gluster
     - docker
+    - telegraf
 
 - name: Deploy swarm services
   hosts: Cluster
@@ -32,5 +33,3 @@
   tags: swarm-services
   roles:
     - swarm-services
-
-

@@ -1,0 +1,21 @@
+- name: Add influxdata public Key
+  apt_key:
+    url: https://repos.influxdata.com/influxdb.key
+    state: present
+
+- name: Add influxdata Repo
+  apt_repository:
+    repo: deb https://repos.influxdata.com/debian stretch stable
+    state: present
+    update_cache: yes
+
+- name: Install telegraf
+  apt:
+    name: telegraf
+    state: present
+
+- name: Configure telegraf
+  template:
+    src: telegraf.conf.j2
+    dest: /etc/telegraf/telegraf.conf
+  notify: restart-telegraf

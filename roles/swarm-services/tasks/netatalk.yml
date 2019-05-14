@@ -37,7 +37,7 @@
 
 - name: Create macvlan swarm network
   when: 
-    - not docker_networks.stdout is search("netatalk-config")
+    - not docker_networks.stdout is search("netatalk-swarm")
     - "'ClusterManagers' in group_names" 
   command: "docker network create -d macvlan --scope swarm --config-from netatalk-config netatalk-swarm"
   run_once: true

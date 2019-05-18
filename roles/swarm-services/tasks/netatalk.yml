@@ -97,5 +97,6 @@
       - secret_id: "{{ netatalk_secret.secret_id}}"
         secret_name: netatalk-user
         filename: netatalk_passwd
-    restart_policy: any
+    restart_config:
+      condition: any
   run_once: true

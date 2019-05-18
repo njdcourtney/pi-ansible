@@ -1,11 +1,11 @@
 [Unit]
-Description=GlusterFS Mount {{ item.key }}
+Description=GlusterFS Mount {{ item.name }}
 After=glusterfs-server.service
 Requires=glusterfs-server.service
 
 [Mount]
-What=localhost:/{{ item.key }}
-Where=/mnt/gluster/{{item.key}}
+What=localhost:/{{ item.name }}
+Where=/mnt/gluster/{{item.name }}
 Type=glusterfs
 Options=defaults,_netdev
 

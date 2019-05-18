@@ -1,14 +1,17 @@
 #List of external disks.
 data_disks: 
-  - /dev/sda
+  - device: /dev/sda
+    label: ClusterShared
 
 #Gluster brick to mount
 gluster_partitions:
-  /dev/sda1: /data/gluster/SharedMedia/brick0
+  - src: LABEL=ClusterShared
+    path: /data/gluster/ClusterShared/brick0
 
 #Volumes to mount
 gluster_volumes: 
-  SharedMedia: /data/gluster/SharedMedia/brick0/brick
+  - name: ClusterShared
+    bricks: /data/gluster/ClusterShared/brick0/brick
 
 #Set all the pis to be headless
 pi_headless: true

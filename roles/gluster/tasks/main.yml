@@ -25,22 +25,21 @@
 - name: Mount Data directories
   mount: 
     fstype: xfs
-    src: "{{ item.key }}"
-    path: "{{ item.value }}"
+    src: "{{ item.src }}"
+    path: "{{ item.path }}"
     state: mounted
     opts: "rw,inode64,noatime,nouuid"
-  loop: "{{ gluster_partitions | dict2items }}"
+  loop: "{{ gluster_partitions }}"
   
 - name: Create Gluster Volume
   gluster_volume:
     state: present
-    name: "{{ item.key }}"
-    bricks: "{{ item.value }}"
+    name: "{{ item.name }}"
+    bricks: "{{ item.bricks }}"
     cluster: "{{ groups.Cluster }}"
     redundancies: 1
-  loop: "{{ gluster_volumes | dict2items }}"
+  loop: "{{ gluster_volumes }}"
   run_once: true
-
 
 # The simple way to mount disks is to use the mount module and update fstab.
 # This leads to a race condition where mount tries to mount the glusterfs
@@ -48,20 +47,20 @@
 
 - name: Create the mount point
   file:
-     path: "/mnt/gluster/{{item.key}}"
+     path: "/mnt/gluster/{{item.name}}"
      state: directory
-  loop: "{{ gluster_volumes | dict2items }}"
+  loop: "{{ gluster_volumes }}"
 
 - name: Add Systemd mount file
   template:
     src: gluster_mount.j2
-    dest: "/etc/systemd/system/mnt-gluster-{{ item.key }}.mount"
-  loop: "{{ gluster_volumes | dict2items }}"
+    dest: "/etc/systemd/system/mnt-gluster-{{ item.name }}.mount"
+  loop: "{{ gluster_volumes }}"
 
 - name: Start systemd service
   systemd:
     daemon_reload: yes
-    name: "mnt-gluster-{{ item.key }}.mount"
+    name: "mnt-gluster-{{ item.name }}.mount"
     state: started
     enabled: yes
-  loop: "{{ gluster_volumes | dict2items }}"
+  loop: "{{ gluster_volumes }}"

@@ -1,5 +1,6 @@
 - name: Pull the netatalk image to all nodes
   docker_image:
+    source: pull
     name: "{{ netatalk.image }}"
 
 - name: Create fileserver user group
@@ -91,6 +92,5 @@
       - secret_id: "{{ netatalk_secret.secret_id}}"
         secret_name: netatalk-user
         filename: netatalk_passwd
-    update_monitor: 10000
     restart_policy: any
   run_once: true

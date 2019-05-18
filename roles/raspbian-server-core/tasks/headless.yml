@@ -28,4 +28,3 @@
     path: /etc/rc.local
     line: 'echo 0 > /sys/class/leds/led1/brightness'
     insertbefore: '^exit 0'
-#  notify: "server reboot"

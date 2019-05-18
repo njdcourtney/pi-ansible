@@ -1,5 +1,6 @@
 - name: Pull visualizer image to all nodes
   docker_image:
+    source: pull
     name: njdcourtney/visualizer-custom:latest
 
 - name: Deploy Visualiser service
@@ -16,6 +17,5 @@
       - source: /var/run/docker.sock
         target: /var/run/docker.sock
         type: bind
-    update_monitor: 10000
     restart_policy: any
   run_once: true

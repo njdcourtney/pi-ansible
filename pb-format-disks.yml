@@ -45,3 +45,10 @@
         force: true
       loop: "{{ data_disks }}"
 
+    - name: Get the device info to retrieve the new UUIDs
+      gather_facts:
+      register: host_facts
+
+    - name: Print the Partitiion UUIDs
+      debug:
+        var: host_facts.ansible_facts.ansible_device_links

@@ -1,6 +1,0 @@
-- name: Install vizualiser
-  include_tasks: vizualizer.yml
-
-- name: Install netatalk
-  include_tasks: netatalk.yml
-

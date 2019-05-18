@@ -5,17 +5,17 @@
   become: yes
   serial: 1
   gather_facts: false
-  tags: core
   roles:
-    - raspbian-server-core
+    - role: raspbian-server-core
+      tags: core
 
 - name: Install DHCP Servers
   hosts: DHCPServers
   become: yes
   gather_facts: false
-  tags: DHCP
   roles:
-    - dnsmasq
+    - role: dnsmasq
+      tags: dnsmasq
 
 - name: Install cluster services
   hosts: Cluster
@@ -33,6 +33,8 @@
 - name: Deploy swarm services as non-root user
   hosts: Cluster
   gather_facts: false
-  tags: swarm-services
   roles:
-    - swarm-services
+    - role: docker-netatalk
+      tags: docker-netatalk
+    - role: docker-vizualizer
+      tags: docker-vizualizer

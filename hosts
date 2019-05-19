@@ -1,6 +1,7 @@
 [Raspbian:children]
   Cluster
   DHCPServers
+  UniFiControllers
 
 [Cluster:children]
   ClusterManagers
@@ -16,3 +17,6 @@
 
 [DHCPServers]
   cluster-0
+
+[UniFiControllers]
+# cluster-3

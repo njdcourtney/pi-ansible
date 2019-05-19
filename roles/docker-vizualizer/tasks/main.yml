@@ -9,7 +9,7 @@
     name: visualizer
     image: njdcourtney/visualizer-custom:latest
     publish: 
-        - published_port: 8080
+        - published_port: 8081
           target_port: 8080
     mounts:
       - source: /var/run/docker.sock

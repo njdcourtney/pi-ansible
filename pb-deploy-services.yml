@@ -17,6 +17,14 @@
     - role: dnsmasq
       tags: dnsmasq
 
+- name: Install Ubiquiti Controller
+  hosts: UniFiControllers
+  become: yes
+  gather_facts: false
+  roles:
+    - role: ubiquiti-controller
+      tags: ubiquiti-controller
+
 - name: Install cluster services
   hosts: Cluster
   become: yes

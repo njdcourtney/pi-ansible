@@ -6,9 +6,12 @@
         - python-pip
     state: present
 
-- name: Install Docker python module (Ansible module pre-req)
+- name: Install Docker python modules (Ansible docker modules pre-reqs)
   pip:
-    name: docker
+    name: 
+        - docker
+        - jsondiff
+        - pyyaml
 
 - name: Add Docker Public Key
   apt_key:

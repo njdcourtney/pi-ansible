@@ -17,13 +17,13 @@
     - role: dnsmasq
       tags: dnsmasq
 
-- name: Install Ubiquiti Controller
-  hosts: UniFiControllers
-  become: yes
-  gather_facts: false
-  roles:
-    - role: ubiquiti-controller
-      tags: ubiquiti-controller
+# - name: Install Ubiquiti Controller
+#   hosts: UniFiControllers
+#   become: yes
+#   gather_facts: false
+#   roles:
+#     - role: ubiquiti-controller
+#       tags: ubiquiti-controller
 
 - name: Install cluster services
   hosts: Cluster
@@ -42,7 +42,9 @@
   hosts: Cluster
   gather_facts: false
   roles:
-    - role: docker-netatalk
-      tags: docker-netatalk
     - role: docker-vizualizer
       tags: docker-vizualizer
+    - role: docker-netatalk
+      tags: docker-netatalk
+    - role: docker-tickstack
+      tags: docker-tickstack

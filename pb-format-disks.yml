@@ -32,6 +32,7 @@
     - name: Make partition
       parted:
         device: "{{ item.device }}"
+        label: gpt
         name: "{{ item.label }}"
         number: 1
         state: present

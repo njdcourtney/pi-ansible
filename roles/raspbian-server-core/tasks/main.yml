@@ -2,7 +2,7 @@
   apt:
     update_cache: yes
     cache_valid_time: 3600
-    upgrade: yes
+    upgrade: 'yes'
     autoremove: yes
 
 - name: Check if reboot is required
@@ -56,7 +56,7 @@
         interface {{ static_ip.interface }}
         static ip_address={{ static_ip.ip_addr }}/24
         static routers={{ static_ip.router }}
-        static domain_name_servers={{ static_ip.router }}
+        static domain_name_servers={{ static_ip.name_servers }}
         static domain_search={{ static_ip.domain }}
   notify: "server reboot"
 

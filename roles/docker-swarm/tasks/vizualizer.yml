@@ -1,13 +1,7 @@
-- name: Pull visualizer image to all nodes
-  docker_image:
-    source: pull
-    name: "{{ vizualizer.image }}"
-
 - name: Deploy Visualiser service
-  when: "'ClusterManagers' in group_names"
   docker_swarm_service:
     name: visualizer
-    image: "{{ vizualizer.image }}"
+    image: "{{ docker_images.vizualizer }}"
     publish: 
         - published_port: 8081
           target_port: 8080

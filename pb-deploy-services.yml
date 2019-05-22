@@ -25,7 +25,7 @@
 #     - role: ubiquiti-controller
 #       tags: ubiquiti-controller
 
-- name: Install cluster services
+- name: Install Services on each cluster node
   hosts: Cluster
   become: yes
   gather_facts: true
@@ -39,12 +39,9 @@
       tags: telegraf
 
 - name: Deploy swarm services as non-root user
-  hosts: Cluster
+  hosts: ClusterManagers
   gather_facts: false
+  tags: swarm-services
   roles:
-    - role: docker-vizualizer
-      tags: docker-vizualizer
-    - role: docker-netatalk
-      tags: docker-netatalk
-    - role: docker-tickstack
-      tags: docker-tickstack
+    - role: docker-swarm
+      tags: docker-swarm

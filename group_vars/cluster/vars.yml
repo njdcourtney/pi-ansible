@@ -16,43 +16,51 @@ gluster_volumes:
 #Set all the pis to be headless
 pi_headless: true
 
-docker_volumes: /mnt/gluster/ClusterShared/DockerVolumes
+# Define any additional users that the docker containers need
+docker_users:
+  - name: netshare
+    uid: 200
+    gid: 200
+    password: "{{ vault_netatalk_passwd }}"
 
-# Variables for various Docker services
-netatalk:
-  user: netshare
-  uid: 200
-  gid: 200
-  passwd: "{{ vault_netatalk_passwd }}"
-  image: njdcourtney/docker-netatalk:2019-05-07a
-  directory: "{{ docker_volumes}}/netshare"
-  force: false
+# Define any directories that will be needed for Docker Volumes
+docker_volume_root: /mnt/gluster/ClusterShared/DockerVolumes
+docker_volumes:
+  netatalk: "{{ docker_volume_root }}/netshare"
+  influxdb: "{{ docker_volume_root }}/influxdb"
+  chronograf: "{{ docker_volume_root }}/chronograf"
 
-vizualizer:
-  image: njdcourtney/visualizer-custom:latest
+#List any images to pre-pull to all nodes to speed up replication
+docker_images:
+  netatalk: njdcourtney/docker-netatalk:2019-05-07a
+  vizualizer: njdcourtney/visualizer-custom:latest
+  influxdb: influxdb
+  chronograf: chronograf
 
-tickstack:
-    version: "3.7"
-    services:
-      influxdb:
-        image: influxdb
-        ports: 
-          - "8086:8086"
-        volumes:
-          - type: bind
-            source: "{{ docker_volumes}}/influxdb"
-            target: /var/lib/influxdb
-        networks:
-          - tickstacknet
-      chronograf:
-        image: chronograf
-        ports: 
-          - "8888:8888"
-        volumes:
-          - type: bind
-            source: "{{ docker_volumes}}/chronograf"
-            target: /var/lib/chronograf
-        networks:
-          - tickstacknet
-    networks:
-      tickstacknet:
+#Define the stacks to deploy
+docker_stacks:
+  tickstack:
+      version: "3.7"
+      services:
+        influxdb:
+          image: "{{ docker_images.influxdb }}"
+          ports: 
+            - "8086:8086"
+          volumes:
+            - type: bind
+              source: "{{ docker_volumes.influxdb}}"
+              target: /var/lib/influxdb
+          networks:
+            - tickstacknet
+        chronograf:
+          image: "{{ docker_images.chronograf }}"
+          ports: 
+            - "8888:8888"
+          volumes:
+            - type: bind
+              source: "{{ docker_volumes.chronograf }}"
+              target: /var/lib/chronograf
+          networks:
+            - tickstacknet
+      networks:
+        tickstacknet:

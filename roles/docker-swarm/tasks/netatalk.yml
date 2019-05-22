@@ -1,0 +1,36 @@
+
+- name: Create secret with the filesystem user
+  docker_secret:
+    name: netatalk-user
+    data: "{{ netatalk.user }}:{{ netatalk.passwd }}"
+    state: present
+  register: netatalk_secret
+  run_once: true
+
+- name: Deploy netatalk service
+  docker_swarm_service:
+    name: netatalk
+    image: "{{ netatalk.image }}"
+    hostname: swarm-netatalk
+    env:
+      - "AFP_USER={{ netatalk.user }}"
+      - "AFP_UID={{ netatalk.uid }}"
+      - "AFP_GID={{ netatalk.gid }}"
+    publish: 
+        - published_port: 548
+          target_port: 548
+        - published_port: 5353
+          target_port: 5353
+    mounts:
+      - source: "{{ netatalk.directory }}"
+        target: /media/share
+        type: bind
+    networks:
+      - netatalk-swarm
+    secrets:
+      - secret_id: "{{ netatalk_secret.secret_id}}"
+        secret_name: netatalk-user
+        filename: netatalk_passwd
+    restart_config:
+      condition: any
+  run_once: true

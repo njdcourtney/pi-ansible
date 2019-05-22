@@ -64,3 +64,30 @@
     groups: docker
     append: yes
 
+- name: Add Docker user groups accounts
+  group:
+    name: "{{ item.name }}"
+    gid: "{{ item.gid }}"
+  loop: "{{ docker_users }}"
+
+- name: Create Docker user accounts
+  user:
+    name: "{{ item.name  }}"
+    uid: "{{ item.uid }}"
+    group: "{{ item.name  }}"
+  loop: "{{ docker_users }}"
+
+- name: Create Volume Directories
+  file:
+    name: "{{ item.value }}"
+    state: directory
+  loop: "{{ docker_volumes | dict2items }}"
+
+- name: Pre-pull Docker images
+  docker_image:
+    source: pull
+    name: "{{ item.value }}"
+  loop: "{{ docker_images | dict2items }}"
+
+- include_tasks: host_networks.yml
+    

@@ -1,0 +1,4 @@
+- import_tasks: swarm-networks.yml
+- import_tasks: vizualizer.yml
+- import_tasks: tickstack.yml
+- import_tasks: netatalk.yml

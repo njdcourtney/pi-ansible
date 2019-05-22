@@ -1,0 +1,11 @@
+- name: Get info on netatalk-swarm network
+  docker_network_info:
+    name: netatalk-swarm
+  register: netatalkSwarmInfo
+  run_once: true
+
+# docker_network module doesn't supprt --config-from (2.8) so create manually
+- name: Create netatalk-swarm network
+  when: not netatalkSwarmInfo.exists
+  command: "docker network create -d macvlan --scope swarm --config-from netatalk-config netatalk-swarm"
+  run_once: true

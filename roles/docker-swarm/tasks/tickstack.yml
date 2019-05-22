@@ -1,0 +1,8 @@
+
+- name: Deploy the monitoring service stack
+  docker_stack:
+        state: present
+        name: tickstack
+        compose:
+          - "{{ docker_stacks.tickstack }}"
+  run_once: true

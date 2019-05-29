@@ -6,8 +6,8 @@
   serial: 1
   gather_facts: false
   roles:
-    - role: raspbian-server-core
-      tags: core
+    - role: raspbian-core
+      tags: raspbian-core
 
 - name: Install DHCP Servers
   hosts: DHCPServers
@@ -17,13 +17,13 @@
     - role: dnsmasq
       tags: dnsmasq
 
-# - name: Install Ubiquiti Controller
-#   hosts: UniFiControllers
-#   become: yes
-#   gather_facts: false
-#   roles:
-#     - role: ubiquiti-controller
-#       tags: ubiquiti-controller
+- name: Install Ubiquiti Controller
+  hosts: UniFiControllers
+  become: yes
+  gather_facts: false
+  roles:
+    - role: ubiquiti-controller
+      tags: ubiquiti-controller
 
 - name: Install Services on each cluster node
   hosts: Cluster
@@ -37,11 +37,5 @@
       tags: docker
     - role: telegraf
       tags: telegraf
-
-- name: Deploy swarm services as non-root user
-  hosts: ClusterManagers
-  gather_facts: false
-  tags: swarm-services
-  roles:
     - role: docker-swarm
       tags: docker-swarm

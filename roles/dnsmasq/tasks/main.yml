@@ -22,7 +22,7 @@
   ufw:
     rule: allow
     port: "{{ item }}"
-    comment: DNSMasq DNS and DHCP
+    comment: Dnsmasq 
   loop:
       - '53'
       - '67'

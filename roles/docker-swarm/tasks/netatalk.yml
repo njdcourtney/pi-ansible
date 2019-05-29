@@ -1,28 +1,72 @@
+- name: Add netatalk group accounts
+  group:
+    name: netshare
+    gid: "{{ docker_users.netshare.id }}"
+
+- name: Create netatalk user accounts
+  user:
+    name: netshare
+    uid: "{{ docker_users.netshare.id }}"
+    group: netshare
 
 - name: Create secret with the filesystem user
+  when: "'ClusterManagers' in group_names" 
   docker_secret:
     name: netatalk-user
-    data: "{{ netatalk.user }}:{{ netatalk.passwd }}"
+    data: "netshare:{{ docker_users.netshare.password }}"
     state: present
   register: netatalk_secret
   run_once: true
 
+- name: Create Volume Directories
+  file:
+    name: "{{ docker_volumes.netatalk }}"
+    state: directory
+  run_once: true
+
+# Create the networks
+- name: Get info on netatalk-config network
+  docker_network_info:
+    name: netatalk-config
+  register: netatalkConfigInfo
+
+# docker_network module doesn't supprt --config-only (2.8) so create manually
+- name: Create netatalk-config network
+  when: not netatalkConfigInfo.exists
+  command: "docker network create -d macvlan --config-only --subnet=192.168.0.0/24 --ip-range=192.168.0.192/32 --gateway=192.168.0.1 -o parent=eth0 netatalk-config" 
+
+- name: Get info on netatalk-swarm network
+  when: "'ClusterManagers' in group_names" 
+  docker_network_info:
+    name: netatalk-swarm
+  register: netatalkSwarmInfo
+  run_once: true
+
+# docker_network module doesn't supprt --config-from (2.8) so create manually
+- name: Create netatalk-swarm network
+  when: 
+    - "'ClusterManagers' in group_names" 
+    - not netatalkSwarmInfo.exists
+  command: "docker network create -d macvlan --scope swarm --config-from netatalk-config netatalk-swarm"
+  run_once: true
+
 - name: Deploy netatalk service
+  when: "'ClusterManagers' in group_names" 
   docker_swarm_service:
     name: netatalk
-    image: "{{ netatalk.image }}"
+    image: "{{ docker_images.netatalk }}"
     hostname: swarm-netatalk
     env:
-      - "AFP_USER={{ netatalk.user }}"
-      - "AFP_UID={{ netatalk.uid }}"
-      - "AFP_GID={{ netatalk.gid }}"
+      - "AFP_USER=netshare"
+      - "AFP_UID={{ docker_users.netshare.id }}"
+      - "AFP_GID={{ docker_users.netshare.id }}"
     publish: 
         - published_port: 548
           target_port: 548
         - published_port: 5353
           target_port: 5353
     mounts:
-      - source: "{{ netatalk.directory }}"
+      - source: "{{ docker_volumes.netatalk }}"
         target: /media/share
         type: bind
     networks:

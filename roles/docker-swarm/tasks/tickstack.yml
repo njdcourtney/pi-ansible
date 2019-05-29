@@ -1,8 +1,41 @@
 
+- name: Create Volume Directories
+  file:
+    name: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ docker_volumes.influxdb }}"
+    - "{{ docker_volumes.chronograf }}"
+  run_once: true
+
 - name: Deploy the monitoring service stack
+  when: "'ClusterManagers' in group_names" 
   docker_stack:
         state: present
         name: tickstack
         compose:
-          - "{{ docker_stacks.tickstack }}"
+          - version: "3.7"
+            services:
+              influxdb:
+                image: "{{ docker_images.influxdb }}"
+                ports: 
+                  - "8086:8086"
+                volumes:
+                  - type: bind
+                    source: "{{ docker_volumes.influxdb}}"
+                    target: /var/lib/influxdb
+                networks:
+                  - tickstacknet
+              chronograf:
+                image: "{{ docker_images.chronograf }}"
+                ports: 
+                  - "8888:8888"
+                volumes:
+                  - type: bind
+                    source: "{{ docker_volumes.chronograf }}"
+                    target: /var/lib/chronograf
+                networks:
+                    - tickstacknet
+            networks:
+                tickstacknet:
   run_once: true

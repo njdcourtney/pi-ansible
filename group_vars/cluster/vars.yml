@@ -18,9 +18,8 @@ pi_headless: true
 
 # Define any additional users that the docker containers need
 docker_users:
-  - name: netshare
-    uid: 200
-    gid: 200
+  netshare:
+    id: 200
     password: "{{ vault_netatalk_passwd }}"
 
 # Define any directories that will be needed for Docker Volumes
@@ -36,31 +35,3 @@ docker_images:
   vizualizer: njdcourtney/visualizer-custom:latest
   influxdb: influxdb
   chronograf: chronograf
-
-#Define the stacks to deploy
-docker_stacks:
-  tickstack:
-      version: "3.7"
-      services:
-        influxdb:
-          image: "{{ docker_images.influxdb }}"
-          ports: 
-            - "8086:8086"
-          volumes:
-            - type: bind
-              source: "{{ docker_volumes.influxdb}}"
-              target: /var/lib/influxdb
-          networks:
-            - tickstacknet
-        chronograf:
-          image: "{{ docker_images.chronograf }}"
-          ports: 
-            - "8888:8888"
-          volumes:
-            - type: bind
-              source: "{{ docker_volumes.chronograf }}"
-              target: /var/lib/chronograf
-          networks:
-            - tickstacknet
-      networks:
-        tickstacknet:

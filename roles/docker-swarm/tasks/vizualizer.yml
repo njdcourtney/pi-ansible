@@ -1,4 +1,5 @@
 - name: Deploy Visualiser service
+  when: "'ClusterManagers' in group_names" 
   docker_swarm_service:
     name: visualizer
     image: "{{ docker_images.vizualizer }}"

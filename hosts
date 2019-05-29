@@ -13,10 +13,10 @@
   cluster-2
 
 [ClusterWorkers]
-# cluster-3
+  cluster-3
 
 [DHCPServers]
   cluster-0
 
 [UniFiControllers]
-# cluster-3
+  cluster-0

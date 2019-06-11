@@ -1,8 +1,13 @@
+- name: Pre-pull Visualiser image
+  docker_image:
+    source: pull
+    name: "{{ docker_swarm.vizualizer.image }}"
+
 - name: Deploy Visualiser service
   when: "'ClusterManagers' in group_names" 
   docker_swarm_service:
     name: visualizer
-    image: "{{ docker_images.vizualizer }}"
+    image: "{{ docker_swarm.vizualizer.image }}"
     publish: 
         - published_port: 8081
           target_port: 8080

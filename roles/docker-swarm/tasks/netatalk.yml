@@ -1,27 +1,33 @@
+- name: Pre-pull netatalk image
+  docker_image:
+    source: pull
+    name: "{{ docker_swarm.netatalk.image }}"
+
+- name: Create Volume Directories
+  file:
+    name: "{{ item }}"
+    state: directory
+  loop: "{{ docker_swarm.netatalk.volumes }}"
+  run_once: true
+
 - name: Add netatalk group accounts
   group:
-    name: netshare
-    gid: "{{ docker_users.netshare.id }}"
+    name: "{{ docker_swarm.netatalk.user.name }}"
+    gid: "{{ docker_swarm.netatalk.user.id }}"
 
 - name: Create netatalk user accounts
   user:
-    name: netshare
-    uid: "{{ docker_users.netshare.id }}"
-    group: netshare
+    name: "{{ docker_swarm.netatalk.user.name }}"
+    uid: "{{ docker_swarm.netatalk.user.id }}"
+    group: "{{ docker_swarm.netatalk.user.name }}"
 
 - name: Create secret with the filesystem user
   when: "'ClusterManagers' in group_names" 
   docker_secret:
     name: netatalk-user
-    data: "netshare:{{ docker_users.netshare.password }}"
+    data: "{{ docker_swarm.netatalk.user.name }}:{{ docker_swarm.netatalk.user.password }}"
     state: present
   register: netatalk_secret
-  run_once: true
-
-- name: Create Volume Directories
-  file:
-    name: "{{ docker_volumes.netatalk }}"
-    state: directory
   run_once: true
 
 # Create the networks
@@ -54,19 +60,19 @@
   when: "'ClusterManagers' in group_names" 
   docker_swarm_service:
     name: netatalk
-    image: "{{ docker_images.netatalk }}"
+    image: "{{ docker_swarm.netatalk.image }}"
     hostname: swarm-netatalk
     env:
-      - "AFP_USER=netshare"
-      - "AFP_UID={{ docker_users.netshare.id }}"
-      - "AFP_GID={{ docker_users.netshare.id }}"
+      - "AFP_USER={{ docker_swarm.netatalk.user.name }}"
+      - "AFP_UID={{ docker_swarm.netatalk.user.id }}"
+      - "AFP_GID={{ docker_swarm.netatalk.user.id }}"
     publish: 
         - published_port: 548
           target_port: 548
         - published_port: 5353
           target_port: 5353
     mounts:
-      - source: "{{ docker_volumes.netatalk }}"
+      - source: "{{ docker_swarm.netatalk.volumes[0] }}"
         target: /media/share
         type: bind
     networks:

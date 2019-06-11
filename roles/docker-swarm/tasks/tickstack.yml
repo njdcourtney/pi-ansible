@@ -1,11 +1,18 @@
+- name: Pre-pull Tickstack images
+  docker_image:
+    source: pull
+    name: "{{ item }}"
+  loop: 
+    - "{{ docker_swarm.influxdb.image  }}"
+    - "{{ docker_swarm.chronograf.image }}"
 
-- name: Create Volume Directories
+- name: Create Tickstack volume Directories
   file:
     name: "{{ item }}"
     state: directory
   loop:
-    - "{{ docker_volumes.influxdb }}"
-    - "{{ docker_volumes.chronograf }}"
+    - "{{ docker_swarm.influxdb.volume  }}"
+    - "{{ docker_swarm.chronograf.volume }}"
   run_once: true
 
 - name: Deploy the monitoring service stack
@@ -17,22 +24,22 @@
           - version: "3.7"
             services:
               influxdb:
-                image: "{{ docker_images.influxdb }}"
+                image: "{{ docker_swarm.influxdb.image }}"
                 ports: 
                   - "8086:8086"
                 volumes:
                   - type: bind
-                    source: "{{ docker_volumes.influxdb}}"
+                    source: "{{ docker_swarm.influxdb.volume }}"
                     target: /var/lib/influxdb
                 networks:
                   - tickstacknet
               chronograf:
-                image: "{{ docker_images.chronograf }}"
+                image: "{{ docker_swarm.chronograf.image }}"
                 ports: 
                   - "8888:8888"
                 volumes:
                   - type: bind
-                    source: "{{ docker_volumes.chronograf }}"
+                    source: "{{ docker_swarm.chronograf.volume }}"
                     target: /var/lib/chronograf
                 networks:
                     - tickstacknet

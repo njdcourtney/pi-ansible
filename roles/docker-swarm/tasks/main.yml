@@ -1,9 +1,3 @@
-- name: Pre-pull Docker images
-  docker_image:
-    source: pull
-    name: "{{ item.value }}"
-  loop: "{{ docker_images | dict2items }}"
-
 - import_tasks: vizualizer.yml
   tags: vizualizer
 - import_tasks: tickstack.yml

@@ -30,6 +30,13 @@
     install_recommends: no
     state: present
 
+- name: Update the systemd file if using gluster
+  when: docker_swarm.gluster is defined and docker_swarm.gluster
+  lineinfile:
+    path: /etc/systemd/system/multi-user.target.wants/docker.service
+    regexp: '^After='
+    line: 'After=network-online.target firewalld.service glusterfs-server.service'
+
 - name: Start the swarm with default parameters
   when: inventory_hostname == groups['ClusterManagers'][0]
   docker_swarm:

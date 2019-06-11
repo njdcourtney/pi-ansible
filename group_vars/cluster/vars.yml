@@ -3,15 +3,11 @@ data_disks:
   - device: /dev/sda
     label: ClusterShared
 
-#Gluster brick to mount
-gluster_partitions:
-  - src: PARTLABEL=ClusterShared
-    path: /data/gluster/ClusterShared/brick0
-
-#Volumes to mount
-gluster_volumes: 
+gluster_storage:
   - name: ClusterShared
-    bricks: /data/gluster/ClusterShared/brick0/brick
+    src: PARTLABEL=ClusterShared
+    path: /data/gluster/ClusterShared/brick0
+    nodes: "{{ groups.Cluster }}"
 
 #Set all the pis to be headless
 pi_headless: true
@@ -31,7 +27,7 @@ docker_volumes:
 
 #List any images to pre-pull to all nodes to speed up replication
 docker_images:
-  netatalk: njdcourtney/docker-netatalk:2019-05-07a
+  netatalk: njdcourtney/docker-netatalk:latest
   vizualizer: njdcourtney/visualizer-custom:latest
   influxdb: influxdb
   chronograf: chronograf

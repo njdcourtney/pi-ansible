@@ -23,22 +23,23 @@
     nodes: "{{ groups.Cluster }}"
 
 - name: Mount Data directories
+  when: inventory_hostname in item.nodes
   mount: 
     fstype: xfs
     src: "{{ item.src }}"
     path: "{{ item.path }}"
     state: mounted
     opts: "rw,inode64,noatime,nouuid"
-  loop: "{{ gluster_partitions }}"
+  loop: "{{ gluster_storage }}"
   
 - name: Create Gluster Volume
   gluster_volume:
     state: present
     name: "{{ item.name }}"
-    bricks: "{{ item.bricks }}"
-    cluster: "{{ groups.Cluster }}"
+    bricks: "{{ item.path }}/brick"
+    cluster: "{{ item.nodes }}"
     redundancies: 1
-  loop: "{{ gluster_volumes }}"
+  loop: "{{ gluster_storage }}"
   run_once: true
 
 # The simple way to mount disks is to use the mount module and update fstab.
@@ -49,13 +50,13 @@
   file:
      path: "/mnt/gluster/{{item.name}}"
      state: directory
-  loop: "{{ gluster_volumes }}"
+  loop: "{{ gluster_storage }}"
 
 - name: Add Systemd mount file
   template:
     src: gluster_mount.j2
     dest: "/etc/systemd/system/mnt-gluster-{{ item.name }}.mount"
-  loop: "{{ gluster_volumes }}"
+  loop: "{{ gluster_storage }}"
 
 - name: Start systemd service
   systemd:
@@ -63,4 +64,4 @@
     name: "mnt-gluster-{{ item.name }}.mount"
     state: started
     enabled: yes
-  loop: "{{ gluster_volumes }}"
+  loop: "{{ gluster_storage }}"

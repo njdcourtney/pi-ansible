@@ -25,7 +25,7 @@
         port=22
         state=started
         delay=20
-        timeout=120
+        timeout=300
     become: no
     listen: "server reboot"
 

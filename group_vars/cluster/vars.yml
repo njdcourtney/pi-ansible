@@ -32,5 +32,8 @@ docker_swarm:
   chronograf:
     image: chronograf
     volume: "{{ docker_volume_root }}/chronograf"
+  kapacitor:
+    image: kapacitor
+    volume: "{{ docker_volume_root }}/kapacitor"
 
 

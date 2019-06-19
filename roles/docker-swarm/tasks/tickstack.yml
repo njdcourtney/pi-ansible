@@ -5,6 +5,7 @@
   loop: 
     - "{{ docker_swarm.influxdb.image  }}"
     - "{{ docker_swarm.chronograf.image }}"
+    - "{{ docker_swarm.kapacitor.image }}"
 
 - name: Create Tickstack volume Directories
   file:
@@ -13,6 +14,7 @@
   loop:
     - "{{ docker_swarm.influxdb.volume  }}"
     - "{{ docker_swarm.chronograf.volume }}"
+    - "{{ docker_swarm.kapacitor.volume }}"
   run_once: true
 
 - name: Deploy the monitoring service stack
@@ -41,6 +43,18 @@
                   - type: bind
                     source: "{{ docker_swarm.chronograf.volume }}"
                     target: /var/lib/chronograf
+                networks:
+                    - tickstacknet
+              kapacitor:
+                image: "{{ docker_swarm.kapacitor.image }}"
+                ports:
+                  - "9092:9092"
+                volumes:
+                  - type: bind
+                    source: "{{ docker_swarm.kapacitor.volume }}"
+                    target: /var/lib/kapacitor
+                environment:
+                  KAPACITOR_INFLUXDB_0_URLS_0: http://influxdb:8086
                 networks:
                     - tickstacknet
             networks:

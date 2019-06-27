@@ -38,7 +38,7 @@
     name: "{{ item.name }}"
     bricks: "{{ item.path }}/brick"
     cluster: "{{ item.nodes }}"
-    redundancies: 1
+    replicas: 2
   loop: "{{ gluster_storage }}"
   run_once: true
 

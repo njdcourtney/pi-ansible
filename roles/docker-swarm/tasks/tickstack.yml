@@ -47,8 +47,6 @@
                     - tickstacknet
               kapacitor:
                 image: "{{ docker_swarm.kapacitor.image }}"
-                ports:
-                  - "9092:9092"
                 volumes:
                   - type: bind
                     source: "{{ docker_swarm.kapacitor.volume }}"

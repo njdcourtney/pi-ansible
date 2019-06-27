@@ -1,7 +1,6 @@
 #List of external disks.
 data_disks: 
   - device: /dev/sda
+    label: ClusterBulk
+  - device: /dev/sdb
     label: ClusterShared
-
-static_ip: "{{ vault_static_ip }}"
-

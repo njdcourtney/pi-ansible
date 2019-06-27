@@ -1,13 +1,14 @@
-#List of external disks.
-data_disks: 
-  - device: /dev/sda
-    label: ClusterShared
-
 gluster_storage:
   - name: ClusterShared
     src: PARTLABEL=ClusterShared
     path: /data/gluster/ClusterShared/brick0
     nodes: "{{ groups.Cluster }}"
+  - name: ClusterBulk
+    src: PARTLABEL=ClusterBulk
+    path: /data/gluster/ClusterBulk/brick0
+    nodes:
+      - cluster-2
+      - cluster-3
 
 #Set all the pis to be headless
 pi_headless: true

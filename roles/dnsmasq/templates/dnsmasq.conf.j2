@@ -50,6 +50,10 @@ dhcp-range={{ dnsmasq_vars.dhcp_range }}
 dhcp-host={{ host }}
 {% endfor %}
 
+{% for alias in dnsmasq_vars.cnames %}
+cname={{ alias }}
+{% endfor %}
+
 dhcp-option=option:router,{{ static_ip.router }}
 dhcp-option=option:domain-search,{{ static_ip.domain }}
 dhcp-option=option:domain-name,{{ static_ip.domain }}

@@ -6,15 +6,14 @@ gluster_storage:
   - name: ClusterBulk
     src: PARTLABEL=ClusterBulk
     path: /data/gluster/ClusterBulk/brick0
-    nodes:
-      - cluster-2
-      - cluster-3
+    nodes: "{{ groups.BulkStorage }}"
 
 #Set all the pis to be headless
 pi_headless: true
 
 # Define variables for the docker swarm
 docker_volume_root: /mnt/gluster/ClusterShared/DockerVolumes
+docker_bulk_root: /mnt/gluster/ClusterBulk
 docker_swarm:
   gluster: true
   netatalk:
@@ -24,7 +23,9 @@ docker_swarm:
       password: "{{ vault_netatalk_passwd }}"
     image: njdcourtney/docker-netatalk:latest
     volumes:
-      - "{{ docker_volume_root }}/netshare"
+      shared: "{{ docker_bulk_root }}/netshare/Shared"
+      timemachine: "{{ docker_bulk_root }}/netshare/TimeMachine"
+      config: "{{ docker_volume_root }}/netshare/config"
   vizualizer:
     image: njdcourtney/visualizer-custom:latest
   influxdb:

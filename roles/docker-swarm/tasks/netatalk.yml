@@ -3,11 +3,13 @@
     source: pull
     name: "{{ docker_swarm.netatalk.image }}"
 
-- name: Create Volume Directories
-  file:
-    name: "{{ item }}"
-    state: directory
-  loop: "{{ docker_swarm.netatalk.volumes }}"
+- name: Add label to bulk storage nodes
+  when: "'ClusterManagers' in group_names" 
+  docker_node:
+    hostname: "{{ item }}"
+    labels:
+      storagetype: bulk
+  loop: "{{ groups.BulkStorage }}"
   run_once: true
 
 - name: Add netatalk group accounts
@@ -20,7 +22,7 @@
     name: "{{ docker_swarm.netatalk.user.name }}"
     uid: "{{ docker_swarm.netatalk.user.id }}"
     group: "{{ docker_swarm.netatalk.user.name }}"
-
+  
 - name: Create secret with the filesystem user
   when: "'ClusterManagers' in group_names" 
   docker_secret:
@@ -56,6 +58,23 @@
   command: "docker network create -d macvlan --scope swarm --config-from netatalk-config netatalk-swarm"
   run_once: true
 
+- name: Create Volume Directories
+  file:
+    name: "{{ item.value }}"
+    owner: "{{ docker_swarm.netatalk.user.name }}"
+    state: directory
+  loop: "{{ docker_swarm.netatalk.volumes | dict2items }}"
+  run_once: true
+
+- name: Install afp.conf file
+  template:
+    src: afp.conf.j2
+    dest: "{{ docker_volume_root }}/netshare/config/afp.conf"
+    owner: root
+    group: root
+    mode: "u=rw,g=r,o=r"
+  run_once: true
+
 - name: Deploy netatalk service
   when: "'ClusterManagers' in group_names" 
   docker_swarm_service:
@@ -72,9 +91,16 @@
         - published_port: 5353
           target_port: 5353
     mounts:
-      - source: "{{ docker_swarm.netatalk.volumes[0] }}"
+      - source: "{{ docker_swarm.netatalk.volumes.shared }}"
         target: /media/share
         type: bind
+      - source: "{{ docker_swarm.netatalk.volumes.timemachine }}"
+        target: /media/timemachine
+        type: bind
+      - source: "{{ docker_volume_root }}/netshare/config/afp.conf"
+        target: /usr/local/etc/afp.conf
+        type: bind
+        readonly: true
     networks:
       - netatalk-swarm
     secrets:
@@ -83,4 +109,7 @@
         filename: netatalk_passwd
     restart_config:
       condition: any
+    placement:
+      constraints:
+        - "node.labels.storagetype==bulk"
   run_once: true

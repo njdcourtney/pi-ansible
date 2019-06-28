@@ -15,6 +15,10 @@
 [ClusterWorkers]
   cluster-3
 
+[BulkStorage]
+  cluster-2
+  cluster-3
+
 [DHCPServers]
   cluster-0
 

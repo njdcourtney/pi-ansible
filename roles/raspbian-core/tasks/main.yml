@@ -60,6 +60,12 @@
         static domain_search={{ static_ip.domain }}
   notify: "server reboot"
 
+- name: Update Hosts file contents with static servers
+  when: static_hosts is defined
+  blockinfile:
+    path: /etc/hosts
+    block: "{{ static_hosts | join('\n') }}"
+
 # Import the headless tasks if this is a headless server
 - name: Import Headless server tasks
   when: pi_headless is defined and pi_headless

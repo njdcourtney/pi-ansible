@@ -11,6 +11,9 @@ gluster_storage:
 #Set all the pis to be headless
 pi_headless: true
 
+#Local hosts file contents
+static_hosts: "{{ vault_static_hosts }}"
+
 # Define variables for the docker swarm
 docker_volume_root: /mnt/gluster/ClusterShared/DockerVolumes
 docker_bulk_root: /mnt/gluster/ClusterBulk

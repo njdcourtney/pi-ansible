@@ -1,9 +1,3 @@
-- name: Update Hosts file contents with static servers
-  blockinfile:
-    path: /etc/hosts
-    block: "{{ dnsmasq_vars.static_hosts | join('\n') }}"
-  notify: restart-dnsmasq
-
 - name: Install dnsmasq
   apt:
     name: dnsmasq

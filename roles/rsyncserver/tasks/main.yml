@@ -1,0 +1,26 @@
+- name: Add Rsync group accounts
+  group:
+    name: "{{ rsync_user.name }}"
+    gid: "{{ rsync_user.id }}"
+
+- name: Create Rsync backup user
+  user:
+    name: "{{ rsync_user.name }}"
+    uid: "{{ rsync_user.id }}"
+    group: "{{ rsync_user.name }}"
+    generate_ssh_key: yes
+
+- name: Add ssh keys
+  authorized_key:
+    user: "{{ rsync_user.name }}"
+    state: present
+    key: "{{ item.userkey }}"
+  loop: "{{ rsync_clients }}"
+
+- name: Create Rsync client directories
+  file:
+    name: "{{ item.backupdir }}"
+    owner: "{{ rsync_user.name }}"
+    state: directory
+  loop: "{{ rsync_clients }}"
+

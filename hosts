@@ -2,6 +2,7 @@
   Cluster
   DHCPServers
   UniFiControllers
+  RsyncServer
 
 [Cluster:children]
   ClusterManagers
@@ -24,3 +25,6 @@
 
 [UniFiControllers]
   cluster-0
+
+[RsyncServer]
+  cluster-2

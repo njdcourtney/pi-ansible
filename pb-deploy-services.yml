@@ -25,6 +25,14 @@
     - role: ubiquiti-controller
       tags: ubiquiti-controller
 
+- name: Install Rsync destination
+  hosts: RsyncServer
+  become: yes
+  gather_facts: false
+  roles:
+    - role: rsyncserver
+      tags: rsyncserver
+
 - name: Install Services on each cluster node
   hosts: Cluster
   become: yes

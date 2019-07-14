@@ -1,16 +1,3 @@
-- name: Add Rsync group accounts
-  group:
-    name: "{{ rsync_user }}"
-    gid: "{{ users[rsync_user].id }}"
-
-- name: Create Rsync backup user
-  user:
-    name: "{{ rsync_user }}"
-    uid: "{{ users[rsync_user].id }}"
-    group: "{{ rsync_user }}"
-    shell: /bin/bash
-    generate_ssh_key: yes
-
 - name: Add ssh keys
   authorized_key:
     user: "{{ rsync_user }}"

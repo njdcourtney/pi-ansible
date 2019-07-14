@@ -11,17 +11,6 @@
       storagetype: bulk
   loop: "{{ groups.BulkStorage }}"
   run_once: true
-
-- name: Add netatalk group accounts
-  group:
-    name: "{{ docker_netatalk.user }}"
-    gid: "{{ users[docker_netatalk.user].id }}"
-
-- name: Create netatalk user accounts
-  user:
-    name: "{{ docker_netatalk.user}}"
-    uid: "{{ users[docker_netatalk.user].id }}"
-    group: "{{ docker_netatalk.user }}"
   
 - name: Create secret with the filesystem user
   when: "'ClusterLeader' in group_names" 

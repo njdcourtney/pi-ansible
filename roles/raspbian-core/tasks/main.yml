@@ -66,6 +66,19 @@
     path: /etc/hosts
     block: "{{ static_hosts | join('\n') }}"
 
+- name: Add additional groups
+  group:
+    name: "{{ item.key }}"
+    gid: "{{ item.value.id }}"
+  loop: "{{ users | dict2items }}"
+
+- name: Add additional users
+  user:
+    name: "{{ item.key }}"
+    uid: "{{ item.value.id }}"
+    group: "{{ item.key }}"
+  loop: "{{ users | dict2items }}"
+
 # Import the headless tasks if this is a headless server
 - name: Import Headless server tasks
   when: pi_headless is defined and pi_headless

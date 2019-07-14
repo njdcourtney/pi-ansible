@@ -1,9 +1,0 @@
-rsync_user:
-      name: rsyncbak
-      id: 201
-      password: "{{ vault_rsyncbak_passwd }}"
-
-rsync_backup_basedir: /mnt/gluster/ClusterBulk/rsync
-rsync_clients:
-  - userkey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDhlSFu6DptQ66407qZZqn0OzTGIIO4gVL+rHZJXoSWovmogGQ33S8inuWZGLt4H9vTKfTCcovpkCNQVh8+Ou34VwZqofUyp67iiuU+EHaQXA/jBC3chAe477iSyCgJqH8Ss1y9N4DHisAxx8sBIE/DsBbrsGuGnkR8IZnkRsusthgj/hQOEpuQObREMV5xPzyEKCSsEPRbTjA+wWnh5ljzN+lQxrC7lzk9/ohETweln1bEoM3O9XGJq1rzjp+Vmzhon+0cIfEMpZ3cr5pNd3eELgzFvMTP1W2z0wshcK8uZzjprue8zFH7b4EHkNX7QRD/1uhzKOxa2LPkhPqqujfd nathan@prospero.courtney-bond.co.uk
-    backupdir: "{{ rsync_backup_basedir }}/prospero/nathan"

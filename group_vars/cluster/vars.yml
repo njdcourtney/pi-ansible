@@ -1,45 +1,19 @@
-gluster_storage:
-  - name: ClusterShared
-    src: PARTLABEL=ClusterShared
-    path: /data/gluster/ClusterShared/brick0
-    nodes: "{{ groups.Cluster }}"
-  - name: ClusterBulk
-    src: PARTLABEL=ClusterBulk
-    path: /data/gluster/ClusterBulk/brick0
-    nodes: "{{ groups.BulkStorage }}"
-
-#Set all the pis to be headless
+# Set all the pis to be headless
 pi_headless: true
 
-#Local hosts file contents
+# The whole cluster needs static IPs to stop race condition with DNSMasq
+static_ip:
+  interface: "{{ vault_static_ip_interface }}"
+  ip_addr: "{{ vault_static_ip_addr }}"
+  router: "{{ vault_static_ip_router }}"
+  name_servers: "{{ vault_static_ip_nameserver }}"
+  domain: "{{ vault_static_ip_domain }}"
 static_hosts: "{{ vault_static_hosts }}"
 
-# Define variables for the docker swarm
-docker_volume_root: /mnt/gluster/ClusterShared/DockerVolumes
-docker_bulk_root: /mnt/gluster/ClusterBulk
-
-docker_swarm:
-  gluster: true
-  netatalk:
-    user:
-      name: netshare
-      id: 200
-      password: "{{ vault_netatalk_passwd }}"
-    image: njdcourtney/docker-netatalk:latest
-    volumes:
-      shared: "{{ docker_bulk_root }}/netshare/Shared"
-      timemachine: "{{ docker_bulk_root }}/netshare/TimeMachine"
-      config: "{{ docker_volume_root }}/netshare/config"
-  vizualizer:
-    image: njdcourtney/visualizer-custom:latest
-  influxdb:
-    image: influxdb
-    volume: "{{ docker_volume_root }}/influxdb"
-  chronograf:
-    image: chronograf
-    volume: "{{ docker_volume_root }}/chronograf"
-  kapacitor:
-    image: kapacitor
-    volume: "{{ docker_volume_root }}/kapacitor"
-
-
+users:
+  netshare:
+    id: 200
+    password: "{{ vault_netatalk_passwd }}"
+  rsyncbak:
+    id: 201
+    password: "{{ vault_rsyncbak_passwd }}"

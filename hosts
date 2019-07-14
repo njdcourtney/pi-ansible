@@ -1,15 +1,15 @@
 [Raspbian:children]
   Cluster
-  DHCPServers
-  UniFiControllers
-  RsyncServer
 
 [Cluster:children]
-  ClusterManagers
+  ClusterLeader
+  ClusterAltLeaders
   ClusterWorkers
 
-[ClusterManagers]
+[ClusterLeader]
   cluster-0
+
+[ClusterAltLeaders]
   cluster-1
   cluster-2
 
@@ -19,12 +19,3 @@
 [BulkStorage]
   cluster-2
   cluster-3
-
-[DHCPServers]
-  cluster-0
-
-[UniFiControllers]
-  cluster-0
-
-[RsyncServer]
-  cluster-2

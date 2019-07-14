@@ -1,0 +1,30 @@
+# Define variables for the docker swarm
+docker_volume_root: /mnt/gluster/ClusterShared/DockerVolumes
+docker_bulk_root: /mnt/gluster/ClusterBulk
+
+docker_run_after_gluster: true
+
+docker_netatalk:
+  user: netshare
+  image: njdcourtney/docker-netatalk:latest
+  volumes:
+    shared: "{{ docker_bulk_root }}/netshare/Shared"
+    timemachine: "{{ docker_bulk_root }}/netshare/TimeMachine"
+    config: "{{ docker_volume_root }}/netshare/config"
+
+docker_vizualizer:
+    image: njdcourtney/visualizer-custom:latest
+
+docker_influxdb:
+  image: influxdb
+  volume: "{{ docker_volume_root }}/influxdb"
+
+docker_chronograf:
+  image: chronograf
+  volume: "{{ docker_volume_root }}/chronograf"
+
+docker_kapacitor:
+  image: kapacitor
+  volume: "{{ docker_volume_root }}/kapacitor"
+
+

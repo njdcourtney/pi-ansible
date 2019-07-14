@@ -1,3 +1,6 @@
+- name: Get facts
+  gather_facts:
+
 - name: Install prerequisites
   apt:
     name: 
@@ -31,26 +34,26 @@
     state: present
 
 - name: Update the systemd file if using gluster
-  when: docker_swarm.gluster is defined and docker_swarm.gluster
+  when: docker_run_after_gluster is defined and docker_run_after_gluster
   lineinfile:
     path: /etc/systemd/system/multi-user.target.wants/docker.service
     regexp: '^After='
     line: 'After=network-online.target firewalld.service glusterfs-server.service'
 
 - name: Start the swarm with default parameters
-  when: inventory_hostname == groups['ClusterManagers'][0]
+  when: "'ClusterLeader' in group_names"
   docker_swarm:
     state: present
   register: swarm_info
   run_once: true
 
 - set_fact:
-    swarm_join_token: "{{ hostvars[groups['ClusterManagers'][0]].swarm_info.swarm_facts.JoinTokens.Worker }}"
-    swarm_master_token: "{{ hostvars[groups['ClusterManagers'][0]].swarm_info.swarm_facts.JoinTokens.Manager }}"
-    swarm_master_addr: "{{ hostvars[groups['ClusterManagers'][0]].ansible_facts.default_ipv4.address }}"
+    swarm_join_token: "{{ hostvars[groups['ClusterLeader'][0]].swarm_info.swarm_facts.JoinTokens.Worker }}"
+    swarm_master_token: "{{ hostvars[groups['ClusterLeader'][0]].swarm_info.swarm_facts.JoinTokens.Manager }}"
+    swarm_master_addr: "{{ hostvars[groups['ClusterLeader'][0]].ansible_facts.default_ipv4.address }}"
 
 - name: Add manager nodes to the swarm
-  when: "'ClusterManagers' in group_names" 
+  when: "'ClusterAltLeaders' in group_names"
   docker_swarm:
     state: join
     advertise_addr: "{{ ansible_facts.default_ipv4.address }}"

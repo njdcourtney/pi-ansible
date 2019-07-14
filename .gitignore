@@ -1,5 +1,5 @@
 #Ignore any vault files
-vault.yml
+vault*.yml
 
 #Ignore any retry files
 *.retry

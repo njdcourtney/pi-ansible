@@ -3,22 +3,22 @@
     source: pull
     name: "{{ item }}"
   loop: 
-    - "{{ docker_swarm.influxdb.image  }}"
-    - "{{ docker_swarm.chronograf.image }}"
-    - "{{ docker_swarm.kapacitor.image }}"
+    - "{{ docker_influxdb.image  }}"
+    - "{{ docker_chronograf.image }}"
+    - "{{ docker_kapacitor.image }}"
 
 - name: Create Tickstack volume Directories
   file:
     name: "{{ item }}"
     state: directory
   loop:
-    - "{{ docker_swarm.influxdb.volume  }}"
-    - "{{ docker_swarm.chronograf.volume }}"
-    - "{{ docker_swarm.kapacitor.volume }}"
+    - "{{ docker_influxdb.volume  }}"
+    - "{{ docker_chronograf.volume }}"
+    - "{{ docker_kapacitor.volume }}"
   run_once: true
 
 - name: Deploy the monitoring service stack
-  when: "'ClusterManagers' in group_names" 
+  when: "'ClusterLeader' in group_names" 
   docker_stack:
         state: present
         name: tickstack
@@ -26,30 +26,30 @@
           - version: "3.7"
             services:
               influxdb:
-                image: "{{ docker_swarm.influxdb.image }}"
+                image: "{{ docker_influxdb.image }}"
                 ports: 
                   - "8086:8086"
                 volumes:
                   - type: bind
-                    source: "{{ docker_swarm.influxdb.volume }}"
+                    source: "{{ docker_influxdb.volume }}"
                     target: /var/lib/influxdb
                 networks:
                   - tickstacknet
               chronograf:
-                image: "{{ docker_swarm.chronograf.image }}"
+                image: "{{ docker_chronograf.image }}"
                 ports: 
                   - "8888:8888"
                 volumes:
                   - type: bind
-                    source: "{{ docker_swarm.chronograf.volume }}"
+                    source: "{{ docker_chronograf.volume }}"
                     target: /var/lib/chronograf
                 networks:
                     - tickstacknet
               kapacitor:
-                image: "{{ docker_swarm.kapacitor.image }}"
+                image: "{{ docker_kapacitor.image }}"
                 volumes:
                   - type: bind
-                    source: "{{ docker_swarm.kapacitor.volume }}"
+                    source: "{{ docker_kapacitor.volume }}"
                     target: /var/lib/kapacitor
                 environment:
                   KAPACITOR_INFLUXDB_0_URLS_0: http://influxdb:8086

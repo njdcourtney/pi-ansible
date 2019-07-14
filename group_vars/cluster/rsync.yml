@@ -1,0 +1,8 @@
+rsync_user: rsyncbak
+
+rsync_backupdir: /mnt/gluster/ClusterBulk/rsync
+rsync_clients:
+  - userkey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDhlSFu6DptQ66407qZZqn0OzTGIIO4gVL+rHZJXoSWovmogGQ33S8inuWZGLt4H9vTKfTCcovpkCNQVh8+Ou34VwZqofUyp67iiuU+EHaQXA/jBC3chAe477iSyCgJqH8Ss1y9N4DHisAxx8sBIE/DsBbrsGuGnkR8IZnkRsusthgj/hQOEpuQObREMV5xPzyEKCSsEPRbTjA+wWnh5ljzN+lQxrC7lzk9/ohETweln1bEoM3O9XGJq1rzjp+Vmzhon+0cIfEMpZ3cr5pNd3eELgzFvMTP1W2z0wshcK8uZzjprue8zFH7b4EHkNX7QRD/1uhzKOxa2LPkhPqqujfd nathan@prospero.courtney-bond.co.uk
+    backupdir: "{{ rsync_backupdir }}/prospero/nathan"
+  - userkey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDCAqbny7V1z7dR1V7sXESIvnHMtavUPWWLrr8YsiaZ9q3ErUavWa0CSXUrYxe55A2gjKMsJQ9oh0RX2jvnNmIW65VnjiB5X+foovpfLhSihdOHKTUHA+5wVIcDzJ2RR++Z862sBvYjQDZl22DvusH76YDes4HVN5eNIttnYOTwWxFlD7LT4nJLTfDWLRBkTSCrV/bkyAw5W6gj9/Z8zOT8ruGC0lVmd8ngsk45vkpM6sC0GZORHInHpKRcLRzDkLaIVhm/kgh48GWKZLL7WPzenlkCtWB5Q5hOvO/s+SP7kJGcnlPbhNlxYxXcdga1QM1NCQknIObB2DcEDRxn0u9N charlottecourtney@Miranda.courtney-bond.co.uk
+    backupdir: "{{ rsync_backupdir }}/miranda/charlotte"

@@ -3,5 +3,4 @@ data_disks:
   - device: /dev/sda
     label: ClusterShared
 
-static_ip: "{{ vault_static_ip }}"
 

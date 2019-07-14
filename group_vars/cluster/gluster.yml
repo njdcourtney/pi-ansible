@@ -1,0 +1,4 @@
+# Define the Gluster volumes
+gluster_storage:
+  ClusterShared: "{{ groups.Cluster }}"
+  ClusterBulk: "{{ groups.BulkStorage }}"

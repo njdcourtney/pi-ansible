@@ -9,34 +9,20 @@
     - role: raspbian-core
       tags: raspbian-core
 
-- name: Install DHCP Servers
-  hosts: DHCPServers
+- name: Install Cluster Servers
+  hosts: ClusterLeader
   become: yes
   gather_facts: false
   roles:
     - role: dnsmasq
       tags: dnsmasq
-
-- name: Install Ubiquiti Controller
-  hosts: UniFiControllers
-  become: yes
-  gather_facts: false
-  roles:
     - role: ubiquiti-controller
       tags: ubiquiti-controller
-
-- name: Install Rsync destination
-  hosts: RsyncServer
-  become: yes
-  gather_facts: false
-  roles:
-    - role: rsyncserver
-      tags: rsyncserver
 
 - name: Install Services on each cluster node
   hosts: Cluster
   become: yes
-  gather_facts: true
+  gather_facts: false
   tags: cluster-services
   roles:
     - role: gluster
@@ -47,3 +33,6 @@
       tags: telegraf
     - role: docker-swarm
       tags: docker-swarm
+    - role: rsyncserver
+      tags: rsyncserver
+

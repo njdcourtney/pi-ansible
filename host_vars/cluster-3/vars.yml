@@ -4,5 +4,3 @@ data_disks:
     label: ClusterShared
   - device: /dev/sdb
     label: ClusterBulk
-
-static_ip: "{{ vault_static_ip }}"

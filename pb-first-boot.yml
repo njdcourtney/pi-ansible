@@ -18,15 +18,12 @@
   hosts: Raspbian
   gather_facts: false
   connection: local
+  tags: KnownHosts
   serial: 1
 
   tasks:
-    - name: Simple A record (IPV4 address) lookup the hostname
-      shell: "dig +short {{ inventory_hostname }}"
-      register: ipaddr
-
     - name: For each host, scan for its ssh public key
-      shell: "ssh-keyscan -t rsa {{ inventory_hostname }},{{ ipaddr['stdout'] }}"
+      shell: "ssh-keyscan -t ecdsa {{ inventory_hostname }}"
       register: ssh_known_host_results
 
     - name: Remove any previous entry

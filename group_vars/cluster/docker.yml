@@ -27,4 +27,5 @@ docker_kapacitor:
   image: kapacitor
   volume: "{{ docker_volume_root }}/kapacitor"
 
-
+docker_registry_cert_key: "{{ vault_registry_cert_key }}"
+docker_registry_cert_crt: "{{ vault_registry_cert_crt }}"

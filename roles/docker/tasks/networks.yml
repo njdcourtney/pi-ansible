@@ -1,0 +1,10 @@
+# Create the networks
+- name: Get info on netatalk-config network
+  docker_network_info:
+    name: netatalk-config
+  register: netatalkConfigInfo
+
+# docker_network module doesn't supprt --config-only (2.8) so create manually
+- name: Create netatalk-config network
+  when: not netatalkConfigInfo.exists
+  command: "docker network create -d macvlan --config-only --subnet=192.168.0.0/24 --ip-range=192.168.0.192/32 --gateway=192.168.0.1 -o parent=eth0 netatalk-config" 

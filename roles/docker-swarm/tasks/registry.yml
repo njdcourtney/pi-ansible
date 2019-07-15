@@ -1,0 +1,33 @@
+- name: Create secret with the filesystem user
+  docker_secret:
+    name: registry_cert_crt
+    data: "{{ docker_registry_cert_crt }}"
+    state: present
+  register: registry_cert_crt_secret
+
+- name: Create secret with the filesystem user
+  docker_secret:
+    name: registry_cert_key
+    data: "{{ docker_registry_cert_key }}"
+    state: present
+  register: registry_cert_key_secret
+
+- name: Run registry service
+  docker_swarm_service:
+    name: registry
+    restart_config: 
+        condition: any
+    image: registry:2
+    publish: 
+      - published_port: 5000
+        target_port: 5000
+    secrets:
+      - secret_id: "{{ registry_cert_crt_secret.secret_id}}"
+        secret_name: registry_cert_crt
+        filename: domain.crt
+      - secret_id: "{{ registry_cert_key_secret.secret_id}}"
+        secret_name: registry_cert_key
+        filename: domain.key
+    env:
+      - "REGISTRY_HTTP_TLS_CERTIFICATE=/run/secrets/domain.crt"
+      - "REGISTRY_HTTP_TLS_KEY=/run/secrets/domain.key"

@@ -1,10 +1,4 @@
-- name: Pre-pull netatalk image
-  docker_image:
-    source: pull
-    name: "{{ docker_netatalk.image }}"
-
 - name: Add label to bulk storage nodes
-  when: "'ClusterLeader' in group_names" 
   docker_node:
     hostname: "{{ item }}"
     labels:
@@ -13,7 +7,6 @@
   run_once: true
   
 - name: Create secret with the filesystem user
-  when: "'ClusterLeader' in group_names" 
   docker_secret:
     name: netatalk-user
     data: "{{ docker_netatalk.user }}:{{ users[docker_netatalk.user].password }}"
@@ -21,19 +14,7 @@
   register: netatalk_secret
   run_once: true
 
-# Create the networks
-- name: Get info on netatalk-config network
-  docker_network_info:
-    name: netatalk-config
-  register: netatalkConfigInfo
-
-# docker_network module doesn't supprt --config-only (2.8) so create manually
-- name: Create netatalk-config network
-  when: not netatalkConfigInfo.exists
-  command: "docker network create -d macvlan --config-only --subnet=192.168.0.0/24 --ip-range=192.168.0.192/32 --gateway=192.168.0.1 -o parent=eth0 netatalk-config" 
-
 - name: Get info on netatalk-swarm network
-  when: "'ClusterLeader' in group_names" 
   docker_network_info:
     name: netatalk-swarm
   register: netatalkSwarmInfo
@@ -41,9 +22,7 @@
 
 # docker_network module doesn't supprt --config-from (2.8) so create manually
 - name: Create netatalk-swarm network
-  when: 
-    - "'ClusterLeader' in group_names"
-    - not netatalkSwarmInfo.exists
+  when: not netatalkSwarmInfo.exists
   command: "docker network create -d macvlan --scope swarm --config-from netatalk-config netatalk-swarm"
   run_once: true
 
@@ -65,7 +44,6 @@
   run_once: true
 
 - name: Deploy netatalk service
-  when: "'ClusterLeader' in group_names"
   docker_swarm_service:
     name: netatalk
     image: "{{ docker_netatalk.image }}"

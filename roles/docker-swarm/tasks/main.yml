@@ -1,3 +1,11 @@
+- name: Add promote ClusterAltLeaders to leader
+  docker_node:
+    hostname: "{{ item }}"
+    role: manager
+  loop: "{{ groups.ClusterAltLeaders }}"
+
+- import_tasks: registry.yml
+  tags: registry
 - import_tasks: vizualizer.yml
   tags: vizualizer
 - import_tasks: tickstack.yml

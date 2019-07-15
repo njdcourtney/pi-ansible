@@ -1,10 +1,4 @@
-- name: Pre-pull Visualiser image
-  docker_image:
-    source: pull
-    name: "{{ docker_vizualizer.image }}"
-
 - name: Deploy Visualiser service
-  when: "'ClusterLeader' in group_names" 
   docker_swarm_service:
     name: visualizer
     image: "{{ docker_vizualizer.image }}"

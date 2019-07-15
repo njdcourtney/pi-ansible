@@ -12,9 +12,6 @@ docker_netatalk:
     timemachine: "{{ docker_bulk_root }}/netshare/TimeMachine"
     config: "{{ docker_volume_root }}/netshare/config"
 
-docker_vizualizer:
-    image: njdcourtney/visualizer-custom:latest
-
 docker_influxdb:
   image: influxdb
   volume: "{{ docker_volume_root }}/influxdb"

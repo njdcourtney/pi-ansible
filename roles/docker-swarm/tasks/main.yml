@@ -4,6 +4,18 @@
     role: manager
   loop: "{{ groups.ClusterAltLeaders }}"
 
+- name: Add daemon config file to set max uploads
+  copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+  register: daemon_config
+
+- name: restart daemon if needed
+  when: daemon_config.changed
+  service:
+    name: docker
+    state: restarted
+
 - import_tasks: registry.yml
   tags: registry
 - import_tasks: vizualizer.yml

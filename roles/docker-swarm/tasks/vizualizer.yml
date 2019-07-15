@@ -14,14 +14,14 @@
     build:
       path: visualizer
       pull: yes
-    name: cluster:5000/vizualizer
+    name: "{{ docker_vizualizer.image }}"
     push: yes
     source: build
 
 - name: Deploy Visualiser service
   docker_swarm_service:
     name: visualizer
-    image: cluster:5000/vizualizer
+    image: "{{ docker_vizualizer.image }}"
     publish: 
         - published_port: 8081
           target_port: 8080

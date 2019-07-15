@@ -6,11 +6,18 @@ docker_run_after_gluster: true
 
 docker_netatalk:
   user: netshare
-  image: njdcourtney/docker-netatalk:latest
+  image: "cluster:5000/netatalk"
   volumes:
     shared: "{{ docker_bulk_root }}/netshare/Shared"
     timemachine: "{{ docker_bulk_root }}/netshare/TimeMachine"
     config: "{{ docker_volume_root }}/netshare/config"
+
+docker_registry:
+  image: "registry:2"
+  volume: "{{ docker_volume_root }}/registry"
+
+docker_vizualizer:
+  image: "cluster:5000/vizualizer"
 
 docker_influxdb:
   image: influxdb

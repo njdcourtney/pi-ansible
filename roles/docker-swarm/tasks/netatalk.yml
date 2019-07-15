@@ -1,3 +1,17 @@
+- name: Copy build files to build node
+  copy: 
+    src: netatalk/
+    dest: netatalk
+
+- name: Build the image and push it to the private repo
+  docker_image:
+    build:
+      path: netatalk
+      pull: yes
+    name: "{{ docker_netatalk.image }}"
+    push: yes
+    source: build
+
 - name: Add label to bulk storage nodes
   docker_node:
     hostname: "{{ item }}"

@@ -12,12 +12,17 @@
     state: present
   register: registry_cert_key_secret
 
+- name: Create Registry volume Directories
+  file:
+    name: "{{ docker_registry.volume }}"
+    state: directory
+
 - name: Run registry service
   docker_swarm_service:
     name: registry
     restart_config: 
         condition: any
-    image: registry:2
+    image: "{{ docker_registry.image }}"
     publish: 
       - published_port: 5000
         target_port: 5000
@@ -31,3 +36,7 @@
     env:
       - "REGISTRY_HTTP_TLS_CERTIFICATE=/run/secrets/domain.crt"
       - "REGISTRY_HTTP_TLS_KEY=/run/secrets/domain.key"
+    mounts:
+      - source: "{{ docker_registry.volume }}"
+        target: /var/lib/registry
+        type: bind

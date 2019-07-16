@@ -10,7 +10,6 @@ docker_netatalk:
   volumes:
     shared: "{{ docker_bulk_root }}/netshare/Shared"
     timemachine: "{{ docker_bulk_root }}/netshare/TimeMachine"
-    config: "{{ docker_volume_root }}/netshare/config"
 
 docker_registry:
   image: "registry:2"

@@ -17,6 +17,7 @@
     name: "{{ docker_vizualizer.image }}"
     push: yes
     source: build
+    force_source: yes
 
 - name: Deploy Visualiser service
   docker_swarm_service:

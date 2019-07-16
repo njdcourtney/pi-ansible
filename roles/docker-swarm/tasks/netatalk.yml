@@ -1,9 +1,10 @@
-- name: Copy build files to build node
+- name: Copy netatalk build files to build node
   copy: 
     src: netatalk/
     dest: netatalk
+    mode: preserve
 
-- name: Build the image and push it to the private repo
+- name: Build the netatalk image and push it to the private repo
   docker_image:
     build:
       path: netatalk
@@ -11,6 +12,7 @@
     name: "{{ docker_netatalk.image }}"
     push: yes
     source: build
+    force_source: yes
 
 - name: Add label to bulk storage nodes
   docker_node:
@@ -18,9 +20,8 @@
     labels:
       storagetype: bulk
   loop: "{{ groups.BulkStorage }}"
-  run_once: true
   
-- name: Create secret with the filesystem user
+- name: Create secret with the netatalk filesystem user
   docker_secret:
     name: netatalk-user
     data: "{{ docker_netatalk.user }}:{{ users[docker_netatalk.user].password }}"
@@ -40,7 +41,7 @@
   command: "docker network create -d macvlan --scope swarm --config-from netatalk-config netatalk-swarm"
   run_once: true
 
-- name: Create Volume Directories
+- name: Create netatalk volume Directories
   file:
     name: "{{ item.value }}"
     owner: "{{ docker_netatalk.user }}"
@@ -48,19 +49,10 @@
   loop: "{{ docker_netatalk.volumes | dict2items }}"
   run_once: true
 
-- name: Install afp.conf file
-  template:
-    src: afp.conf.j2
-    dest: "{{ docker_volume_root }}/netshare/config/afp.conf"
-    owner: root
-    group: root
-    mode: "u=rw,g=r,o=r"
-  run_once: true
-
 - name: Deploy netatalk service
   docker_swarm_service:
     name: netatalk
-    image: "{{ docker_netatalk.image }}"
+    image: "cluster:5000/netatalk"
     hostname: swarm-netatalk
     env:
       - "AFP_USER={{ docker_netatalk.user }}"
@@ -78,10 +70,6 @@
       - source: "{{ docker_netatalk.volumes.timemachine }}"
         target: /media/timemachine
         type: bind
-      - source: "{{ docker_volume_root }}/netshare/config/afp.conf"
-        target: /usr/local/etc/afp.conf
-        type: bind
-        readonly: true
     networks:
       - netatalk-swarm
     secrets:

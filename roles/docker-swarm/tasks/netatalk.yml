@@ -52,7 +52,7 @@
 - name: Deploy netatalk service
   docker_swarm_service:
     name: netatalk
-    image: "cluster:5000/netatalk"
+    image: "{{ docker_netatalk.image }}"
     hostname: swarm-netatalk
     env:
       - "AFP_USER={{ docker_netatalk.user }}"

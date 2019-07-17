@@ -28,7 +28,7 @@
   interval = "30s"
   ## Rounds collection interval to 'interval'
   ## ie, if interval="10s" then always collect on :00, :10, :20, etc.
-  round_interval = true
+  round_interval = false
 
   ## Telegraf will send metrics to outputs in batches of at most
   ## metric_batch_size metrics.
@@ -49,11 +49,11 @@
 
   ## Default flushing interval for all outputs. Maximum flush_interval will be
   ## flush_interval + flush_jitter
-  flush_interval = "10s"
+  flush_interval = "30s"
   ## Jitter the flush interval by a random amount. This is primarily to avoid
   ## large write spikes for users running a large number of telegraf instances.
   ## ie, a jitter of 5s and interval 10s means flushes will happen every 10-15s
-  flush_jitter = "0s"
+  flush_jitter = "5s"
 
   ## By default or when set to "0s", precision will be set to the same
   ## timestamp order as the collection interval, with the maximum being 1s.
@@ -90,7 +90,7 @@
   ## urls will be written to each interval.
   # urls = ["unix:///var/run/influxdb.sock"]
   # urls = ["udp://127.0.0.1:8089"]
-  urls = ["http://127.0.0.1:8086"]
+  urls = ["http://cluster:8086"]
   
   ## The target database for metrics; will be created as needed.
   ## For UDP url endpoint database needs to be configured on server side.
@@ -1921,7 +1921,7 @@
    endpoint = "unix:///var/run/docker.sock"
 
    ## Set to true to collect Swarm metrics(desired_replicas, running_replicas)
-   gather_services = true
+   gather_services = false
 
    ## Only collect metrics for these containers, collect all if empty
    container_names = []

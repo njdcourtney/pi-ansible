@@ -22,6 +22,10 @@ docker_influxdb:
   image: influxdb
   volume: "{{ docker_volume_root }}/influxdb"
 
+docker_telegraf:
+  image: telegraf
+  volume: "{{ docker_volume_root }}/telegraf"
+
 docker_chronograf:
   image: chronograf
   volume: "{{ docker_volume_root }}/chronograf"

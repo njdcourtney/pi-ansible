@@ -41,12 +41,14 @@
   command: "docker network create -d macvlan --scope swarm --config-from netatalk-config netatalk-swarm"
   run_once: true
 
-- name: Create netatalk volume Directories
+- name: Create netatalk volume directory
   file:
-    name: "{{ item.value }}"
+    name: "{{ docker_netatalk.volume }}/{{ item }}"
     owner: "{{ docker_netatalk.user }}"
     state: directory
-  loop: "{{ docker_netatalk.volumes | dict2items }}"
+  loop: 
+    - share
+    - timemachine
   run_once: true
 
 - name: Deploy netatalk service
@@ -64,11 +66,8 @@
         - published_port: 5353
           target_port: 5353
     mounts:
-      - source: "{{ docker_netatalk.volumes.shared }}"
-        target: /media/share
-        type: bind
-      - source: "{{ docker_netatalk.volumes.timemachine }}"
-        target: /media/timemachine
+      - source: "{{ docker_netatalk.volume }}"
+        target: /media
         type: bind
     networks:
       - netatalk-swarm

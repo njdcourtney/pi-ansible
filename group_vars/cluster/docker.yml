@@ -7,9 +7,7 @@ docker_run_after_gluster: true
 docker_netatalk:
   user: netshare
   image: "cluster:5000/netatalk"
-  volumes:
-    shared: "{{ docker_bulk_root }}/netshare/Shared"
-    timemachine: "{{ docker_bulk_root }}/netshare/TimeMachine"
+  volume: "{{ docker_bulk_root }}/netshare"
 
 docker_registry:
   image: "registry:2"

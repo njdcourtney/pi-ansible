@@ -13,6 +13,7 @@
     push: yes
     source: build
     force_source: yes
+  run_once: true
 
 - name: Add label to bulk storage nodes
   docker_node:
@@ -20,13 +21,13 @@
     labels:
       storagetype: bulk
   loop: "{{ groups.BulkStorage }}"
+  run_once: true
   
 - name: Create secret with the netatalk filesystem user
   docker_secret:
     name: netatalk-user
     data: "{{ docker_netatalk.user }}:{{ users[docker_netatalk.user].password }}"
     state: present
-  register: netatalk_secret
   run_once: true
 
 - name: Get info on netatalk-swarm network
@@ -52,32 +53,42 @@
   run_once: true
 
 - name: Deploy netatalk service
-  docker_swarm_service:
+  docker_stack:
+    state: present
     name: netatalk
-    image: "{{ docker_netatalk.image }}"
-    hostname: swarm-netatalk
-    env:
-      - "AFP_USER={{ docker_netatalk.user }}"
-      - "AFP_UID={{ users[docker_netatalk.user].id }}"
-      - "AFP_GID={{ users[docker_netatalk.user].id }}"
-    publish: 
-        - published_port: 548
-          target_port: 548
-        - published_port: 5353
-          target_port: 5353
-    mounts:
-      - source: "{{ docker_netatalk.volume }}"
-        target: /media
-        type: bind
-    networks:
-      - netatalk-swarm
-    secrets:
-      - secret_id: "{{ netatalk_secret.secret_id}}"
-        secret_name: netatalk-user
-        filename: netatalk_passwd
-    restart_config:
-      condition: any
-    placement:
-      constraints:
-        - "node.labels.storagetype==bulk"
+    compose:
+      - version: "3.7"
+        services:
+          netatalk:
+            image: "{{ docker_netatalk.image }}"
+            hostname: swarm-netatalk
+            environment:
+              AFP_USER: "{{ docker_netatalk.user }}"
+              AFP_UID: "{{ users[docker_netatalk.user].id }}"
+              AFP_GID: "{{ users[docker_netatalk.user].id }}"
+            ports:
+                - 548:548
+                - 5353:5353
+            volumes:
+              - source: "{{ docker_netatalk.volume }}"
+                target: /media
+                type: bind
+            networks:
+              - netatalk_net
+            secrets:
+              - source: netatalk-user
+                target: netatalk_passwd
+            deploy:
+              restart_policy:
+                condition: any
+              placement:
+                constraints:
+                  - node.labels.storagetype == bulk
+        networks:
+          netatalk_net:
+            external: true
+            name: netatalk-swarm
+        secrets:
+          netatalk-user:
+            external: true
   run_once: true

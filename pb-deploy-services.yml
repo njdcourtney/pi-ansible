@@ -9,13 +9,17 @@
     - role: raspbian-core
       tags: raspbian-core
 
-- name: Install DNS server
+- name: Install LAN services
   hosts: DnsServers
   become: yes
   gather_facts: false
-  tags: dns-servers
+  tags: lan-services
   roles:
     - role: dnsmasq
+      tags: dnsmasq
+    - role: ubiquiti-controller
+      tags: ubiquiti-controller
+
 
 - name: Install Services on each cluster node
   hosts: Cluster
@@ -35,7 +39,5 @@
   become: yes
   gather_facts: false
   roles:
-    - role: ubiquiti-controller
-      tags: ubiquiti-controller
     - role: docker-swarm
       tags: docker-swarm

@@ -1,4 +1,0 @@
-dnsmasq_dns_servers: "{{ vault_dnsmasq_dns_servers }}"
-dnsmasq_dhcp_range: "{{ vault_dnsmasq_dhcp_range }}"
-dnsmasq_cnames: "{{ vault_dnsmasq_cnames }}"
-dnsmasq_dhcp_hosts: "{{ vault_dnsmasq_dhcp_hosts }}"

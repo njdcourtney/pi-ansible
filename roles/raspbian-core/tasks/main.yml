@@ -54,7 +54,7 @@
     path: /etc/dhcpcd.conf
     block: |
         interface {{ static_ip.interface }}
-        static ip_address={{ static_ip.ip_addr }}/24
+        static ip_address={{ static_ip.addr }}/24
         static routers={{ static_ip.router }}
         static domain_name_servers={{ static_ip.name_servers }}
         static domain_search={{ static_ip.domain }}
@@ -65,19 +65,6 @@
   blockinfile:
     path: /etc/hosts
     block: "{{ static_hosts | join('\n') }}"
-
-- name: Add additional groups
-  group:
-    name: "{{ item.key }}"
-    gid: "{{ item.value.id }}"
-  loop: "{{ users | dict2items }}"
-
-- name: Add additional users
-  user:
-    name: "{{ item.key }}"
-    uid: "{{ item.value.id }}"
-    group: "{{ item.key }}"
-  loop: "{{ users | dict2items }}"
 
 # Import the headless tasks if this is a headless server
 - name: Import Headless server tasks

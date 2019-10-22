@@ -1,5 +1,10 @@
+
 [Raspbian:children]
+  DnsServers
   Cluster
+
+[DnsServers]
+  pi3
 
 [Cluster:children]
   ClusterLeader

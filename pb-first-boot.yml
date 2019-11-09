@@ -31,7 +31,7 @@
         name: "{{inventory_hostname }}"
         state: "absent"
 
-    - name: Add/update the public key in the '{{ known_hosts_file }}'
+    - name: Add/update the public key in the known_hosts file
       known_hosts:
         name: "{{ inventory_hostname }}"
         key: "{{ ssh_known_host_results.stdout }}"

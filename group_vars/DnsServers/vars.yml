@@ -5,3 +5,7 @@ dnsmasq:
   dhcp_range: "{{ vault_dnsmasq.dhcp_range }}"
   cnames: "{{ vault_dnsmasq.cnames }}"
   dhcp_hosts: "{{ vault_dnsmasq.dhcp_hosts }}"
+
+ddclient:
+  username: "{{ vault_ddclient.username }}"
+  password: "{{ vault_ddclient.password }}"

@@ -1,0 +1,13 @@
+##
+## DNS-O-Matic account-configuration
+##
+
+ssl=yes # use ssl-support
+use=web, web=myip.dnsomatic.com
+
+server=updates.dnsomatic.com,       \
+protocol=dyndns2,                   \
+login={{ ddclient.username }},      \
+password={{ ddclient.password }}    \
+all.dnsomatic.com
+

@@ -19,7 +19,8 @@
       tags: dnsmasq
     - role: ubiquiti-controller
       tags: ubiquiti-controller
-
+    - role: ddclient
+      tags: ddclient
 
 - name: Install Services on each cluster node
   hosts: Cluster

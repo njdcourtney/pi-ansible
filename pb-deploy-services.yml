@@ -10,7 +10,7 @@
       tags: raspbian-core
 
 - name: Install LAN services
-  hosts: DnsServers
+  hosts: LanServers
   become: yes
   gather_facts: false
   tags: lan-services

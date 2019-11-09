@@ -3,7 +3,7 @@
   DnsServers
   Cluster
 
-[DnsServers]
+[LanServers]
   pi3
 
 [Cluster:children]

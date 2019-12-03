@@ -6,7 +6,7 @@
 - name: Configure ddclient
   template:
     src: ddclient.conf.j2
-    dest: //etc/ddclient.conf
+    dest: /etc/ddclient.conf
     owner: root
     group: root
     mode: '600'

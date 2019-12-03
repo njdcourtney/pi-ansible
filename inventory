@@ -1,6 +1,6 @@
 
 [Raspbian:children]
-  DnsServers
+  LanServers
   Cluster
 
 [LanServers]

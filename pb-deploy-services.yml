@@ -32,8 +32,6 @@
       tags: gluster
     - role: docker
       tags: docker
-    - role: rsyncserver
-      tags: rsyncserver
 
 - name: Install Cluster Services
   hosts: ClusterLeader

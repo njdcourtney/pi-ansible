@@ -1,19 +1,2 @@
 # Set all the pis to be headless
 pi_headless: true
-
-# The whole cluster needs static IPs to stop race condition with DNSMasq
-static_ip:
-  interface: "{{ vault_static_ip_interface }}"
-  ip_addr: "{{ vault_static_ip_addr }}"
-  router: "{{ vault_static_ip_router }}"
-  name_servers: "{{ vault_static_ip_nameserver }}"
-  domain: "{{ vault_static_ip_domain }}"
-static_hosts: "{{ vault_static_hosts }}"
-
-users:
-  netshare:
-    id: 200
-    password: "{{ vault_netatalk_passwd }}"
-  rsyncbak:
-    id: 201
-    password: "{{ vault_rsyncbak_passwd }}"

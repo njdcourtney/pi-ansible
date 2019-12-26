@@ -12,6 +12,12 @@
     mode: "u=rw,g=r,o=r"
   notify: restart-dnsmasq
 
+- name: Update Hosts file contents with static servers
+  blockinfile:
+    path: /etc/hosts
+    block: "{{ dnsmasq.static_hosts | join('\n') }}"
+  notify: restart-dnsmasq
+
 - name: Open firewall ports
   ufw:
     rule: allow

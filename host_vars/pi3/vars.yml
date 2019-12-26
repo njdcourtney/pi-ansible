@@ -6,7 +6,6 @@ static_ip:
   name_servers: "{{ vault_static_ip.nameserver }}"
   domain: "{{ vault_static_ip.domain }}"
 
-static_hosts: "{{ vault_static_hosts }}"
 
 # Set to be headless
 pi_headless: true

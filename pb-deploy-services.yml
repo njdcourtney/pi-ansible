@@ -22,21 +22,21 @@
     - role: ddclient
       tags: ddclient
 
-- name: Install Services on each cluster node
-  hosts: Cluster
-  become: yes
-  gather_facts: false
-  tags: cluster-services
-  roles:
-    - role: gluster
-      tags: gluster
-    - role: docker
-      tags: docker
+# - name: Install Services on each cluster node
+#   hosts: Cluster
+#   become: yes
+#   gather_facts: false
+#   tags: cluster-services
+#   roles:
+#     - role: gluster
+#       tags: gluster
+#     - role: docker
+#       tags: docker
 
-- name: Install Cluster Services
-  hosts: ClusterLeader
-  become: yes
-  gather_facts: false
-  roles:
-    - role: docker-swarm
-      tags: docker-swarm
+# - name: Install Cluster Services
+#   hosts: ClusterLeader
+#   become: yes
+#   gather_facts: false
+#   roles:
+#     - role: docker-swarm
+#       tags: docker-swarm

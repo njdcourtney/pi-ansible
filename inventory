@@ -6,21 +6,8 @@
 [LanServers]
   pi3
 
-[Cluster:children]
-  ClusterLeader
-  ClusterAltLeaders
-  ClusterWorkers
-
-[ClusterLeader]
+[Cluster]
   cluster-0
-
-[ClusterAltLeaders]
   cluster-1
   cluster-2
 
-[ClusterWorkers]
-  cluster-3
-
-[BulkStorage]
-  cluster-2
-  cluster-3

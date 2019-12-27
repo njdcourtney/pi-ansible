@@ -30,8 +30,8 @@
   roles:
     - role: gluster
       tags: gluster
-#     - role: docker
-#       tags: docker
+    - role: docker
+      tags: docker
 
 # - name: Install Cluster Services
 #   hosts: ClusterLeader

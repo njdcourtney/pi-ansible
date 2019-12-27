@@ -1,12 +1,18 @@
 - name: Get facts
-  gather_facts:
+  setup:
+    gather_subset:
+      - '!all'
+      - network
+  register: network_facts
+  run_once: true
+  delegate_to: "{{ docker_cluster_leader }}"
 
-- name: Install prerequisites
+- name: Install Docker prerequisites
   apt:
     name: 
         - apt-transport-https
         - ca-certificates
-        - python-pip
+        - python3-pip
     state: present
 
 - name: Install Docker python modules (Ansible docker modules pre-reqs)
@@ -23,7 +29,7 @@
 
 - name: Add Docker Repo
   apt_repository:
-    repo: deb [arch=armhf] https://download.docker.com/linux/raspbian stretch stable
+    repo: deb [arch=armhf] https://download.docker.com/linux/raspbian buster stable
     state: present
     update_cache: yes
 
@@ -44,17 +50,18 @@
   lineinfile:
     path: /etc/systemd/system/multi-user.target.wants/docker.service
     regexp: '^After='
-    line: 'After=network-online.target firewalld.service glusterfs-server.service'
+    line: 'After=network-online.target firewalld.service containerd.service glusterd.service'
+  
+- name: Start the swarm with default parameters
+  docker_swarm:
+    state: present
+  register: swarm_info
+  run_once: true
+  delegate_to: "{{ docker_cluster_leader }}"
 
-- name: Create cert directory
-  file:
-    name: /etc/docker/certs.d/cluster:5000
-    state: directory
-
-- name: Create cert file
-  copy:
-    content: "{{ docker_registry_cert_crt }}"
-    dest: /etc/docker/certs.d/cluster:5000/domain.crt
-
-- import_tasks: swarm-init.yml
-- import_tasks: networks.yml
+- name: Add nodes to the swarm
+  docker_swarm:
+    state: join
+    advertise_addr: "eth0"
+    join_token: "{{ swarm_info.swarm_facts.JoinTokens.Manager }}"
+    remote_addrs: [ "{{ network_facts.ansible_facts.ansible_default_ipv4.address }}:2377" ]

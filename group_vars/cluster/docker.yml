@@ -1,36 +1,36 @@
 # Define variables for the docker swarm
-docker_volume_root: /mnt/gluster/ClusterShared/DockerVolumes
-docker_bulk_root: /mnt/gluster/ClusterBulk
-
+docker_cluster_leader: "cluster-0"
 docker_run_after_gluster: true
 
-docker_netatalk:
-  user: netshare
-  image: "cluster:5000/netatalk"
-  volume: "{{ docker_bulk_root }}/netshare"
+docker_volumes_dir: /mnt/gluster/ClusterShared/DockerVolumes
 
-docker_registry:
-  image: "registry:2"
-  volume: "{{ docker_volume_root }}/registry"
+# docker_netatalk:
+#   user: netshare
+#   image: "cluster:5000/netatalk"
+#   volume: "{{ docker_bulk_root }}/netshare"
 
-docker_vizualizer:
-  image: "cluster:5000/vizualizer"
+# docker_registry:
+#   image: "registry:2"
+#   volume: "{{ docker_volume_root }}/registry"
 
-docker_influxdb:
-  image: influxdb
-  volume: "{{ docker_volume_root }}/influxdb"
+# docker_vizualizer:
+#   image: "cluster:5000/vizualizer"
 
-docker_telegraf:
-  image: telegraf
-  volume: "{{ docker_volume_root }}/telegraf"
+# docker_influxdb:
+#   image: influxdb
+#   volume: "{{ docker_volume_root }}/influxdb"
 
-docker_chronograf:
-  image: chronograf
-  volume: "{{ docker_volume_root }}/chronograf"
+# docker_telegraf:
+#   image: telegraf
+#   volume: "{{ docker_volume_root }}/telegraf"
 
-docker_kapacitor:
-  image: kapacitor
-  volume: "{{ docker_volume_root }}/kapacitor"
+# docker_chronograf:
+#   image: chronograf
+#   volume: "{{ docker_volume_root }}/chronograf"
 
-docker_registry_cert_key: "{{ vault_registry_cert_key }}"
-docker_registry_cert_crt: "{{ vault_registry_cert_crt }}"
+# docker_kapacitor:
+#   image: kapacitor
+#   volume: "{{ docker_volume_root }}/kapacitor"
+
+# docker_registry_cert_key: "{{ vault_registry_cert_key }}"
+# docker_registry_cert_crt: "{{ vault_registry_cert_crt }}"

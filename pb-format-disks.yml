@@ -1,7 +1,7 @@
 # DANGER WILL ROBINSON!
 # When run this playbook will trigger the deletion of all partitions
 # and the creation of a new XFS filesystem on the listed disks
-# THIS WILL DELETE ANYTHING ON THE DEVICES LISTED IN {{ gluster_devices }}
+# THIS WILL DELETE ANYTHING ON THE DEVICES LISTED IN {{ gluster_data_disks }}
 
 - name: Format data disks
   hosts: Cluster
@@ -20,7 +20,7 @@
         device: "{{ item.device }}"
         unit: MiB
       register: device_info
-      loop: "{{ data_disks }}"
+      loop: "{{ gluster_data_disks }}"
 
     - name: Delete every partition.
       parted:
@@ -38,11 +38,11 @@
         state: present
         part_start: 0%
         part_end: 100%
-      loop: "{{ data_disks }}"
+      loop: "{{ gluster_data_disks }}"
 
     - name: Create the xfs filesystem on each data device
       filesystem:
         fstype: xfs
         dev: "{{ item.device }}1"
         force: true
-      loop: "{{ data_disks }}"
+      loop: "{{ gluster_data_disks }}"

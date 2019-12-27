@@ -1,4 +1,0 @@
-#List of external disks.
-data_disks: 
-  - device: /dev/sda
-    label: ClusterShared

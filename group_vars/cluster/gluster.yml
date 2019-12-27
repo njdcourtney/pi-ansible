@@ -1,4 +1,4 @@
 # Define the Gluster volumes
-gluster_storage:
-  ClusterShared: "{{ groups.Cluster }}"
-  ClusterBulk: "{{ groups.BulkStorage }}"
+gluster_data_disks: 
+  - device: /dev/sda
+    label: ClusterStorage

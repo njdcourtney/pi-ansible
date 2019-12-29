@@ -65,3 +65,16 @@
     advertise_addr: "eth0"
     join_token: "{{ swarm_info.swarm_facts.JoinTokens.Manager }}"
     remote_addrs: [ "{{ network_facts.ansible_facts.ansible_default_ipv4.address }}:2377" ]
+
+- name: Deploy Cluster Services
+  block:
+    - include_tasks: vizualizer.yml
+    - include_tasks: tickstack.yml
+  tags: docker-services
+  run_once: true
+  delegate_to: "{{ docker_cluster_leader }}"
+
+- name: Docker Cleanup
+  docker_prune:
+    containers: yes
+    images: yes

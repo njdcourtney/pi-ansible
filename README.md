@@ -19,5 +19,3 @@ If you're using WiFi you'll need to add a wpa_supplicant.conf file with the SSID
 The update software task in the first-boot playbook intermittently fails.
 
 I think this is a timeout issue caused by the very first software update being quite big, re-running the playbook seems to clear the error.
-
-The netatalk tasks in the swarm-services role needs to be rewritten when Ansible 2.8 is release with the updated docker modules

@@ -33,10 +33,4 @@
     - role: docker
       tags: docker
 
-# - name: Install Cluster Services
-#   hosts: ClusterLeader
-#   become: yes
-#   gather_facts: false
-#   roles:
-#     - role: docker-swarm
-#       tags: docker-swarm
+

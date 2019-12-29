@@ -1,0 +1,52 @@
+- name: Install git on leader node
+  apt:
+    name: 
+        - git
+    state: present
+
+- name: Pull visualizer repo
+  git:
+      repo: https://github.com/dockersamples/docker-swarm-visualizer.git
+      dest: visualizer
+
+- name: Build the image
+  docker_image:
+    build:
+      path: visualizer
+      pull: yes
+    name: njdcourtney/pi-vizualizer
+    push: no
+    source: build
+  register: docker_visualizer_build
+
+- name: Log into Docker Hub
+  when: docker_visualizer_build.changed
+  docker_login:
+    username: "{{ vault_docker_hub.username }}"
+    password: "{{ vault_docker_hub.password }}"
+  notify: Docker-Hub-Logout
+
+- name: Push the image
+  when: docker_visualizer_build.changed
+  docker_image:
+    name: njdcourtney/pi-vizualizer
+    push: yes
+    source: local
+
+- name: Deploy Visualizer service
+  docker_swarm_service:
+    name: visualizer
+    image: njdcourtney/pi-vizualizer
+    publish: 
+        - published_port: 8080
+          target_port: 8080
+    mounts:
+      - source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        readonly: yes
+        type: bind
+    placement:
+      constraints:
+        - "node.role==manager"
+    restart_config:
+      condition: on-failure

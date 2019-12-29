@@ -45,11 +45,11 @@
   
 - name: Create Gluster Volume
   gluster_volume:
-    state: present
+    state:  present
     name: "{{ item.label }}"
     bricks: "/data/gluster/{{ item.label }}/brick0/brick"
     cluster: "{{ groups.Cluster }}"
-    disperses: "{{ item.disperse }}"
+    replicas: "{{ item.replicas }}"
   loop: "{{ gluster_data_disks }}"
   run_once: true
 

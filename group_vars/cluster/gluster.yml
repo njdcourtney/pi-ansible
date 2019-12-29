@@ -2,4 +2,4 @@
 gluster_data_disks: 
   - device: /dev/sda
     label: ClusterStorage
-    disperse: 3
+    replicas: 3

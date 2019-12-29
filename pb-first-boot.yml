@@ -43,8 +43,8 @@
   gather_facts: false
   vars:
     # This is the well-known default username and password that we're actively changing.
-    ansible_ssh_user: pi 
-    ansible_ssh_pass: raspberry
+    ansible_ssh_user: pi
+    # ansible_ssh_pass: raspberry
 
   tasks:
     - name: Create admin user

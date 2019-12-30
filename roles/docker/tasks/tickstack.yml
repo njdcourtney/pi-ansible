@@ -6,24 +6,21 @@
     - influxdb
     - chronograf
     - kapacitor
-    - telegraf
   loop_control:
     loop_var: service
-
-- name: Update telegraf config file
-  template:
-    src: telegraf.conf.j2
-    dest: "{{ docker_volumes_dir }}/telegraf/telegraf.conf"
 
 - name: Deploy the monitoring service stack
   docker_stack:
     state: present
     name: tickstack
+    prune: yes
     compose:
       - version: "3.7"
         services:
           influxdb:
             image: influxdb
+            ports: 
+              - "8086:8086"
             volumes:
               - type: bind
                 source: "{{ docker_volumes_dir }}/influxdb"
@@ -32,26 +29,6 @@
               INFLUXDB_REPORTING_DISABLED: 'true'
             networks:
               - tickstacknet
-          telegraf:
-            image: telegraf
-            hostname: "{% raw %}{{ .Node.Hostname }}{% endraw %}"
-            deploy:
-              mode: global
-            volumes:
-              - "/:/hostfs:ro"
-              - "/etc:/hostfs/etc:ro"
-              - "/proc:/hostfs/proc:ro"
-              - "/sys:/hostfs/sys:ro"
-              - "/var/run/utmp:/var/run/utmp:ro"
-              - "/var/run/docker.sock:/var/run/docker.sock:ro"
-              - "{{ docker_volumes_dir }}/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro"
-            networks:
-                - tickstacknet
-            environment:
-                HOST_ETC: /hostfs/etc
-                HOST_PROC: /hostfs/proc
-                HOST_SYS: /hostfs/sys
-                HOST_MOUNT_PREFIX: /hostfs
           chronograf:
             image: chronograf
             ports: 
@@ -63,7 +40,7 @@
             networks:
               - tickstacknet
             environment:
-              INFLUXDB_URL: "http://influxdb:8086"
+              INFLUXDB_URL: "{{ influxdb_url }}"
               KAPACITOR_URL: "http://kapacitor:9092"
               REPORTING_DISABLE: "true"          
           kapacitor:
@@ -73,7 +50,7 @@
                 source: "{{ docker_volumes_dir }}/kapacitor"
                 target: /var/lib/kapacitor
             environment:
-              KAPACITOR_INFLUXDB_0_URLS_0: "http://influxdb:8086"
+              KAPACITOR_INFLUXDB_0_URLS_0: "{{ influxdb_url }}"
             networks:
                 - tickstacknet
         networks:

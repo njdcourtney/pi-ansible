@@ -17,6 +17,8 @@
   roles:
     - role: raspbian-core
       tags: raspbian-core
+    - role: telegraf
+      tags: telegraf
 
 - name: Install LAN services
   hosts: LanServers

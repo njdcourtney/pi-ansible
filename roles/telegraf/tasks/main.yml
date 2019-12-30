@@ -1,0 +1,38 @@
+- name: Import Influxdata GPG key
+  apt_key:
+    url: https://repos.influxdata.com/influxdb.key
+    state: present
+
+- name: Add Influxdata repo
+  apt_repository:
+    repo: deb https://repos.influxdata.com/debian buster stable
+    state: present
+    update_cache: yes
+
+- name: Install telegraf
+  apt:
+    name: 
+      - telegraf
+    state: present
+
+
+
+- name: Update telegraf config file
+  template:
+    src: telegraf.conf.j2
+    dest: "/etc/telegraf/telegraf.conf"
+  notify: "restart-telegraf"
+
+- name: Add admin user to docker group
+  when: telegraf_docker is defined and telegraf_docker
+  user:
+    name: telegraf
+    groups: docker
+    append: yes
+  notify: "restart-telegraf"
+  
+- name: Ensure telegraf service set to start at boot
+  systemd:
+    name: telegraf
+    state: started
+    enabled: yes

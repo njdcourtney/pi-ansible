@@ -9,13 +9,16 @@
     state: present
     update_cache: yes
 
+# Reboot after this task as getting the controller software to start immediately after the 
+# java update proved to be a pain with Ansible reusing connections and stale paths.
+#  sometimes, just sometimes, rebooting is just easier.
 - name: Install java and UniFi controller (can be slow)
   apt:
     name: 
       - openjdk-8-jre-headless
       - unifi
     state: present
-  notify: "server reboot"
+  notify: "reboot-server"
 
 - name: Disable the default mongodb service
   systemd:

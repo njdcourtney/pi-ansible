@@ -1,20 +1,3 @@
-- name: Update software
-  apt:
-    update_cache: yes
-    cache_valid_time: 3600
-    upgrade: 'yes'
-    autoremove: yes
-
-- name: Check if reboot is required
-  stat: 
-    path: /var/run/reboot-required
-  register: reboot_file
-
-- name: Reboot required?
-  when: reboot_file.stat.exists
-  command: /bin/true
-  notify: "reboot-server"
-
 - name: Ensure the 'pi' user is absent
   user:
     name: pi

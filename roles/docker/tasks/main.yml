@@ -68,8 +68,8 @@
 
 - name: Deploy Cluster Services
   block:
-    - include_tasks: vizualizer.yml
-    - include_tasks: tickstack.yml
+    - import_tasks: vizualizer.yml
+    - import_tasks: tickstack.yml
   tags: docker-services
   run_once: true
   delegate_to: "{{ docker_cluster_leader }}"
@@ -78,3 +78,4 @@
   docker_prune:
     containers: yes
     images: yes
+  tags: docker-cleanup

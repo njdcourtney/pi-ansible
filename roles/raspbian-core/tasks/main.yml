@@ -13,14 +13,13 @@
 - name: Reboot required?
   when: reboot_file.stat.exists
   command: /bin/true
-  notify: "server reboot"
+  notify: "reboot-server"
 
 - name: Ensure the 'pi' user is absent
   user:
     name: pi
     state: absent
     remove: yes
-  notify: "server reboot"
 
 - name: Ensure the hostname is set correctly
   hostname:

@@ -37,6 +37,7 @@
   docker_swarm_service:
     name: visualizer
     image: njdcourtney/pi-vizualizer
+    resolve_image: true
     publish: 
         - published_port: 8080
           target_port: 8080

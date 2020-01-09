@@ -72,6 +72,8 @@
       tags: docker-vizualizer
     - import_tasks: tickstack.yml
       tags: docker-tickstack
+    - import_tasks: tiddywiki.yml
+      tags: docker-tiddywiki
   tags: docker-services
   run_once: true
   delegate_to: "{{ docker_cluster_leader }}"

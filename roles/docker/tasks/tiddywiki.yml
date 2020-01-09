@@ -1,0 +1,70 @@
+- name: Create Tiddywiki volume Directories
+  file:
+    name: "{{ docker_volumes_dir }}/tiddywiki"
+    state: directory
+
+- name: Copy build files to build node
+  copy: 
+    src: Tiddywiki/
+    dest: Tiddywiki
+    mode: preserve
+
+- name: Build the image
+  docker_image:
+    build:
+      path: Tiddywiki
+      pull: yes
+      nocache: yes
+    name: njdcourtney/pi-tiddywiki
+    push: no
+    source: build
+  register: docker_tiddywiki_build
+
+- name: Log into Docker Hub
+  when: docker_tiddywiki_build.changed
+  docker_login:
+    username: "{{ vault_docker_hub.username }}"
+    password: "{{ vault_docker_hub.password }}"
+  notify: Docker-Hub-Logout
+
+- name: Push the image
+  when: docker_tiddywiki_build.changed
+  docker_image:
+    name: njdcourtney/pi-tiddywiki
+    push: yes
+    source: local
+
+- name: Stop service if doing a forced update
+  when: tiddywiki_force_creds_update is defined and tiddywiki_force_creds_update
+  docker_swarm_service:
+    name: tiddywiki
+    state: absent
+
+- name: Delete the secret if doing a forced update
+  when: tiddywiki_force_creds_update is defined and tiddywiki_force_creds_update
+  docker_secret:
+    name: tiddywiki-credentials
+    state: absent
+
+- name: Create the tiddywiki-credentials secret
+  docker_secret:
+    name: tiddywiki-credentials
+    data: "{{ tiddywiki_creds }}"
+    state: present
+
+- name: Deploy Tiddywiki service
+  docker_swarm_service:
+    name: tiddywiki
+    image: njdcourtney/pi-tiddywiki
+    resolve_image: true
+    publish: 
+        - published_port: 8090
+          target_port: 8090
+    mounts:
+      - type: bind
+        source: "{{ docker_volumes_dir }}/tiddywiki"
+        target: /var/lib/tiddlywiki
+    secrets:
+      - secret_name: tiddywiki-credentials
+    restart_config:
+      condition: on-failure

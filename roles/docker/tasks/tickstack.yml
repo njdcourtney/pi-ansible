@@ -40,14 +40,16 @@
               - type: bind
                 source: "{{ docker_volumes_dir }}/chronograf"
                 target: /var/lib/chronograf
-            networks:
-              - tickstacknet
             environment:
               INFLUXDB_URL: "{{ vault_influxdb.url }}"
               INFLUXDB_USERNAME: "{{ vault_influxdb.username }}"
               INFLUXDB_PASSWORD: "{{ vault_influxdb.password }}"
               KAPACITOR_URL: "http://kapacitor:9092"
               REPORTING_DISABLE: "true"
+            depends_on: 
+              - influxdb
+            networks:
+              - tickstacknet
           kapacitor:
             image: kapacitor
             volumes:
@@ -58,9 +60,33 @@
               KAPACITOR_INFLUXDB_0_URLS_0: "{{ vault_influxdb.url }}"
               KAPACITOR_INFLUXDB_0_USERNAME: "{{ vault_influxdb.username }}"
               KAPACITOR_INFLUXDB_0_PASSWORD: "{{ vault_influxdb.password }}"
+            depends_on: 
+              - influxdb
             networks:
                 - tickstacknet
         networks:
             tickstacknet:
 
-
+- name: Wait for InfluxDB to start
+  wait_for:
+    port: 8086
+    host: "{{ vault_influxdb.hostname }}"
+    state: present
+    
+- name: Create the Telegraf database (may not be needed if Telegraf agent gets there first)
+  influxdb_database:
+      hostname: "{{ vault_influxdb.hostname }}"
+      database_name: "telegraf"
+      login_username: "{{ vault_influxdb.username }}"
+      login_password: "{{ vault_influxdb.password }}"
+      
+- name: create 90d retention policy
+  influxdb_retention_policy:
+      hostname: "{{ vault_influxdb.hostname }}"
+      database_name: "telegraf"
+      login_username: "{{ vault_influxdb.username }}"
+      login_password: "{{ vault_influxdb.password }}"
+      policy_name: "telegraf_default"
+      duration: '90d'
+      replication: 1
+      default: yes

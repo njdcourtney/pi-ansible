@@ -27,6 +27,9 @@
                 target: /var/lib/influxdb
             environment:
               INFLUXDB_REPORTING_DISABLED: 'true'
+              INFLUXDB_HTTP_AUTH_ENABLED: 'true'
+              INFLUXDB_ADMIN_USER: "{{ vault_influxdb.username }}"
+              INFLUXDB_ADMIN_PASSWORD: "{{ vault_influxdb.password }}"
             networks:
               - tickstacknet
           chronograf:
@@ -40,9 +43,11 @@
             networks:
               - tickstacknet
             environment:
-              INFLUXDB_URL: "{{ influxdb_url }}"
+              INFLUXDB_URL: "{{ vault_influxdb.url }}"
+              INFLUXDB_USERNAME: "{{ vault_influxdb.username }}"
+              INFLUXDB_PASSWORD: "{{ vault_influxdb.password }}"
               KAPACITOR_URL: "http://kapacitor:9092"
-              REPORTING_DISABLE: "true"          
+              REPORTING_DISABLE: "true"
           kapacitor:
             image: kapacitor
             volumes:
@@ -50,8 +55,12 @@
                 source: "{{ docker_volumes_dir }}/kapacitor"
                 target: /var/lib/kapacitor
             environment:
-              KAPACITOR_INFLUXDB_0_URLS_0: "{{ influxdb_url }}"
+              KAPACITOR_INFLUXDB_0_URLS_0: "{{ vault_influxdb.url }}"
+              KAPACITOR_INFLUXDB_0_USERNAME: "{{ vault_influxdb.username }}"
+              KAPACITOR_INFLUXDB_0_PASSWORD: "{{ vault_influxdb.password }}"
             networks:
                 - tickstacknet
         networks:
             tickstacknet:
+
+

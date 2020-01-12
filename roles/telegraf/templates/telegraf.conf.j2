@@ -109,7 +109,7 @@
   ## urls will be written to each interval.
   # urls = ["unix:///var/run/influxdb.sock"]
   # urls = ["udp://127.0.0.1:8089"]
-  urls = ["{{ influxdb_url }}"]
+  urls = ["{{ vault_influxdb.url }}"]
 
   ## The target database for metrics; will be created as needed.
   ## For UDP url endpoint database needs to be configured on server side.
@@ -139,8 +139,8 @@
   # timeout = "5s"
 
   ## HTTP Basic Auth
-  # username = "telegraf"
-  # password = "metricsmetricsmetricsmetrics"
+  username = "{{ vault_influxdb.username }}"
+  password = "{{ vault_influxdb.password }}"
 
   ## HTTP User-Agent
   # user_agent = "telegraf"

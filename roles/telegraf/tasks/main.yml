@@ -15,15 +15,13 @@
       - telegraf
     state: present
 
-
-
 - name: Update telegraf config file
   template:
     src: telegraf.conf.j2
     dest: "/etc/telegraf/telegraf.conf"
   notify: "restart-telegraf"
 
-- name: Add admin user to docker group
+- name: Add telegraf user to docker group
   when: telegraf_docker is defined and telegraf_docker
   user:
     name: telegraf

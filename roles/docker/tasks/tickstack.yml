@@ -86,7 +86,7 @@
       database_name: "telegraf"
       login_username: "{{ vault_influxdb.username }}"
       login_password: "{{ vault_influxdb.password }}"
-      policy_name: "telegraf_default"
+      policy_name: "autogen"
       duration: '90d'
       replication: 1
       default: yes

@@ -74,6 +74,8 @@
       tags: docker-tickstack
     - import_tasks: tiddywiki.yml
       tags: docker-tiddywiki
+    - import_tasks: hive.yml
+      tags: docker-hive
   tags: docker-services
   run_once: true
   delegate_to: "{{ docker_cluster_leader }}"

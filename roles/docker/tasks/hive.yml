@@ -1,0 +1,76 @@
+
+- name: Create the Hive database
+  influxdb_database:
+      hostname: "{{ vault_influxdb.hostname }}"
+      database_name: "hive"
+      login_username: "{{ vault_influxdb.username }}"
+      login_password: "{{ vault_influxdb.password }}"
+      
+- name: create 90d retention policy
+  influxdb_retention_policy:
+      hostname: "{{ vault_influxdb.hostname }}"
+      database_name: "hive"
+      login_username: "{{ vault_influxdb.username }}"
+      login_password: "{{ vault_influxdb.password }}"
+      policy_name: "autogen"
+      duration: '90d'
+      replication: 1
+      default: yes
+
+- name: Install git on leader node
+  apt:
+    name: 
+        - git
+    state: present
+
+- name: Pull hive repo
+  git:
+      repo: https://github.com/njdcourtney/Hive.git
+      dest: hive
+
+- name: Create Hive volume Directories
+  file:
+    name: "{{ docker_volumes_dir }}/hive"
+    state: directory
+
+- name: Generate config file
+  template:
+    src: Hive/config.yml.j2
+    dest: "{{ docker_volumes_dir }}/hive/config.yml"
+
+- name: Build the image
+  docker_image:
+    build:
+      path: hive
+      pull: yes
+    name: njdcourtney/pi-hive
+    push: no
+    source: build
+  register: docker_hive_build
+
+- name: Log into Docker Hub
+  when: docker_hive_build.changed
+  docker_login:
+    username: "{{ vault_docker_hub.username }}"
+    password: "{{ vault_docker_hub.password }}"
+  notify: Docker-Hub-Logout
+
+- name: Push the image
+  when: docker_hive_build.changed
+  docker_image:
+    name: njdcourtney/pi-hive
+    push: yes
+    source: local
+
+- name: Deploy Hive service
+  docker_swarm_service:
+    name: hive
+    image: njdcourtney/pi-hive
+    resolve_image: true
+    mounts:
+      - type: bind
+        source: "{{ docker_volumes_dir }}/hive/config.yml"
+        target: /app/config.yml
+    restart_config:
+      condition: on-failure
+  tags: hive-service

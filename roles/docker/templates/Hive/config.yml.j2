@@ -1,0 +1,18 @@
+hive:
+  url: https://api.prod.bgchprod.info:443
+  user: "{{ vault_hive.user }}"
+  pass: "{{ vault_hive.pass }}"
+
+influx:
+  url: "{{ vault_influxdb.url }}"
+  database: hive
+  user: "{{ vault_influxdb.username }}"
+  pass: "{{ vault_influxdb.password }}"
+
+devices: 
+{% for key, value in vault_hive.devices.items() %}
+    '{{ key }}': {{ value }}
+{% endfor %}
+
+pollinterval: 60
+

@@ -1,0 +1,10 @@
+# Software patching
+# Update the software serially, prevents every box from rebooting at once.
+- name: Update Software
+  hosts: Raspbian
+  become: yes
+  serial: 1
+  gather_facts: false
+  roles:
+    - role: update-software
+      tags: update-software

@@ -23,11 +23,6 @@
         - git
     state: present
 
-- name: Pull hive repo
-  git:
-      repo: https://github.com/njdcourtney/Hive.git
-      dest: hive
-
 - name: Create Hive volume Directories
   file:
     name: "{{ docker_volumes_dir }}/hive"
@@ -37,6 +32,19 @@
   template:
     src: Hive/config.yml.j2
     dest: "{{ docker_volumes_dir }}/hive/config.yml"
+
+- name: Pull hive repo
+  git:
+      repo: https://github.com/njdcourtney/Hive.git
+      dest: hive
+  register: docker_hive_git
+
+- name: Clean out any images if the source has changes
+  when: docker_hive_git.changed
+  docker_image:
+    name: njdcourtney/pi-hive
+    state: absent
+    force_absent: yes
 
 - name: Build the image
   docker_image:

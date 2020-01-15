@@ -8,6 +8,14 @@
     src: Tiddywiki/
     dest: Tiddywiki
     mode: preserve
+  register: docker_tiddywiki_dockerfile
+
+- name: Clean out any images if the Dockerfile has changes
+  when: docker_tiddywiki_dockerfile.changed
+  docker_image:
+    name: njdcourtney/pi-hive
+    state: absent
+    force_absent: yes
 
 - name: Build the image
   docker_image:
@@ -37,8 +45,9 @@
 - name: Stop service if doing a forced update
   when: tiddywiki_force_creds_update is defined and tiddywiki_force_creds_update
   docker_swarm_service:
-    name: tiddywiki
+    name: "tiddywiki_{{ item.key }}"
     state: absent
+  loop: "{{tiddywikis | dict2items }}"
 
 - name: Delete the secret if doing a forced update
   when: tiddywiki_force_creds_update is defined and tiddywiki_force_creds_update
@@ -54,17 +63,21 @@
 
 - name: Deploy Tiddywiki service
   docker_swarm_service:
-    name: tiddywiki
+    name: "tiddywiki_{{ item.key }}"
     image: njdcourtney/pi-tiddywiki
     resolve_image: true
     publish: 
-        - published_port: 8090
+        - published_port: "{{ item.value }}"
           target_port: 8090
     mounts:
       - type: bind
         source: "{{ docker_volumes_dir }}/tiddywiki"
         target: /var/lib/tiddlywiki
+    env:
+      WIKI_NAME: "{{ item.key }}"
     secrets:
       - secret_name: tiddywiki-credentials
     restart_config:
       condition: on-failure
+  loop: "{{tiddywikis | dict2items }}"
+

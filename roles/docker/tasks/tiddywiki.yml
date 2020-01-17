@@ -1,4 +1,4 @@
-- name: Create Tiddywiki volume Directories
+- name: Create Tiddywiki volume directory
   file:
     name: "{{ docker_volumes_dir }}/tiddywiki"
     state: directory
@@ -43,14 +43,14 @@
     source: local
 
 - name: Stop service if doing a forced update
-  when: tiddywiki_force_creds_update is defined and tiddywiki_force_creds_update
+  when: vault_tiddywikis.credentials.force_update is defined and vault_tiddywikis.credentials.force_update
   docker_swarm_service:
-    name: "tiddywiki_{{ item.key }}"
+    name: "tiddywiki_{{ item.name }}"
     state: absent
-  loop: "{{tiddywikis | dict2items }}"
+  loop: "{{ vault_tiddywikis.wikis }}"
 
 - name: Delete the secret if doing a forced update
-  when: tiddywiki_force_creds_update is defined and tiddywiki_force_creds_update
+  when: vault_tiddywikis.credentials.force_update is defined and vault_tiddywikis.credentials.force_update
   docker_secret:
     name: tiddywiki-credentials
     state: absent
@@ -58,26 +58,26 @@
 - name: Create the tiddywiki-credentials secret
   docker_secret:
     name: tiddywiki-credentials
-    data: "{{ tiddywiki_creds }}"
+    data: "{{ vault_tiddywikis.credentials.secret }}"
     state: present
 
 - name: Deploy Tiddywiki service
   docker_swarm_service:
-    name: "tiddywiki_{{ item.key }}"
+    name: "tiddywiki_{{ item.name }}"
     image: njdcourtney/pi-tiddywiki
     resolve_image: true
     publish: 
-        - published_port: "{{ item.value }}"
+        - published_port: "{{ item.port }}"
           target_port: 8090
     mounts:
       - type: bind
         source: "{{ docker_volumes_dir }}/tiddywiki"
         target: /var/lib/tiddlywiki
     env:
-      WIKI_NAME: "{{ item.key }}"
+      WIKI_NAME: "{{ item.name }}"
     secrets:
       - secret_name: tiddywiki-credentials
     restart_config:
       condition: on-failure
-  loop: "{{tiddywikis | dict2items }}"
+  loop: "{{ vault_tiddywikis.wikis }}"
 

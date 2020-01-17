@@ -1,4 +1,0 @@
-tiddywiki_creds: "{{ vault_tiddywiki_creds }}"
-tiddywiki_force_creds_update: false
-
-tiddywikis: "{{ vault_tiddywikis }}"

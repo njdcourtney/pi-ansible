@@ -1,0 +1,27 @@
+- name: "Clean out any {{ docker_build.image }} images before rebuild"
+  docker_image:
+    name: "{{ docker_build.image }}"
+    state: absent
+    force_absent: yes
+
+- name: "Build the {{ docker_build.image }} image"
+  docker_image:
+    build:
+      path: "{{ docker_build.path }}"
+      pull: yes
+      nocache: yes
+    name: "{{ docker_build.image }}"
+    push: no
+    source: build
+
+- name: Log into Docker Hub
+  docker_login:
+    username: "{{ vault_docker_hub.username }}"
+    password: "{{ vault_docker_hub.password }}"
+  notify: "Docker-Hub-Logout"
+
+- name: "Push the {{ docker_build.image }} image to Docker hub"
+  docker_image:
+    name: "{{ docker_build.image }}"
+    push: yes
+    source: local

@@ -1,4 +1,3 @@
-
 - name: Create the Hive database
   influxdb_database:
       hostname: "{{ vault_influxdb.hostname }}"
@@ -17,12 +16,6 @@
       replication: 1
       default: yes
 
-- name: Install git on leader node
-  apt:
-    name: 
-        - git
-    state: present
-
 - name: Create Hive volume Directories
   file:
     name: "{{ docker_volumes_dir }}/hive"
@@ -33,42 +26,25 @@
     src: Hive/config.yml.j2
     dest: "{{ docker_volumes_dir }}/hive/config.yml"
 
+- name: Install git on leader node
+  apt:
+    name: 
+      - git
+    state: present
+
 - name: Pull hive repo
   git:
       repo: https://github.com/njdcourtney/Hive.git
       dest: hive
-  register: docker_hive_git
+  register: docker_hive_source
 
-- name: Clean out any images if the source has changes
-  when: docker_hive_git.changed
-  docker_image:
-    name: njdcourtney/pi-hive
-    state: absent
-    force_absent: yes
-
-- name: Build the image
-  docker_image:
-    build:
-      path: hive
-      pull: yes
-    name: njdcourtney/pi-hive
-    push: no
-    source: build
-  register: docker_hive_build
-
-- name: Log into Docker Hub
-  when: docker_hive_build.changed
-  docker_login:
-    username: "{{ vault_docker_hub.username }}"
-    password: "{{ vault_docker_hub.password }}"
-  notify: Docker-Hub-Logout
-
-- name: Push the image
-  when: docker_hive_build.changed
-  docker_image:
-    name: njdcourtney/pi-hive
-    push: yes
-    source: local
+- name: Rebuild image if required
+  import_tasks: build_image.yml
+  when: docker_hive_source.changed
+  vars:
+    docker_build:
+      image: "njdcourtney/pi-hive"
+      path: "hive"
 
 - name: Deploy Hive service
   docker_swarm_service:

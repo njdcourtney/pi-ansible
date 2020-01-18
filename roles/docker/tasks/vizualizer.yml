@@ -8,30 +8,15 @@
   git:
       repo: https://github.com/dockersamples/docker-swarm-visualizer.git
       dest: visualizer
+  register: docker_visualizer_source
 
-- name: Build the image
-  docker_image:
-    build:
-      path: visualizer
-      pull: yes
-    name: njdcourtney/pi-vizualizer
-    push: no
-    source: build
-  register: docker_visualizer_build
-
-- name: Log into Docker Hub
-  when: docker_visualizer_build.changed
-  docker_login:
-    username: "{{ vault_docker_hub.username }}"
-    password: "{{ vault_docker_hub.password }}"
-  notify: Docker-Hub-Logout
-
-- name: Push the image
-  when: docker_visualizer_build.changed
-  docker_image:
-    name: njdcourtney/pi-vizualizer
-    push: yes
-    source: local
+- name: Rebuild image if required
+  import_tasks: build_image.yml
+  when: docker_visualizer_source.changed
+  vars:
+    docker_build:
+      image: njdcourtney/pi-vizualizer
+      path: "visualizer"
 
 - name: Deploy Visualizer service
   docker_swarm_service:

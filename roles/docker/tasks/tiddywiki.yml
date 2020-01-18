@@ -8,49 +8,25 @@
     src: Tiddywiki/
     dest: Tiddywiki
     mode: preserve
-  register: docker_tiddywiki_dockerfile
+  register: docker_tiddywiki_source
 
-- name: Clean out any images if the Dockerfile has changes
-  when: docker_tiddywiki_dockerfile.changed
-  docker_image:
-    name: njdcourtney/pi-hive
-    state: absent
-    force_absent: yes
-
-- name: Build the image
-  docker_image:
-    build:
-      path: Tiddywiki
-      pull: yes
-      nocache: yes
-    name: njdcourtney/pi-tiddywiki
-    push: no
-    source: build
-  register: docker_tiddywiki_build
-
-- name: Log into Docker Hub
-  when: docker_tiddywiki_build.changed
-  docker_login:
-    username: "{{ vault_docker_hub.username }}"
-    password: "{{ vault_docker_hub.password }}"
-  notify: Docker-Hub-Logout
-
-- name: Push the image
-  when: docker_tiddywiki_build.changed
-  docker_image:
-    name: njdcourtney/pi-tiddywiki
-    push: yes
-    source: local
-
+- name: Rebuild image if required
+  import_tasks: build_image.yml
+  when: docker_tiddywiki_source.changed
+  vars:
+    docker_build:
+      image: "njdcourtney/pi-tiddywiki"
+      path: "Tiddywiki"
+  
 - name: Stop service if doing a forced update
-  when: vault_tiddywikis.credentials.force_update is defined and vault_tiddywikis.credentials.force_update
+  when: tiddywikis.credentials.force_update is defined and tiddywikis.credentials.force_update
   docker_swarm_service:
     name: "tiddywiki_{{ item.name }}"
     state: absent
-  loop: "{{ vault_tiddywikis.wikis }}"
+  loop: "{{ tiddywikis.wikis }}"
 
 - name: Delete the secret if doing a forced update
-  when: vault_tiddywikis.credentials.force_update is defined and vault_tiddywikis.credentials.force_update
+  when: tiddywikis.credentials.force_update is defined and tiddywikis.credentials.force_update
   docker_secret:
     name: tiddywiki-credentials
     state: absent
@@ -58,7 +34,7 @@
 - name: Create the tiddywiki-credentials secret
   docker_secret:
     name: tiddywiki-credentials
-    data: "{{ vault_tiddywikis.credentials.secret }}"
+    data: "{{ tiddywikis.credentials.secret }}"
     state: present
 
 - name: Deploy Tiddywiki service
@@ -79,5 +55,5 @@
       - secret_name: tiddywiki-credentials
     restart_config:
       condition: on-failure
-  loop: "{{ vault_tiddywikis.wikis }}"
+  loop: "{{ tiddywikis.wikis }}"
 

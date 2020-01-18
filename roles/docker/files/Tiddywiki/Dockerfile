@@ -1,9 +1,8 @@
 # Start with Debian Stretch
 FROM alpine
 
-# Install tiddlywiki
-RUN apk add --update npm
-RUN npm install -g tiddlywiki
+# Install npm and tiddlywiki
+RUN apk add --update npm && npm install -g tiddlywiki
 
 # Change to the Wiki directory
 WORKDIR /var/lib/tiddlywiki

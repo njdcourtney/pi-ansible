@@ -13,6 +13,7 @@ ENV WIKI_NAME="wikifolder"
 ENV WIKI_READERS='(anon)'
 ENV WIKI_WRITERS='(authenticated)'
 ENV WIKI_CREDENTIALS="/run/secrets/tiddywiki-credentials"
+ENV WIKI_PATH_PREFIX='/'
 
 # Add init-and-run script
 COPY init-and-run.sh /usr/local/bin/init-and-run-wiki

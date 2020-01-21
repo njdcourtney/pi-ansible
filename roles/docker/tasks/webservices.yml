@@ -1,0 +1,183 @@
+- name: Create web services volume directories
+  file:
+    name: "{{ docker_volumes_dir }}/{{ item }}"
+    state: directory
+  loop:
+    - "certbot"
+    - "nginx"
+    - "tiddywiki"
+
+#
+# Prepare Tiddywiki
+# 
+
+- name: Copy build files to build node
+  copy: 
+    src: tiddywiki/
+    dest: tiddywiki
+    mode: preserve
+  register: docker_tiddywiki_source
+
+- name: Rebuild image if required
+  import_tasks: build_image.yml
+  when: docker_tiddywiki_source.changed
+  vars:
+    docker_build:
+      image: "njdcourtney/pi-tiddywiki"
+      path: "tiddywiki"
+  
+- name: Create the tiddywiki-credentials secret
+  docker_secret:
+    name: tiddywiki-credentials
+    data: "{{ tiddywiki_credentials }}"
+    state: present
+
+- name: Create the webservices network
+  docker_network:
+    name: webservices
+    scope: swarm
+    driver: overlay
+
+- name: Deploy Tiddywiki service
+  docker_swarm_service:
+    name: "tiddywiki_{{ item }}"
+    image: njdcourtney/pi-tiddywiki
+    resolve_image: true
+    mounts:
+      - type: bind
+        source: "{{ docker_volumes_dir }}/tiddywiki"
+        target: /var/lib/tiddlywiki
+    env:
+      WIKI_NAME: "{{ item }}"
+      WIKI_PATH_PREFIX: "/{{ item }}"
+    secrets:
+      - secret_name: tiddywiki-credentials
+    networks:
+      - webservices
+    restart_config:
+      condition: on-failure
+  loop: "{{ tiddywikis }}"
+
+#
+# Prepare Certbot
+#
+
+- name: Copy build files to build node
+  copy: 
+    src: certbot/
+    dest: certbot
+    mode: preserve
+  register: docker_certbot_source
+
+- name: Rebuild image if required
+  import_tasks: build_image.yml
+  when: docker_certbot_source.changed
+  vars:
+    docker_build:
+        image: "njdcourtney/pi-certbot"
+        path: "certbot"
+
+- name: Set up certbot directories
+  file:
+    name: "{{ docker_volumes_dir }}/certbot/{{ item }}"
+    state: directory
+  loop:
+    - "etc"
+    - "www"
+
+- name: Download the latest certbot nginx configs
+  get_url:
+    url: "{{ item }}"
+    dest: "{{ docker_volumes_dir }}/certbot/etc/"
+  loop:
+    - https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf
+    - https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem
+
+# # # Bootstrap - Start NGinx on port 80 only and run certbot to generate initial cert.
+# # # but only do this if cert doesn't already exist
+
+- name: Check whether certificate already exists
+  stat: 
+    path: "{{ docker_volumes_dir }}/certbot/etc/live/{{ webserver_domain }}/fullchain.pem"
+  register: webserver_certificate
+
+- name: One-off certificate generation
+  when: not webserver_certificate.stat.exists
+  block:
+    - name: Set up nginx directory
+      file: 
+        name: "{{ docker_volumes_dir }}/nginx/conf_bootstrap"
+        state: directory
+
+    - name: Copy nginx bootstrap config
+      template: 
+        src: nginx/bootstrap.conf.j2
+        dest: "{{ docker_volumes_dir }}/nginx/conf_bootstrap/bootstrap.conf"
+
+    - name: Spin up webserver for initial cert generation
+      docker_container:
+        name: nginx-bootstrap
+        image: "nginx"
+        detach: "yes"
+        ports: 
+          - "80:80"
+        state: "started"
+        volumes:
+          - "{{ docker_volumes_dir }}/certbot/www:/var/www/certbot"
+          - "{{ docker_volumes_dir }}/nginx/conf_bootstrap:/etc/nginx/conf.d"
+
+    - name: Do the initial certificate generation
+      docker_container:
+        name: certbot-bootstrap
+        image: "njdcourtney/pi-certbot"
+        volumes:
+          - "{{ docker_volumes_dir }}/certbot/etc:/etc/letsencrypt"
+          - "{{ docker_volumes_dir }}/certbot/www:/var/www/certbot"
+        state: "started"
+        detach: "no"
+        cleanup: "yes"
+        command: "certbot certonly --webroot -w /var/www/certbot --email {{ webserver_admin_email }} --agree-tos --no-eff-email -d {{ webserver_domain }}"
+  always:
+    - name: Cleanup bootstrap webserver
+      docker_container:
+        name: nginx-bootstrap
+        state: absent 
+
+# Copy nginx configurations
+- name: Set up nginx directories
+  file:
+    name: "{{ docker_volumes_dir }}/nginx/conf"
+    state: directory
+
+- name: Copy nginx config
+  template: 
+    src: nginx/default.conf.j2
+    dest: "{{ docker_volumes_dir }}/nginx/conf/default.conf"
+  register: webserver_nginx_config
+
+# Start the production nginx service
+- name: Start nginx
+  docker_swarm_service:
+    name: webservices_nginx
+    image: nginx
+    resolve_image: true
+    force_update: "{{ webserver_nginx_config.changed }}"
+    publish:
+      - published_port: 80
+        target_port: 80
+      - published_port: 443
+        target_port: 443
+    mounts:
+      - type: bind
+        source: "{{ docker_volumes_dir }}/certbot/etc"
+        target: /etc/letsencrypt
+        readonly: yes
+      - source: "{{ docker_volumes_dir }}/certbot/www"
+        target: /var/www/certbot
+        readonly: yes
+      - source: "{{ docker_volumes_dir }}/nginx/conf"
+        target: /etc/nginx/conf.d
+    networks:
+      - webservices
+    restart_config:
+      condition: on-failure

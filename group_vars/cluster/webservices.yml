@@ -1,0 +1,7 @@
+webserver_domain: "home.courtney-bond.co.uk"
+webserver_admin_email: nathan.courtney@gmail.com
+
+tiddywiki_credentials: "{{ vault_tiddywikis_credentials }}"
+
+tiddywikis:
+  - "DnD-Wiki"

@@ -1,7 +1,0 @@
-tiddywikis:
-    wikis:
-        - name: wikifolder
-          port: 9000
-        - name: danddwiki
-          port: 9001
-    credentials: "{{ vault_tiddywikis_credentials }}"

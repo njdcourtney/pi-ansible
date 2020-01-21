@@ -74,10 +74,8 @@
       tags: docker-tickstack
     - import_tasks: hive.yml
       tags: docker-hive
-    - import_tasks: tiddywiki.yml
-      tags: docker-tiddywiki
-    - import_tasks: webserver.yml
-      tags: docker-webserver
+    - import_tasks: webservices.yml
+      tags: docker-webservices
   tags: docker-services
   run_once: true
   delegate_to: "{{ docker_cluster_leader }}"

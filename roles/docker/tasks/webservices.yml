@@ -153,7 +153,6 @@
   template: 
     src: nginx/default.conf.j2
     dest: "{{ docker_volumes_dir }}/nginx/conf/default.conf"
-  register: webserver_nginx_config
 
 # Start the production nginx service
 - name: Start nginx
@@ -161,7 +160,6 @@
     name: webservices_nginx
     image: nginx
     resolve_image: true
-    force_update: "{{ webserver_nginx_config.changed }}"
     publish:
       - published_port: 80
         target_port: 80

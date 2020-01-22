@@ -40,7 +40,7 @@
         static routers={{ static_ip.router }}
         static domain_name_servers={{ static_ip.name_servers }}
         static domain_search={{ static_ip.domain }}
-  notify: "server reboot"
+  notify: "reboot-server"
 
 # Import the headless tasks if this is a headless server
 - name: Import Headless server tasks

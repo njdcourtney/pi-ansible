@@ -4,4 +4,5 @@ webserver_admin_email: nathan.courtney@gmail.com
 tiddywiki_credentials: "{{ vault_tiddywikis_credentials }}"
 
 tiddywikis:
-  - "DnD-Wiki"
+  - name: "DnD-Wiki"
+    private: false

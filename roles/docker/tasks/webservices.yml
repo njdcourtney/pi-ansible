@@ -40,7 +40,7 @@
 
 - name: Deploy Tiddywiki service
   docker_swarm_service:
-    name: "tiddywiki_{{ item }}"
+    name: "tiddywiki_{{ item.name }}"
     image: njdcourtney/pi-tiddywiki
     resolve_image: true
     mounts:
@@ -48,8 +48,8 @@
         source: "{{ docker_volumes_dir }}/tiddywiki"
         target: /var/lib/tiddlywiki
     env:
-      WIKI_NAME: "{{ item }}"
-      WIKI_PATH_PREFIX: "/{{ item }}"
+      WIKI_NAME: "{{ item.name }}"
+      WIKI_PATH_PREFIX: "/{{ item.name }}"
     secrets:
       - secret_name: tiddywiki-credentials
     networks:

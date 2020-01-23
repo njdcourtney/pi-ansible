@@ -21,13 +21,16 @@ server {
     } 
 
 {% for wiki in tiddywikis %}
-    location /{{ wiki }}/ {
-        proxy_pass              http://tiddywiki_{{ wiki }}:8090/;
+    location /{{ wiki.name }} {
+        return 301 $uri/;
+    }
+
+    location /{{ wiki.name }}/ {
+        proxy_pass              http://tiddywiki_{{ wiki.name }}:8090/;
         proxy_buffering         off;
         proxy_set_header        X-Real-IP        $remote_addr;
         proxy_set_header        X-Forwarded-For  $proxy_add_x_forwarded_for; 
     }
-
 {% endfor %}
 
     location /.well-known/acme-challenge/ {

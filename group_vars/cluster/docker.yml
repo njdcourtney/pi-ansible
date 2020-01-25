@@ -2,3 +2,4 @@
 docker_cluster_leader: "cluster-0"
 docker_run_after_gluster: true
 docker_volumes_dir: /mnt/gluster/ClusterStorage/DockerVolumes
+docker_force_update: false

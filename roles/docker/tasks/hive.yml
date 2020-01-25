@@ -51,6 +51,7 @@
     name: hive
     image: njdcourtney/pi-hive
     resolve_image: true
+    force_update: "{{ docker_force_update }}"
     mounts:
       - type: bind
         source: "{{ docker_volumes_dir }}/hive/config.yml"

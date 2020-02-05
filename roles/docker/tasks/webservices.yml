@@ -147,8 +147,11 @@
 # Copy nginx configurations
 - name: Set up nginx directories
   file:
-    name: "{{ docker_volumes_dir }}/nginx/conf"
+    name: "{{ docker_volumes_dir }}/nginx/{{ item }}"
     state: directory
+  loop:
+    - "conf"
+    - "www"
 
 - name: Copy nginx config
   template: 
@@ -177,6 +180,8 @@
         readonly: yes
       - source: "{{ docker_volumes_dir }}/nginx/conf"
         target: /etc/nginx/conf.d
+      - source: "{{ docker_volumes_dir }}/nginx/www"
+        target: /usr/share/nginx/html
     networks:
       - webservices
     restart_config:

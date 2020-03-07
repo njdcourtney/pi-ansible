@@ -1,15 +1,4 @@
 # This playbook deploys all the services
-
-- name: Rasbian Universal tasks
-  hosts: Raspbian
-  become: yes
-  gather_facts: false
-  roles:
-    - role: raspbian-core
-      tags: raspbian-core
-    - role: telegraf
-      tags: telegraf
-
 - name: Install LAN services
   hosts: LanServers
   become: yes

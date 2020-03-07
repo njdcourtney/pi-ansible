@@ -10,7 +10,7 @@ If you're using WiFi you'll need to add a wpa_supplicant.conf file with the SSID
 
 ## Playbooks
 
-* pb-first-boot.yml - Updates the local SSH know_hosts, adds a new admin user and updates the software.
+* pb-first-boot.yml - Updates the local SSH known_hosts, adds a new admin user and updates the software.
 * pb-format-disks.yml - Deletes any existing partitions and writes a single XFS partition to the listed devices
 * pb-deploy-services.yml - Main playbook. Runs the core role and install the cluster services; dnsmasq, glusterfs and docker and swarm services.
 

@@ -1,11 +1,3 @@
-# Set all the pis to be headless
-pi_headless: true
-
 #Set a static IP
-static_ip:
-    interface: "{{ vault_static_ip.interface }}"
-    addr: "{{ vault_static_ip.addr }}"
-    router: "{{ vault_static_ip.router }}"
-    name_servers: "{{ vault_static_ip.nameserver }}"
-    domain: "{{ vault_static_ip.domain }}"
+static_ip: "{{ vault_static_ip }}"
   

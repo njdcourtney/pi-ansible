@@ -2,4 +2,13 @@
 docker_cluster_leader: "cluster-0"
 docker_run_after_gluster: true
 docker_volumes_dir: /mnt/gluster/ClusterStorage/DockerVolumes
-docker_force_update: false
+docker_force_update: true
+
+webserver_domain: "home.courtney-bond.co.uk"
+webserver_admin_email: nathan.courtney@gmail.com
+
+tiddywiki_credentials: "{{ vault_tiddywikis_credentials }}"
+
+tiddywikis:
+  - name: "DnD-Wiki"
+    private: false

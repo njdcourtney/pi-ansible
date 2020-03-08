@@ -5,6 +5,3 @@ static_ip:
   router: "{{ vault_static_ip.router }}"
   name_servers: "{{ vault_static_ip.nameserver }}"
   domain: "{{ vault_static_ip.domain }}"
-
-# Set to be headless
-pi_headless: true

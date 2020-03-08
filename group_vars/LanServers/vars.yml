@@ -1,12 +1,1 @@
-dnsmasq:
-  dns_servers: "{{ vault_dnsmasq.dns_servers }}"
-  domain: "{{ vault_dnsmasq.domain }}"
-  router: "{{ vault_dnsmasq.router }}"
-  dhcp_range: "{{ vault_dnsmasq.dhcp_range }}"
-  cnames: "{{ vault_dnsmasq.cnames }}"
-  dhcp_hosts: "{{ vault_dnsmasq.dhcp_hosts }}"
-  static_hosts: "{{ vault_dnsmasq.static_hosts }}"
-  
-ddclient:
-  username: "{{ vault_ddclient.username }}"
-  password: "{{ vault_ddclient.password }}"
+dnsmasq: "{{ vault_dnsmasq }}"

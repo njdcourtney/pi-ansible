@@ -1,18 +1,10 @@
-- name: Get facts
-  setup:
-    gather_subset:
-      - '!all'
-      - network
-  register: network_facts
-  run_once: true
-  delegate_to: "{{ docker_cluster_leader }}"
-
 - name: Install Docker prerequisites
   apt:
     name: 
         - apt-transport-https
         - ca-certificates
         - python3-pip
+        - git
     state: present
 
 - name: Install Docker python modules (Ansible docker modules pre-reqs)
@@ -39,46 +31,61 @@
     install_recommends: no
     state: present
 
+- name: Ensure the Docker service is started
+  service:
+    name: docker
+    state: started
+    enabled: yes
+  
 - name: Add admin user to docker group
   user:
     name: "{{ admin_user }}"
     groups: docker
     append: yes
 
-- name: Update the systemd file if using gluster
-  when: docker_run_after_gluster is defined and docker_run_after_gluster
+- name: Update the systemd to run after the gluster mount is ready
   lineinfile:
     path: /etc/systemd/system/multi-user.target.wants/docker.service
     regexp: '^After='
-    line: 'After=network-online.target firewalld.service containerd.service glusterd.service'
+    line: 'After=network-online.target firewalld.service containerd.service mnt-gluster-ClusterStorage.mount'
   
 - name: Start the swarm with default parameters
   docker_swarm:
     state: present
-  register: swarm_info
   run_once: true
-  delegate_to: "{{ docker_cluster_leader }}"
-
+  delegate_to: "{{ groups.ClusterLeader[0] }}"
+  register: swarm_info
+      
 - name: Add nodes to the swarm
   docker_swarm:
     state: join
     advertise_addr: "eth0"
     join_token: "{{ swarm_info.swarm_facts.JoinTokens.Manager }}"
-    remote_addrs: [ "{{ network_facts.ansible_facts.ansible_default_ipv4.address }}:2377" ]
+    remote_addrs: [ "{{ hostvars[ groups.ClusterLeader[0] ].ansible_default_ipv4.address }}:2377" ]
 
 - name: Deploy Cluster Services
   block:
-    - import_tasks: vizualizer.yml
-      tags: docker-vizualizer
-    - import_tasks: tickstack.yml
-      tags: docker-tickstack
-    - import_tasks: hive.yml
+    - import_tasks: docker-visualizer.yml
+      tags: docker-visualizer
+    - import_tasks: docker-influx.yml
+      tags: docker-influx
+    - import_tasks: docker-chronograf.yml
+      tags: docker-chronograf
+    - import_tasks: docker-kapacitor.yml
+      tags: docker-kapacitor
+    - import_tasks: docker-telegraf.yml
+      tags: docker-telegraf
+    - import_tasks: docker-hive.yml
       tags: docker-hive
-    - import_tasks: webservices.yml
-      tags: docker-webservices
+    - import_tasks: docker-certbot.yml
+      tags: docker-certbot
+    - import_tasks: docker-tiddywiki.yml
+      tags: docker-tiddywiki
+    - import_tasks: docker-nginx.yml
+      tags: docker-nginx
   tags: docker-services
   run_once: true
-  delegate_to: "{{ docker_cluster_leader }}"
+  delegate_to: "{{ groups.ClusterLeader[0] }}"
 
 - name: Docker Cleanup
   docker_prune:

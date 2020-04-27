@@ -28,7 +28,7 @@
     path: /etc/ssh/sshd_config
     regexp: '^#?PasswordAuthentication'
     line: 'PasswordAuthentication no'
-  notify: restart ssh
+  notify: 'restart ssh'
 
 - name: Set static IP address
   when: static_ip is defined
@@ -38,9 +38,9 @@
         interface {{ static_ip.interface }}
         static ip_address={{ static_ip.addr }}/24
         static routers={{ static_ip.router }}
-        static domain_name_servers={{ static_ip.name_servers }}
+        static domain_name_servers={{ static_ip.nameserver }}
         static domain_search={{ static_ip.domain }}
-  notify: "reboot-server"
+  notify: RebootServer
 
 - name: Import Headless server tasks
   import_tasks: headless.yml 

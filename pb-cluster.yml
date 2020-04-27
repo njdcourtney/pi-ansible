@@ -1,0 +1,27 @@
+# This playbook builds the Gluster storage and deploys Docker and all the services
+
+- name: Install services on the cluster
+  hosts: Cluster
+  become: yes
+  gather_facts: true
+
+  tasks:
+
+    - name: Allow unrestricted communication between cluster peers
+      ufw:
+        rule: allow
+        from_ip: "{{ hostvars[item].ansible_facts.default_ipv4.address }}"
+        comment: "Cluster peer"
+      loop: "{{ groups.Cluster }}"
+
+    - import_role: 
+        name: gluster
+      tags: gluster
+
+    - import_role: 
+        name: docker
+      tags: docker
+
+
+
+

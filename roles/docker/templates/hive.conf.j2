@@ -4,7 +4,7 @@ hive:
   pass: "{{ vault_hive.pass }}"
 
 influx:
-  url: "{{ vault_influxdb.url }}"
+  url: "http://influxdb:8086"
   database: hive
   user: "{{ vault_influxdb.username }}"
   pass: "{{ vault_influxdb.password }}"

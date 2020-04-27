@@ -1,0 +1,67 @@
+- name: Copy build files to build node
+  copy: 
+    src: certbot/
+    dest: certbot
+    mode: preserve
+  register: docker_certbot_source
+
+- name: Rebuild image if required
+  import_tasks: build-image.yml
+  when: docker_certbot_source.changed
+  vars:
+    docker_image_name: "njdcourtney/pi-certbot"
+    docker_image_path: certbot
+
+- name: Allow port 80 for certbot
+  ufw:
+    rule: allow
+    port: "80"
+    comment: Certbot
+
+- name: Create certbot volume directories
+  file:
+    name: "{{ docker_volumes_dir }}/certbot"
+    state: directory
+
+- name: Check whether certificate already exists
+  stat: 
+    path: "{{ docker_volumes_dir }}/certbot/live/{{ docker_domain_name }}/fullchain.pem"
+  register: webserver_certificate
+
+- name: Initial certificate generation
+  when: not webserver_certificate.stat.exists
+  block:
+    - name: Ensure certbot service is stopped
+      docker_swarm_service:
+        name: certbot
+        state: absent
+
+    - name: Do the initial certificate generation
+      docker_container:
+        name: certbot-initial
+        image: njdcourtney/pi-certbot
+        ports: 
+            - "80:80"
+        volumes:
+            - "{{ docker_volumes_dir }}/certbot:/etc/letsencrypt"
+        state: "started"
+        detach: "no"
+        cleanup: "yes"
+        command: "certbot certonly --standalone --preferred-challenges http --no-eff-email --agree-tos --email {{ docker_admin_email }} -d {{ docker_domain_name }}"
+
+- name: Start certificate renewal service
+  docker_swarm_service:
+    name: certbot
+    image: njdcourtney/pi-certbot
+    resolve_image: true
+    force_update: "{{ docker_force_update }}"
+    publish:
+      - published_port: 80
+        target_port: 80
+    mounts:
+        - type: bind
+          source: "{{ docker_volumes_dir }}/certbot"
+          target: /etc/letsencrypt
+    restart_config:
+        condition: on-failure
+    command: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h; done;'"

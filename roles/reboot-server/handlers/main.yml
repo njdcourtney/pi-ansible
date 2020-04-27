@@ -1,13 +1,15 @@
 # Reboot the server 
-- name: Rebooting
+- name: Sending Reboot commmand
   shell: sleep 2 && shutdown -r now 'Reboot required'
   async: 1
   poll: 0
-  listen: "reboot-server"
+  listen: RebootServer
+  tags:
+    - always
 
 # Ensure that SSH has gone down before we wait for it to come back up again.
 # Avoids race condition if shutting down is delayed for any reason.
-- name: Check server down
+- name: Check server has shutdown
   local_action: 
     module: wait_for
       host="{{ inventory_hostname }}"
@@ -15,10 +17,13 @@
       state=stopped
       timeout=300
   become: no
-  listen: "reboot-server"
+  listen: RebootServer
+  tags:
+    - always
+
 
 # Wait for SSH to come back up as sign that server has successfully rebooted
-- name: Check server back up
+- name: Wait for SSH to be available
   local_action: 
     module: wait_for
       host="{{ inventory_hostname }}"
@@ -27,4 +32,7 @@
       delay=20
       timeout=300
   become: no
-  listen: "reboot-server"
+  listen: RebootServer
+  tags:
+    - always
+

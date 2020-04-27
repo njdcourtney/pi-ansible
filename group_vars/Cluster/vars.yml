@@ -1,0 +1,7 @@
+#Set a static IP
+static_ip:
+    interface: eth0
+    addr: "{{ host_static_ip }}"
+    router: 192.168.0.1
+    nameserver: 192.168.0.10
+    domain: courtney-bond.co.uk

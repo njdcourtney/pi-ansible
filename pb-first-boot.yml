@@ -1,5 +1,5 @@
-# Raspberry Pi has a default username and password, add a new admin user so
-# the default user can be deleted later.
+# Raspberry Pi has a default username and password
+# Add a new admin user so the default user can be deleted later.
 # This playbook is designed to be used just once when a pi is first installed.
 # This is the one and only time that we'll use the default 'pi' user
 
@@ -7,7 +7,6 @@
 # The first updates the local ssh known_hosts files
 # The second logs in using the default username and password and adds a replacement admin user.
 
-# Play - Update local known hosts.
 # Spurious entries in known_hosts can leave you vulnerable to MITM attacks
 # so this playbook should only be run if you're confident in the identity of the endpoints
 # and have a valid reason for the SSH key changing eg. first boot after flashing the SD card.
@@ -18,7 +17,6 @@
   hosts: Raspbian
   gather_facts: false
   connection: local
-  tags: KnownHosts
   serial: 1
 
   tasks:
@@ -41,6 +39,7 @@
   hosts: Raspbian
   become: yes
   gather_facts: false
+  serial: 1
   vars:
     # This is the well-known default username and password that we're actively changing.
     ansible_ssh_user: pi
@@ -60,7 +59,7 @@
       authorized_key:
         user: "{{ admin_user }}"
         state: present
-        key: "{{ admin_ssh_key }}"
+        key: "{{ admin_ssh_keys }}"
 
     - name: Add sudoers entry to allow admin user passwordless sudo
       copy:
@@ -69,17 +68,16 @@
         mode: 0440
     
     # A newly installed pi almost certainly needs a software update
-    #  Run async as the first software update can take some time.
     - name: Update software
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600
-        upgrade: 'yes'
-      async: 600
-      poll: 20
-    
+      import_role: 
+        name: update-software
+
     # Reboot the server after the update
-    - name: Rebooting
-      shell: sleep 2 && shutdown -r now 'Reboot required'
-      async: 1
-      poll: 0
+    - name: Explicitly include the reboot helper
+      import_role: 
+        name: reboot-server
+
+    - name: Call reboot handler
+      command: /bin/true
+      notify: RebootServer
+  

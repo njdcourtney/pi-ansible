@@ -1,0 +1,17 @@
+# Playbook to run maintenance tasks
+
+- name: Add new admin user to newly installed Pi
+  hosts: Raspbian
+  become: yes
+  gather_facts: false
+  serial: 1
+
+  tasks:
+    - name: Core tasks
+      import_role: 
+        name: raspbian-core
+
+    - name: Update software
+      import_role: 
+        name: update-software
+  

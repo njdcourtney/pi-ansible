@@ -1,0 +1,21 @@
+- name: Create kapacitor volume directory
+  file:
+    name: "{{ docker_volumes_dir }}/kapacitor"
+    state: directory
+
+- name: Deploy kapacitor service
+  docker_swarm_service:
+    name: kapacitor
+    image: kapacitor
+    resolve_image: true
+    force_update: "{{ docker_force_update }}"
+    mounts:
+        - source: "{{ docker_volumes_dir }}/kapacitor"
+          target:  /var/lib/kapacitor
+          type: bind
+    env:
+      KAPACITOR_INFLUXDB_0_URLS_0: "http://influxdb:8086"
+      KAPACITOR_INFLUXDB_0_USERNAME: "{{ vault_influxdb.username }}"
+      KAPACITOR_INFLUXDB_0_PASSWORD: "{{ vault_influxdb.password }}"
+    networks:
+        - monitoring

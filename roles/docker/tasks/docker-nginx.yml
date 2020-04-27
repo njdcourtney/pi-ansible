@@ -1,0 +1,49 @@
+- name: Create nginx volume directories
+  file:
+    name: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ docker_volumes_dir }}/nginx"
+    - "{{ docker_volumes_dir }}/nginx/conf"
+    - "{{ docker_volumes_dir }}/nginx/www"
+    - "{{ docker_volumes_dir }}/nginx/ssl"
+
+- name: Copy nginx config
+  template: 
+    src: nginx.default.conf.j2
+    dest: "{{ docker_volumes_dir }}/nginx/conf/default.conf"
+
+- name: Download the latest certbot nginx configs
+  get_url:
+    url: "{{ item }}"
+    dest: "{{ docker_volumes_dir }}/nginx/ssl"
+  loop:
+    - https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf
+    - https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem
+  
+
+# Start the production nginx service
+- name: Start nginx
+  docker_swarm_service:
+    name: nginx
+    image: nginx
+    resolve_image: true
+    force_update: "{{ docker_force_update }}"
+    publish:
+      - published_port: 443
+        target_port: 443
+    mounts:
+      - type: bind
+        source: "{{ docker_volumes_dir }}/certbot"
+        target: /etc/letsencrypt
+        readonly: yes
+      - source: "{{ docker_volumes_dir }}/nginx/ssl"
+        target: /var/www/certbot
+      - source: "{{ docker_volumes_dir }}/nginx/conf"
+        target: /etc/nginx/conf.d
+      - source: "{{ docker_volumes_dir }}/nginx/www"
+        target: /var/www/html
+    networks:
+      - webservices
+    restart_config:
+      condition: on-failure

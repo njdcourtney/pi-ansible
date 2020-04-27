@@ -10,19 +10,6 @@
     state: started
     enabled: yes
 
-- name: Gather Facts
-  setup:
-    gather_subset:
-      - '!all'
-      - network
-
-- name: Allow unrestricted communication between cluster peers
-  ufw:
-    rule: allow
-    from_ip: "{{ hostvars[item].ansible_facts.default_ipv4.address }}"
-    comment: "Cluster peer"
-  loop: "{{ groups.Cluster }}"
-
 - name: Initialise Gluster pool on one node
   gluster_peer:
     state: present
@@ -37,42 +24,37 @@
 - name: Mount Data directories
   mount: 
     fstype: xfs
-    src: "PARTLABEL={{ item.label }}"
-    path: "/data/gluster/{{ item.label }}/brick0"
+    src: "PARTLABEL={{ gluster_volume.label }}"
+    path: "/data/gluster/{{ gluster_volume.label }}/brick0"
     state: mounted
     opts: "rw,inode64,noatime,nouuid"
-  loop: "{{ gluster_data_disks }}"
   
 - name: Create Gluster Volume
   gluster_volume:
     state:  present
-    name: "{{ item.label }}"
-    bricks: "/data/gluster/{{ item.label }}/brick0/brick"
+    name: "{{ gluster_volume.label }}"
+    bricks: "/data/gluster/{{ gluster_volume.label }}/brick0/brick"
     cluster: "{{ groups.Cluster }}"
-    replicas: "{{ item.replicas }}"
-  loop: "{{ gluster_data_disks }}"
+    replicas: "{{ gluster_volume.replicas }}"
   run_once: true
 
-# The simple way to mount disks is to use the mount module and update fstab.
-# This leads to a race condition where mount tries to mount the gluster filesystem
-# before the glusterfs service is up, so we use Systemd to do it instead.
+# # The simple way to mount disks is to use the mount module and update fstab.
+# # This leads to a race condition where mount tries to mount the gluster filesystem
+# # before the glusterfs service is up, so we use Systemd to do it instead.
 
 - name: Create the mount point
   file:
-     path: "/mnt/gluster/{{ item.label }}"
+     path: "/mnt/gluster/{{ gluster_volume.label }}"
      state: directory
-  loop: "{{ gluster_data_disks }}"
 
 - name: Add Systemd mount file
   template:
     src: gluster_mount.j2
-    dest: "/etc/systemd/system/mnt-gluster-{{ item.label }}.mount"
-  loop: "{{ gluster_data_disks }}"
+    dest: "/etc/systemd/system/mnt-gluster-{{ gluster_volume.label }}.mount"
 
 - name: Start systemd service
   systemd:
     daemon_reload: yes
-    name: "mnt-gluster-{{ item.label }}.mount"
+    name: "mnt-gluster-{{ gluster_volume.label }}.mount"
     state: started
     enabled: yes
-  loop: "{{ gluster_data_disks }}"

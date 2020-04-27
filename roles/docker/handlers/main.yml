@@ -2,3 +2,4 @@
   docker_login:
     state: absent
   listen: "Docker-Hub-Logout"
+  tags: always

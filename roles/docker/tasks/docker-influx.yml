@@ -1,0 +1,36 @@
+- name: Create influxdb volume directory
+  file:
+    name: "{{ docker_volumes_dir }}/influxdb"
+    state: directory
+
+- name:
+  docker_network:
+    scope: swarm
+    name: monitoring
+    driver: overlay
+
+- name: Deploy influxdb service
+  docker_swarm_service:
+    name: influxdb
+    image: influxdb
+    resolve_image: true
+    force_update: "{{ docker_force_update }}"
+    publish: 
+        - published_port: 8086
+          target_port: 8086
+    mounts:
+        - source: "{{ docker_volumes_dir }}/influxdb"
+          target: /var/lib/influxdb
+          type: bind
+    env:
+        INFLUXDB_REPORTING_DISABLED: 'true'
+        INFLUXDB_HTTP_AUTH_ENABLED: 'true'
+        INFLUXDB_ADMIN_USER: "{{ vault_influxdb.username }}"
+        INFLUXDB_ADMIN_PASSWORD: "{{ vault_influxdb.password }}"
+    networks:
+        - monitoring
+
+- name: Wait for InfluxDB to start
+  wait_for:
+    port: 8086
+    state: present

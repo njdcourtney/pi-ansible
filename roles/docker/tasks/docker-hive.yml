@@ -1,50 +1,45 @@
+- name: Create Hive volume Directories
+  file:
+    name: "{{ docker_volumes_dir }}/hive"
+    state: directory
+
+- name: Pull hive repo
+  git:
+    repo: https://github.com/njdcourtney/Hive.git
+    dest: hive
+  register: docker_hive_source
+  
+- name: Rebuild image if required
+  import_tasks: build-image.yml
+  when: docker_hive_source.changed
+  vars:
+    docker_image_name: njdcourtney/pi-hive
+    docker_image_path: hive
+
 - name: Create the Hive database
   influxdb_database:
-      hostname: "{{ vault_influxdb.hostname }}"
+      hostname: "{{ inventory_hostname }}"
       database_name: "hive"
+      udp_port: 4444 # Bug in the module - have to specify this even when it's not used.
       login_username: "{{ vault_influxdb.username }}"
       login_password: "{{ vault_influxdb.password }}"
       
 - name: create 90d retention policy
   influxdb_retention_policy:
-      hostname: "{{ vault_influxdb.hostname }}"
+      hostname: "{{ inventory_hostname }}"
       database_name: "hive"
+      udp_port: 4444 # Bug in the module - have to specify this even when it's not used.
       login_username: "{{ vault_influxdb.username }}"
       login_password: "{{ vault_influxdb.password }}"
       policy_name: "autogen"
       duration: '90d'
       replication: 1
       default: yes
-
-- name: Create Hive volume Directories
-  file:
-    name: "{{ docker_volumes_dir }}/hive"
-    state: directory
-
+  
 - name: Generate config file
   template:
-    src: Hive/config.yml.j2
+    src: hive.conf.j2
     dest: "{{ docker_volumes_dir }}/hive/config.yml"
-
-- name: Install git on leader node
-  apt:
-    name: 
-      - git
-    state: present
-
-- name: Pull hive repo
-  git:
-      repo: https://github.com/njdcourtney/Hive.git
-      dest: hive
-  register: docker_hive_source
-
-- name: Rebuild image if required
-  import_tasks: build_image.yml
-  when: docker_hive_source.changed
-  vars:
-    docker_build:
-      image: "njdcourtney/pi-hive"
-      path: "hive"
 
 - name: Deploy Hive service
   docker_swarm_service:
@@ -58,4 +53,5 @@
         target: /app/config.yml
     restart_config:
       condition: on-failure
-  tags: hive-service
+    networks:
+      - monitoring

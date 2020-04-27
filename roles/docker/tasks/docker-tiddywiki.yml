@@ -1,0 +1,50 @@
+- name: Copy build files to build node
+  copy: 
+    src: tiddywiki/
+    dest: tiddywiki
+    mode: preserve
+  register: docker_tiddywiki_source
+
+- name: Rebuild image if required
+  import_tasks: build-image.yml
+  when: docker_tiddywiki_source.changed
+  vars:
+    docker_image_name: njdcourtney/pi-tiddywiki
+    docker_image_path: tiddywiki
+
+- name: Create tiddywiki volume directories
+  file:
+    name: "{{ docker_volumes_dir }}/tiddywiki"
+    state: directory
+
+- name: Create the tiddywiki-credentials secret
+  docker_secret:
+    name: tiddywiki-credentials
+    data: "{{ vault_tiddywikis_credentials }}"
+    state: present
+  
+- name: Create the webservices network
+  docker_network:
+    name: webservices
+    scope: swarm
+    driver: overlay
+
+- name: Deploy Tiddywiki service
+  docker_swarm_service:
+    name: "tiddywiki"
+    image: njdcourtney/pi-tiddywiki
+    resolve_image: true
+    force_update: "{{ docker_force_update }}"
+    mounts:
+      - type: bind
+        source: "{{ docker_volumes_dir }}/tiddywiki"
+        target: /var/lib/tiddlywiki
+    env:
+      WIKI_NAME: "DnD-Wiki"
+      WIKI_PATH_PREFIX: "/"
+    secrets:
+      - secret_name: tiddywiki-credentials
+    networks:
+      - webservices
+    restart_config:
+      condition: on-failure

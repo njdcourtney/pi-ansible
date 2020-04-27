@@ -1,5 +1,0 @@
-# Define the Gluster volumes
-gluster_data_disks: 
-  - device: /dev/sda
-    label: ClusterStorage
-    replicas: 3

@@ -109,7 +109,7 @@
   ## urls will be written to each interval.
   # urls = ["unix:///var/run/influxdb.sock"]
   # urls = ["udp://127.0.0.1:8089"]
-  urls = ["{{ vault_influxdb.url }}"]
+  urls = ["http://influxdb:8086"]
 
   ## The target database for metrics; will be created as needed.
   ## For UDP url endpoint database needs to be configured on server side.
@@ -2198,7 +2198,6 @@
 #   ## Query timeout in seconds.
 #   # timeout = 2
 
-{% if telegraf_docker is defined and telegraf_docker %}
 # # Read metrics about docker containers
  [[inputs.docker]]
    ## Docker Endpoint
@@ -2251,7 +2250,6 @@
    # tls_key = "/etc/telegraf/key.pem"
    ## Use TLS but skip chain & host verification
    # insecure_skip_verify = false
-{% endif %}
 
 # # Read statistics from one or many dovecot servers
 # [[inputs.dovecot]]

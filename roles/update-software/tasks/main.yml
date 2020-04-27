@@ -1,9 +1,12 @@
+# Run this task async as it can take some time, especially on a first boot
 - name: Update software
   apt:
     update_cache: yes
     cache_valid_time: 3600
     upgrade: 'yes'
     autoremove: yes
+  async: 600
+  poll: 20
 
 - name: Check if reboot is required
   stat: 
@@ -13,4 +16,4 @@
 - name: Reboot required?
   when: reboot_file.stat.exists
   command: /bin/true
-  notify: "reboot-server"
+  notify: RebootServer

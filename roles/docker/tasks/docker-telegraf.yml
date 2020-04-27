@@ -1,0 +1,74 @@
+- name: Create telegraf volume directory
+  file:
+    name: "{{ docker_volumes_dir }}/telegraf"
+    state: directory
+
+- name: Update telegraf config file
+  template:
+    src: telegraf.conf.j2
+    dest: "{{ docker_volumes_dir }}/telegraf/telegraf.conf"
+  
+- name: Create the Telegraf database (may not be needed if Telegraf agent gets there first)
+  influxdb_database:
+    database_name: "telegraf"
+    hostname: "{{ inventory_hostname }}"
+    udp_port: 4444 # Bug in the module - have to specify this even when it's not used.
+    username: "{{ vault_influxdb.username }}"
+    password: "{{ vault_influxdb.password }}"
+
+- name: create 90d retention policy
+  influxdb_retention_policy:
+    database_name: "telegraf"
+    hostname: "{{ inventory_hostname }}"
+    udp_port: 4444 # Bug in the module - have to specify this even when it's not used.
+    login_username: "{{ vault_influxdb.username }}"
+    login_password: "{{ vault_influxdb.password }}"
+    policy_name: "autogen"
+    duration: '90d'
+    replication: 1
+    default: yes    
+
+- name: Deploy telegraf service
+  docker_swarm_service:
+    name: telegraf
+    image: telegraf
+    hostname: "{% raw %}{{ .Node.Hostname }}{% endraw %}"
+    mode: global
+    resolve_image: true
+    force_update: "{{ docker_force_update }}"
+    mounts:
+      - source: '/'
+        target: '/hostfs'
+        readonly: yes
+        type: bind
+      - source: '/etc'
+        target: '/hostfs/etc'
+        readonly: yes
+        type: bind
+      - source: '/proc'
+        target: '/hostfs/proc'
+        readonly: yes
+        type: bind
+      - source: '/sys'
+        target: '/hostfs/sys'
+        readonly: yes
+        type: bind
+      - source: '/var/run/utmp'
+        target: '/var/run/utmp'
+        readonly: yes
+        type: bind
+      - source: '/var/run/docker.sock'
+        target: '/var/run/docker.sock'
+        readonly: yes
+        type: bind
+      - source: "{{ docker_volumes_dir }}/telegraf/telegraf.conf"
+        target: '/etc/telegraf/telegraf.conf'
+        readonly: yes
+        type: bind
+    env:
+      HOST_ETC: /hostfs/etc
+      HOST_PROC: /hostfs/proc
+      HOST_SYS: /hostfs/sys
+      HOST_MOUNT_PREFIX: /hostfs
+    networks:
+        - monitoring

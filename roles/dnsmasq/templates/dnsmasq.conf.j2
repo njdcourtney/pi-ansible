@@ -13,7 +13,7 @@ no-resolv
 # Example of routing PTR queries to nameservers: this will send all
 # address->name queries for 192.168.3/24 to nameserver 10.1.2.3
 #server=/3.168.192.in-addr.arpa/10.1.2.3
-{% for server in dnsmasq.dns_servers %}
+{% for server in dnsmasq_dns_servers %}
 server={{ server }}
 {% endfor %}
 
@@ -29,7 +29,7 @@ expand-hosts
 #    domain of all systems configured by DHCP
 # 3) Provides the domain part for "expand-hosts"
 #domain=thekelleys.org.uk
-domain={{ dnsmasq.domain }}
+domain={{ dnsmasq_domain }}
 
 # Uncomment this to enable the integrated DHCP server, you need
 # to supply the range of addresses available for lease and optionally
@@ -37,7 +37,7 @@ domain={{ dnsmasq.domain }}
 # repeat this for each network on which you want to supply DHCP
 # service.
 #dhcp-range=192.168.0.50,192.168.0.150,12h
-dhcp-range={{ dnsmasq.dhcp_range }}
+dhcp-range={{ dnsmasq_dhcp_range }}
 
 # Supply parameters for specified hosts using DHCP. There are lots
 # of valid alternatives, so we will give examples of each. Note that
@@ -46,18 +46,18 @@ dhcp-range={{ dnsmasq.dhcp_range }}
 # do not matter, it's permissible to give name, address and MAC in any
 # order.
 
-{% for host in dnsmasq.dhcp_hosts %}
+{% for host in dnsmasq_dhcp_hosts %}
 dhcp-host={{ host }}
 {% endfor %}
 
-{% for alias in dnsmasq.cnames %}
+{% for alias in dnsmasq_cnames %}
 cname={{ alias }}
 {% endfor %}
 
-dhcp-option=option:router,{{ dnsmasq.router }}
-dhcp-option=option:domain-search,{{ dnsmasq.domain }}
-dhcp-option=option:domain-name,{{ dnsmasq.domain }}
-dhcp-option=option:dns-server,{{ static_ip.addr }},{{ dnsmasq.dns_servers | join(',') }}
+dhcp-option=option:router,{{ dnsmasq_router }}
+dhcp-option=option:domain-search,{{ dnsmasq_domain }}
+dhcp-option=option:domain-name,{{ dnsmasq_domain }}
+dhcp-option=option:dns-server,{{ static_ip.addr }},{{ dnsmasq_dns_servers | join(',') }}
 
 # Set the DHCP server to authoritative mode. In this mode it will barge in
 # and take over the lease for any client which broadcasts on the network,

@@ -1,0 +1,11 @@
+# Define variables for the docker swarm
+
+# Default location to store Docker bind mount
+docker_volumes_dir: /mnt/gluster/ClusterStorage/DockerVolumes
+
+# Set this to true to force services to be redeployed
+docker_force_update: false
+
+# Domain name used in web server
+docker_domain_name: home.courtney-bond.co.uk
+docker_admin_email: 'nathan.courtney@gmail.com'

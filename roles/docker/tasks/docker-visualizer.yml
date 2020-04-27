@@ -1,9 +1,3 @@
-- name: Install git on leader node
-  apt:
-    name: 
-        - git
-    state: present
-
 - name: Pull visualizer repo
   git:
       repo: https://github.com/dockersamples/docker-swarm-visualizer.git
@@ -11,12 +5,11 @@
   register: docker_visualizer_source
 
 - name: Rebuild image if required
-  import_tasks: build_image.yml
+  import_tasks: build-image.yml
   when: docker_visualizer_source.changed
   vars:
-    docker_build:
-      image: njdcourtney/pi-vizualizer
-      path: "visualizer"
+    docker_image_name: njdcourtney/pi-vizualizer
+    docker_image_path: visualizer
 
 - name: Deploy Visualizer service
   docker_swarm_service:

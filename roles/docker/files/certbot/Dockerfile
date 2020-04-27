@@ -2,4 +2,4 @@
 FROM alpine
 
 # Install certbot
-RUN apk add --update certbot
+RUN apk add --no-cache certbot

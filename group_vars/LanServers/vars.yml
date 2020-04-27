@@ -1,1 +1,11 @@
-dnsmasq: "{{ vault_dnsmasq }}"
+dnsmasq_dns_servers:
+    - 208.67.222.222
+    - 208.67.220.220
+dnsmasq_domain: "{{ static_ip.domain }}"
+dnsmasq_router: "{{ static_ip.router }}"
+dnsmasq_dhcp_range: 192.168.0.50,192.168.0.150,255.255.255.0,24h
+dnsmasq_cnames:
+    - home.courtney-bond.co.uk,cluster.courtney-bond.co.uk
+dnsmasq_dhcp_hosts: "{{ vault_dnsmasq_dhcp_hosts }}"
+dnsmasq_static_hosts: "{{ vault_dnsmasq_static_hosts }}"
+

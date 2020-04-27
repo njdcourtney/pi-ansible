@@ -3,7 +3,7 @@ ansible_ssh_user: "{{ vault_admin_user }}"
 
 admin_user: "{{ vault_admin_user }}"
 admin_password: "{{ vault_admin_password }}"
-admin_ssh_key: "{{ vault_ssh_key }}"
+admin_ssh_keys: "{{ vault_admin_ssh_keys }}"
 
 #This are the groups assigned to the 'pi' user in Rasbian stretch
 admin_groups: adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,input,netdev,gpio,i2c,spi

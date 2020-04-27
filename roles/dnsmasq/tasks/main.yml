@@ -15,7 +15,7 @@
 - name: Update Hosts file contents with static servers
   blockinfile:
     path: /etc/hosts
-    block: "{{ dnsmasq.static_hosts | join('\n') }}"
+    block: "{{ dnsmasq_static_hosts | join('\n') }}"
   notify: restart-dnsmasq
 
 - name: Open firewall ports

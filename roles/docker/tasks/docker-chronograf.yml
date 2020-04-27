@@ -1,0 +1,26 @@
+- name: Create chronograf volume directory
+  file:
+    name: "{{ docker_volumes_dir }}/chronograf"
+    state: directory
+
+- name: Deploy chronograf service
+  docker_swarm_service:
+    name: chronograf
+    image: chronograf
+    resolve_image: true
+    force_update: "{{ docker_force_update }}"
+    publish: 
+        - published_port: 8888
+          target_port: 8888
+    mounts:
+        - source: "{{ docker_volumes_dir }}/chronograf"
+          target:  /var/lib/chronograf
+          type: bind
+    env:
+      INFLUXDB_URL: "http://influxdb:8086"
+      INFLUXDB_USERNAME: "{{ vault_influxdb.username }}"
+      INFLUXDB_PASSWORD: "{{ vault_influxdb.password }}"
+      KAPACITOR_URL: "http://kapacitor:9092"
+      REPORTING_DISABLE: "true"
+    networks:
+        - monitoring

@@ -3,12 +3,6 @@
     name: "{{ docker_volumes_dir }}/influxdb"
     state: directory
 
-- name:
-  docker_network:
-    scope: swarm
-    name: monitoring
-    driver: overlay
-
 - name: Deploy influxdb service
   docker_swarm_service:
     name: influxdb

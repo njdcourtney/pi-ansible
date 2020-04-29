@@ -23,12 +23,6 @@
     data: "{{ vault_tiddywikis_credentials }}"
     state: present
   
-- name: Create the webservices network
-  docker_network:
-    name: webservices
-    scope: swarm
-    driver: overlay
-
 - name: Deploy Tiddywiki service
   docker_swarm_service:
     name: "tiddywiki"

@@ -67,22 +67,10 @@
   block:
     - import_tasks: docker-visualizer.yml
       tags: docker-visualizer
-    - import_tasks: docker-influx.yml
-      tags: docker-influx
-    - import_tasks: docker-chronograf.yml
-      tags: docker-chronograf
-    - import_tasks: docker-kapacitor.yml
-      tags: docker-kapacitor
-    - import_tasks: docker-telegraf.yml
-      tags: docker-telegraf
-    - import_tasks: docker-hive.yml
-      tags: docker-hive
-    - import_tasks: docker-certbot.yml
-      tags: docker-certbot
-    - import_tasks: docker-tiddywiki.yml
-      tags: docker-tiddywiki
-    - import_tasks: docker-nginx.yml
-      tags: docker-nginx
+    - import_tasks: docker-monitoring.yml
+      tags: docker-monitoring
+    - import_tasks: docker-webservices.yml
+      tags: docker-webservices
   tags: docker-services
   run_once: true
   delegate_to: "{{ groups.ClusterLeader[0] }}"

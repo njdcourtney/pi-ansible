@@ -1,15 +1,10 @@
 [Raspbian:children]
   Cluster
-  LanServers
-
-[LanServers]
-  cluster-0
 
 [ClusterLeader]
-  cluster-0
+  cluster-1
   
 [Cluster]
-  cluster-0
   cluster-1
   cluster-2
   cluster-3

@@ -1,8 +1,0 @@
-# This playbook deploys all the services
-- name: Install LAN services
-  hosts: LanServers
-  become: yes
-  gather_facts: false
-  roles:
-    - role: dnsmasq
-      tags: dnsmasq

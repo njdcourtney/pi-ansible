@@ -1,0 +1,12 @@
+- name: Create the webservices network
+  docker_network:
+    name: webservices
+    scope: swarm
+    driver: overlay
+
+- import_tasks: webservices-certbot.yml
+  tags: docker-certbot
+- import_tasks: webservices-tiddywiki.yml
+  tags: docker-tiddywiki
+- import_tasks: webservices-nginx.yml
+  tags: docker-nginx

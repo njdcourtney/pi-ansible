@@ -2,4 +2,4 @@
 gluster_volume:
   device: /dev/sda
   label: ClusterStorage
-  replicas: 2
+  replicas: 3

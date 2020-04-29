@@ -4,9 +4,7 @@
   hosts: Cluster
   become: yes
   gather_facts: true
-
   tasks:
-
     - name: Allow unrestricted communication between cluster peers
       ufw:
         rule: allow
@@ -22,6 +20,12 @@
         name: docker
       tags: docker
 
-
-
+# # This playbook deploys all the services
+# - name: Install LAN services
+#   hosts: ClusterLeader
+#   become: yes
+#   gather_facts: false
+#   roles:
+#     - role: dnsmasq
+#       tags: dnsmasq
 

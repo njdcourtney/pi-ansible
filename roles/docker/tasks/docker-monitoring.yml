@@ -1,0 +1,22 @@
+- name: Build the monitoring network
+  docker_network:
+    scope: swarm
+    name: monitoring
+    driver: overlay
+
+- name: Install the influxdb modules
+  pip:
+    name: 
+      - influxdb
+      - requests
+    
+- import_tasks: monitoring-influx.yml
+  tags: docker-influx
+- import_tasks: monitoring-chronograf.yml
+  tags: docker-chronograf
+- import_tasks: monitoring-kapacitor.yml
+  tags: docker-kapacitor
+- import_tasks: monitoring-telegraf.yml
+  tags: docker-telegraf
+- import_tasks: monitoring-hive.yml
+  tags: docker-hive

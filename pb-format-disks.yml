@@ -4,7 +4,7 @@
 # THIS WILL DELETE ANYTHING ON THE DEVICES LISTED IN {{ gluster_data_disks }}
 
 - name: Format data disks
-  hosts: Cluster
+  hosts: Raspbian
   become: yes
   gather_facts: false
 

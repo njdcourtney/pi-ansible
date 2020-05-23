@@ -1,0 +1,8 @@
+# Bug - format drives script names variables Gluster
+gluster_volume:
+    device: /dev/sda
+    label: CamData
+
+cam_data_drive: /dev/sda
+cam_data_dir: /mnt/CamData
+    

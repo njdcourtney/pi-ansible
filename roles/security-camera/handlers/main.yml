@@ -1,0 +1,10 @@
+- name: restart motion
+  service:
+    name: motion
+    state: restarted
+
+- name: restart lighttpd
+  service:
+    name: lighttpd
+    state: restarted
+  tags: lighttpd

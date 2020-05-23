@@ -20,12 +20,13 @@
         name: docker
       tags: docker
 
-# # This playbook deploys all the services
-# - name: Install LAN services
-#   hosts: ClusterLeader
-#   become: yes
-#   gather_facts: false
-#   roles:
-#     - role: dnsmasq
-#       tags: dnsmasq
+# This playbook deploys all the services
+- name: Install LAN services
+  hosts: ClusterLeader
+  become: yes
+  gather_facts: false
+  tasks:
+    - import_role: 
+        name: dnsmasq
+      tags: dnsmasq
 

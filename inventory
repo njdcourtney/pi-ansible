@@ -1,5 +1,6 @@
 [Raspbian:children]
   Cluster
+  PiCams
 
 [ClusterLeader]
   cluster-1
@@ -9,3 +10,5 @@
   cluster-2
   cluster-3
 
+[PiCams]
+  pi-cam1

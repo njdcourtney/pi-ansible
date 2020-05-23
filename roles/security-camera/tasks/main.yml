@@ -1,0 +1,65 @@
+- name: Mount data volume
+  mount:
+    path: "{{ cam_data_dir }}"
+    src: "{{ cam_data_drive }}1"
+    state: mounted
+    fstype: xfs
+    opts: defaults,noatime
+
+- name: Make motion file directory
+  file:
+    name: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ cam_data_dir }}/motion"
+    - "{{ cam_data_dir }}/motion/files"
+
+- name: Install motion and lighttpd
+  apt:
+    name: 
+      - ruby
+      - motion
+      - lighttpd
+    state: present
+
+- name: Give ownership of the files directory to motion
+  file:
+    name: "{{ cam_data_dir }}/motion/files"
+    owner: motion
+    group: motion
+
+- name: Set motion to run as daemon
+  lineinfile:
+    path: /etc/default/motion
+    regexp: '^#?start_motion_daemon'
+    line: 'start_motion_daemon=yes'
+  notify: 'restart motion'
+  
+- name: Install motion config file
+  template:
+    src: motion.conf.j2
+    dest: /etc/motion/motion.conf
+  notify: 'restart motion'
+
+- name: Copy webUI files to camera directory
+  copy: 
+    src: webUI/
+    dest: "{{ cam_data_dir }}/motion"
+    mode: preserve
+  tags: webUI
+
+- name: Install lighttpd config file
+  template:
+    src: lighttpd.conf.j2
+    dest: /etc/lighttpd/lighttpd.conf
+  notify: 'restart lighttpd'
+  tags: lighttpd
+
+- name: Open firewall ports
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    comment: "Security Camera"
+  loop:
+    - "80"
+    - "8081"

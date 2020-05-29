@@ -1,46 +1,73 @@
 <!DOCTYPE html>
 <html>
-        <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <LINK type="text/css" media="screen" rel="stylesheet" href="bootstrap.min.css">
-                <title>Security Camera</title>
-        </head>
-        <body>
-        <h1>Security Camera</h1>        
-        <h3><a href="/files">Motion images directory</a></h3>
-        <h3><a href="/" onclick="javascript:event.target.port=8081">Live Camera Feed on port 8081</a></h3>
-        <p><%= [@unknown] %> </p>
-        <% @days.each do |day,details| %>
-            <h2><%= day %></h2>
-            <h3>Thumbnails</h3>
-            <ul>
-            <% details.timelapse.each do |tl| %>
-               <li> <a href="/files/<%= tl %>"><%= tl %></a></li>
-            <% end %>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <LINK type="text/css" media="screen" rel="stylesheet" href="bootstrap.min.css">
+        <title>Security Camera</title>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand navbar-dark bg-dark">
+            <span class="navbar-brand mb-0 h1">Security Camera</span>
+            <div class="navbar-nav">
+                <a class="nav-item nav-link" href="/files">Image dir</a>
+                <a class="nav-item nav-link" href="/" onclick="javascript:event.target.port=8081">Live feed</a>
+            </div>
+        </nav>
+        <div class="container mt-2">
+
+        <div class="row row-cols-1 row-cols-sm-2">
+            <div class="col col-sm-8">
+                <h3>Jump to day</h3>
+                <ul class="list-inline">
+                    <% @days.sort{|a,b| b[0]<=>a[0]}.each do |day,details| %>
+                        <li class="list-inline-item"><a href="#<%= day %>"><%= day %></a> <span class="badge badge-pill badge-primary"><%= details.events.length %></li>
+                    <% end %>
+                </ul>
+            </div>
+            <div class="col col-sm-4">
+                <h3 class="card-title">Status</h3>
+                <ul class="list-unstyled">
+                    <li><span class="badge badge-pill badge-primary"><%= @unknown.length %></span> Unknown Files</li>
+                    <li><span class="badge badge-pill badge-primary"><%= @days.length %></span> Days</li>
+                    <li><span class="badge badge-pill badge-primary"><%= @files %></span> Total files</li>
+                </ul>
+            </div>
+        </div>
+
+        <% @days.sort{|a,b| b[0]<=>a[0]}.each do |day,details| %>
+            <h3 id="<%= day %>" ><%= day %></h3>
+            <h4 class="card-title">Thumbnails</h4>
+            <ul class="list-inline">
+                <% details.timelapse.sort.each do |tl| %>
+                    <li class="list-inline-item"> <a href="/files/<%= tl %>"><%= tl %></a></li>
+                <% end %>
             </ul>
-            <h3>Events</h3>
-            <div class="row row-cols-1 row-cols-md-2">
-            <% details.events.each do |event,files| %>
-                <div class="col">
-                    <div class="media">
-                        <a href="/files/<%= files[:img][0] %>"><img src="/files/<%= files[:img][0] %>" width=192 height=144 class="mr-3" alt="..."></a>
-                        <div class="media-body">
-                            <h4 class="mt-0"><%= event %></h4>
-                            <p>Images: 
-                                <% files[:img].each do |file| %>
-                                    <a href="/files/<%= file %>"><%= file %></a>
-                                <% end %> 
-                            </p>
-                            <p>Videos: 
-                                <% files[:video].each do |file| %>
-                                    <a href="/files/<%= file %>"><%= file %></a> 
-                                <% end %> 
-                            </p>
-                        </div>
+            <h4 class="card-title">Events</h4>
+
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3  row-cols-lg-4">
+                <% details.events.sort{|a,b| a[0].to_i<=>b[0].to_i}.each do |event,files| %>
+                    <div class="col mb-4">
+                    <div class="card">
+                    <a href="/files/<%= files[:img][0] %>"><img src="/files/<%= files[:img][0] %>" class="card-img-top"></a>
+                    <div class="card-body">
+                        <h5 class="card-title"><%= event %></h5>
+                        <p>Images: 
+                            <% files[:img].each do |file| %>
+                                <a href="/files/<%= file %>"><%= file %></a>
+                            <% end %> 
+                        </p>
+                        <p>Videos: 
+                            <% files[:video].each do |file| %>
+                                <a href="/files/<%= file %>"><%= file %></a> 
+                            <% end %> 
+                        </p>
                     </div>
-                </div>
-            <% end %>
+                    </div>
+                    </div>
+                <% end %>
+            </div>
         <% end %>
-        </body>
+        </div>
+    </body>
 </html>

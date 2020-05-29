@@ -33,8 +33,10 @@ end
 
 @days={}
 @unknown=[]
+@files=0
 
 Dir.each_child("/mnt/CamData/motion/files") do |filename|
+    @files+=1
     case filename
     when /([0-9]{8})-([0-9]{6})-timelapse.mpg/
         @days[$1] ||= Day.new($1)

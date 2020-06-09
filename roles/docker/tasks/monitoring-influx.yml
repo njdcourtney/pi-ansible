@@ -9,6 +9,8 @@
     image: influxdb
     resolve_image: true
     force_update: "{{ docker_force_update }}"
+    limits:
+        memory: 400MB
     publish: 
         - published_port: 8086
           target_port: 8086
@@ -23,6 +25,13 @@
         INFLUXDB_ADMIN_PASSWORD: "{{ vault_influxdb.password }}"
     networks:
         - monitoring
+  register: docker_influx_service
+
+- name: Wait for InfluxDB to go down - needed when restarting
+  when: docker_influx_service.changed
+  wait_for:
+    port: 8086
+    state: stopped  
 
 - name: Wait for InfluxDB to start
   wait_for:

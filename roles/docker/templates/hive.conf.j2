@@ -2,6 +2,7 @@ hive:
   url: https://api.prod.bgchprod.info:443
   user: "{{ vault_hive.user }}"
   pass: "{{ vault_hive.pass }}"
+  reauth: 30
 
 influx:
   url: "http://influxdb:8086"

@@ -6,11 +6,11 @@
 - name: Deploy influxdb service
   docker_swarm_service:
     name: influxdb
-    image: influxdb
+    image: influxdb:1.8.0
     resolve_image: true
     force_update: "{{ docker_force_update }}"
     limits:
-        memory: 400MB
+        memory: 500MB
     publish: 
         - published_port: 8086
           target_port: 8086

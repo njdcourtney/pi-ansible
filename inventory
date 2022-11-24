@@ -1,0 +1,5 @@
+[Raspbian:children]
+  PiCams
+
+[PiCams]
+  pi-cam-dev

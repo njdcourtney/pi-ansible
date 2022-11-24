@@ -15,3 +15,6 @@ The easiest way to do this is my using the Raspberry Pi Imager and using the 64 
 1. Change the default admin username and password
 1. Enable SSH, and ideally enable SSH key based authentication.
 
+## Playbooks
+
+1. pi-core.yml - contains tasks that should be run on any Pi

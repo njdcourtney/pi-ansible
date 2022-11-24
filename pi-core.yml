@@ -1,0 +1,63 @@
+# Playbook to run core tasks
+
+- name: Add new admin user to newly installed Pi
+  hosts: Raspbian
+  become: yes
+  gather_facts: false
+  serial: 1
+
+  tasks:
+    # Run this task async as it can take some time, especially on a first boot
+    - name: Update software
+      apt:
+        update_cache: yes
+        upgrade: 'yes'
+        autoremove: yes
+      async: 600
+      poll: 5
+
+    - name: Check if reboot is required
+      stat: 
+        path: /var/run/reboot-required
+      register: reboot_file
+
+    - name: Reboot required?
+      when: reboot_file.stat.exists
+      command: /bin/true
+      notify: RebootServer
+
+    - name: Ensure the hostname is set correctly
+      hostname:
+        name: "{{ inventory_hostname }}"
+
+    - name: Ensure Timezone to {{ timezone }}
+      timezone:
+        name: "{{ timezone }}"
+
+    - name: Ensure UFW installed and present
+      apt:
+        name: ufw
+        state: present
+
+    - name: Configure ufw to be enabled and allow SSH
+      ufw:
+        state: enabled
+        rule: allow
+        name: OpenSSH
+
+    - name: Disable SSH Password logins
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+      notify: RestartSSH
+
+
+  handlers:
+    - name: RestartSSH
+      service:
+        name: ssh
+        state: restarted
+
+    - name: RebootServer
+      ansible.builtin.reboot:

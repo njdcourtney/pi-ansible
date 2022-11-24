@@ -1,0 +1,5 @@
+data_disk:
+  device: /dev/sda
+  label: CamData
+  mount: /mnt/CamData
+

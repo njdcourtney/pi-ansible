@@ -1,0 +1,44 @@
+# DANGER WILL ROBINSON!
+# When run this playbook will trigger the deletion of all partitions
+# and the creation of a new XFS filesystem on the listed disks
+# THIS WILL DELETE ANYTHING ON THE DEVICES LISTED IN {{ gluster_data_disks }}
+
+- name: Format data disks
+  hosts: Raspbian
+  become: yes
+  gather_facts: false
+
+  tasks:
+    - name: Install XFS tools
+      apt:
+        name: 
+          - xfsprogs
+        state: present
+    
+    - name: Get data disk partition table
+      parted: 
+        device: "{{ data_disk.device }}"
+      register: device_info
+
+    - name: Delete every partition.
+      parted:
+        device: "{{ data_disk.device }}"
+        number: "{{ item.num }}"
+        state: absent
+      loop: "{{ device_info.partitions }}"
+
+    - name: Make partition
+      parted:
+        device: "{{ data_disk.device }}"
+        label: gpt
+        name: "{{ data_disk.label }}"
+        number: 1
+        state: present
+        part_start: 0%
+        part_end: 100%
+
+    - name: Create the xfs filesystem on each data device
+      filesystem:
+        fstype: xfs
+        dev: "{{ data_disk.device }}1"
+        force: true

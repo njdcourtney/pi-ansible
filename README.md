@@ -17,4 +17,5 @@ The easiest way to do this is my using the Raspberry Pi Imager and using the 64 
 
 ## Playbooks
 
-1. pi-core.yml - contains tasks that should be run on any Pi
+1. pb-core.yml - contains tasks that should be run on any Pi
+1. pb-format-disks.yml - deletes any existing partitions and installs an XFS filesystem

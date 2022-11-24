@@ -1,22 +1,17 @@
-# pi-cluster
-Configuring a Docker Swarm on a cluster of raspberry pis
+# Pi Ansible
 
-## Prerequisites
+This is a collection of tool to configure various things on a Raspberry Pi. 
 
-You'll need to download Rasbian and write the image to the SD cards.
+## History
+Originally this was used to configure a Docker Swarm cluster on Rasbian Buster but I'm rewriting it for Rasbian Bullseye. 
 
-If you're using WiFi you'll need to add a wpa_supplicant.conf file with the SSID and passphrase. There are instructions here: http://www.nathancourtney.me.uk/2018/05/10/raspberry-wifi.html
+All the previous code is in the 'Buster' folder, or in the 'Buster' branch on Github.
 
-I also make some other changes to disable WiFi, Bluetooth and audio
- * dtparam=audio=off
- * dtoverlay=pi3-disable-bt
- * dtoverlay=pi3-disable-wifi
+## Prepare the Rasbian Image.
 
-To set a static IP address at first-boot add ip=*address* to cmdline.txt
+The easiest way to do this is my using the Raspberry Pi Imager and using the 64 bit Lite image. You should open the advanced options and set:
 
-## Playbooks
+1. The WiFi details (if you're using WiFi)
+1. Change the default admin username and password
+1. Enable SSH, and ideally enable SSH key based authentication.
 
-* pb-first-boot.yml - Updates the local SSH known_hosts, adds a new admin user, updates the software and reboots.
-* pb-format-disks.yml - Deletes any existing partitions and writes a single XFS partition to the listed devices
-* pb-maintenance.yml - Runs core tasks and patches the software
-* pb-cluster.yml - Builds the Gluster storage and deploys Docker and all the services
